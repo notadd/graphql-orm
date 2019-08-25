@@ -65,10 +65,12 @@ export class FindOptionsUtils {
      * Applies give find many options to the given query builder.
      */
     static applyFindManyOptionsOrConditionsToQueryBuilder<T>(qb: SelectQueryBuilder<T>, options: FindManyOptions<T> | Partial<T> | undefined): SelectQueryBuilder<T> {
-        if (this.isFindManyOptions(options))
+        if (this.isFindManyOptions(options)) {
             return this.applyOptionsToQueryBuilder(qb, options);
-        if (options)
+        }
+        if (options) {
             return qb.where(options);
+        }
         return qb;
     }
 
@@ -85,7 +87,7 @@ export class FindOptionsUtils {
         // apply all options from FindOptions
         if (options.select) {
             qb.select([]);
-            options.select.forEach(select => {
+            options.select!.forEach(select => {
                 if (!metadata.findColumnWithPropertyPath(String(select)))
                     throw new Error(`${select} column was not found in the ${metadata.name} entity.`);
                 qb.addSelect(qb.alias + "." + select);
@@ -94,7 +96,6 @@ export class FindOptionsUtils {
 
         if (options.where)
             qb.where(options.where);
-
         if ((options as FindManyOptions<T>).skip)
             qb.skip((options as FindManyOptions<T>).skip!);
 
@@ -121,9 +122,8 @@ export class FindOptionsUtils {
                         break;
                 }
             });
-
         if (options.relations) {
-            const allRelations = options.relations.map(relation => relation);
+            const allRelations = options.relations.map(relation => relation.name);
             this.applyRelationsRecursively(qb, allRelations, qb.expressionMap.mainAlias!.name, qb.expressionMap.mainAlias!.metadata, "");
             if (allRelations.length > 0) {
                 throw new FindRelationsNotFoundError(allRelations);

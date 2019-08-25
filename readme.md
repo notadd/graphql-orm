@@ -1,1 +1,1 @@
-graphql orm
+graphql + typeorm

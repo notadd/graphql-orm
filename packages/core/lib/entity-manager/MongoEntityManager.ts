@@ -121,7 +121,6 @@ export class MongoEntityManager extends EntityManager {
                 cursor.limit(optionsOrConditions.take);
             if (optionsOrConditions.order)
                 cursor.sort(this.convertFindOptionsOrderToOrderCriteria(optionsOrConditions.order));
-
         }
         const [results, count] = await Promise.all<any>([
             cursor.toArray(),
@@ -617,9 +616,9 @@ export class MongoEntityManager extends EntityManager {
     /**
      * Converts FindOptions into mongodb select by criteria.
      */
-    protected convertFindOptionsSelectToProjectCriteria(selects: (keyof any)[]) {
+    protected convertFindOptionsSelectToProjectCriteria(selects: { name: (keyof any), alias: string }[]) {
         return selects.reduce((projectCriteria, key) => {
-            projectCriteria[key] = 1;
+            projectCriteria[key.name] = 1;
             return projectCriteria;
         }, {} as any);
     }
