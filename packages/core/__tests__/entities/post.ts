@@ -12,16 +12,18 @@ export class Post extends BaseEntity {
     @JoinColumn({
         name: 'create_user_id'
     })
-    createUser: User;
+    author: User;
 
     @Column({
         name: 'create_user_id',
         nullable: true
     })
-    createUserId: number;
+    authorUid: number;
 
     @ManyToMany(() => User, type => type.likes, {
         cascade: ['insert', 'update']
     })
     likeUsers: User[];
+
+    
 }

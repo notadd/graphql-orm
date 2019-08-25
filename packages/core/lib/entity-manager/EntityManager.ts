@@ -707,7 +707,6 @@ export class EntityManager {
             FindOptionsUtils.joinEagerRelations(qb, qb.alias, metadata);
         }
         const item = FindOptionsUtils.applyFindManyOptionsOrConditionsToQueryBuilder(qb, optionsOrConditions);
-        const sql = item.getSql();
         return item.getManyAndCount();
     }
 

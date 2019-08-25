@@ -1,4 +1,6 @@
-import { SelectionNode, GraphQLResolveInfo, StringValueNode, FloatValueNode, IntValueNode, SelectionSetNode, ValueNode, ArgumentNode, VariableNode, OperationDefinitionNode, FieldNode, FragmentSpreadNode, InlineFragmentNode } from 'graphql';
+import { SelectionNode, GraphQLResolveInfo, ListValueNode, EnumValueNode, NullValueNode, BooleanValueNode, StringValueNode, FloatValueNode, IntValueNode, SelectionSetNode, ValueNode, ArgumentNode, VariableNode, OperationDefinitionNode, FieldNode, FragmentSpreadNode, InlineFragmentNode } from 'graphql';
+import { BaseEntity } from '../repository/BaseEntity';
+import { FindOptionsUtils } from '../find-options/FindOptionsUtils';
 export function isFieldNode(obj: SelectionNode): obj is FieldNode {
     return obj.kind === 'Field'
 }
@@ -20,24 +22,46 @@ export function isFloatValueNode(obj: ValueNode): obj is FloatValueNode {
 export function isStringValueNode(obj: ValueNode): obj is StringValueNode {
     return obj.kind === 'StringValue'
 }
+export function isBooleanValueNode(obj: ValueNode): obj is BooleanValueNode {
+    return obj.kind === 'BooleanValue'
+}
+export function isNullValueNode(obj: ValueNode): obj is NullValueNode {
+    return obj.kind === 'NullValue'
+}
+export function isEnumValueNode(obj: ValueNode): obj is EnumValueNode {
+    return obj.kind === 'EnumValue'
+}
+export function isListValueNode(obj: ValueNode): obj is ListValueNode {
+    return obj.kind === 'ListValue'
+}
+export function isObjectValueNode(obj: ValueNode): obj is ListValueNode {
+    return obj.kind === 'ObjectValue'
+}
 export class SelectionSet {
     parent: SelectionSet;
     children: SelectionSet[] = [];
     name: string;
     alias: string;
     level: number = 0;
+    variables: any;
+    enums: any;
 
     arguments: any = {};
     selections: string[] = [];
     relations: string[] = [];
-    actions: string[] = [];
+    actions: { name: string, args: any }[] = [];
 
-    constructor(name: string, alias: string, obj: SelectionSetNode, args: ReadonlyArray<ArgumentNode>, variables: any = {}, level: number = 0, parent?: SelectionSet) {
+    constructor(info: FieldNode, variables: any, enums: any, level: number = 0, parent?: SelectionSet) {
+        const name = info.name.value;
+        const alias = info.alias ? info.alias.value : undefined;
+        const args = info.arguments;
         this.name = name;
         this.parent = parent;
         this.level = level;
         this.alias = alias;
-        if (args) {
+        this.variables = variables;
+        this.enums = enums;
+        if (args && args.length > 0) {
             args.map(arg => {
                 const name = arg.name.value;
                 if (isVariableNode(arg.value)) {
@@ -48,18 +72,56 @@ export class SelectionSet {
                     this.arguments[name] = arg.value.value;
                 } else if (isStringValueNode(arg.value)) {
                     this.arguments[name] = arg.value.value;
+                } else if (isBooleanValueNode(arg.value)) {
+                    this.arguments[name] = arg.value.value;
+                } else if (isNullValueNode(arg.value)) {
+                    this.arguments[name] = null;
+                } else if (isEnumValueNode(arg.value)) {
+                    this.arguments[name] = undefined;
+                } else if (isListValueNode(arg.value)) {
+                    this.arguments[name] = arg.value.values.map(value => this.createValue(value))
+                } else {
+                    let res = {};
+                    arg.value.fields.map(field => {
+                        res[field.name.value] = this.createValue(field.value)
+                    });
+                    this.arguments[name] = res;
                 }
             })
         }
-        if (obj) {
-            obj.selections && obj.selections.map(selection => {
+        if (info && info.selectionSet) {
+            info.selectionSet.selections && info.selectionSet.selections.map(selection => {
                 if (isFieldNode(selection)) {
-                    const name = selection.name.value;
-                    const alias = selection.alias ? selection.alias.value : undefined;
-                    this.create(name, alias, selection.selectionSet, selection.arguments, variables[name])
+                    this.create(selection, variables, enums)
                 } else if (isFragmentSpreadNode(selection)) { }
                 else { }
             })
+        }
+    }
+
+    createValue(val: ValueNode) {
+        if (isVariableNode(val)) {
+            return this.variables[val.name.value];
+        } else if (isIntValueNode(val)) {
+            return val.value;
+        } else if (isFloatValueNode(val)) {
+            return val.value;
+        } else if (isStringValueNode(val)) {
+            return val.value;
+        } else if (isBooleanValueNode(val)) {
+            return val.value;
+        } else if (isNullValueNode(val)) {
+            return null;
+        } else if (isEnumValueNode(val)) {
+            return undefined;
+        } else if (isListValueNode(val)) {
+            return val.values.map(value => this.createValue(value))
+        } else {
+            let res = {};
+            val.fields.map(field => {
+                res[field.name.value] = this.createValue(field.value)
+            });
+            return res;
         }
     }
 
@@ -69,18 +131,32 @@ export class SelectionSet {
     }
 
     addSelect(name: string): void {
-        const top = this.getTop();
-        const item = top.selections.find(re => re === name)
-        if (!item) {
-            top.selections.push(name)
+        if (this.parent) {
+            this.parent.addSelect(name)
+            const item = this.parent.selections.find(re => re === name)
+            if (!item) {
+                this.parent.selections.push(name)
+            }
         }
     }
 
     addRelation(name: string): void {
-        const top = this.getTop();
-        const item = top.relations.find(re => re === name)
-        if (!item) {
-            top.relations.push(name)
+        if (this.parent) {
+            this.parent.addRelation(`${this.parent.name}.${name}`)
+            const item = this.parent.relations.find(re => re === name)
+            if (!item) {
+                this.parent.relations.push(name)
+            }
+        }
+    }
+
+    addAction(name: string) {
+        if (this.parent) {
+            this.parent.addAction(`${this.parent.name}.${name}`)
+            const item = this.parent.actions.find(re => re.name === name)
+            if (!item) {
+                this.parent.actions.push({ name, args: this.arguments })
+            }
         }
     }
 
@@ -88,41 +164,38 @@ export class SelectionSet {
         return this.children.length > 0;
     }
 
-    toRelation(): { name: string, alias: string }[] {
-        let relation: { name: string, alias: string }[] = [];
-        if (this.level !== 0) {
-            if (this.parent) {
-                relation.push(...this.parent.toRelation())
-            }
-            relation.push({
-                name: this.name,
-                alias: this.alias
-            })
+    getPath() {
+        let paths = [];
+        if (this.parent) {
+            paths.push(...this.parent.getPath())
         }
-        if (this.hasChildren() && this.arguments.length === 0) {
-            if (relation.length > 0) {
-                const name = relation.map(it => it.name).join('.');
-                this.addRelation(name)
+        paths.push(this.name);
+        return paths;
+    }
+
+    toRelation() {
+        if (this.hasChildren()) {
+            if (Object.keys(this.arguments).length === 0) {
+                this.addRelation(this.name)
+            } else {
+                this.addAction(this.name)
             }
         } else {
-            if (relation.length === 1 && this.arguments.length === 0) {
+            if (Object.keys(this.arguments).length === 0) {
                 this.addSelect(this.name)
+            } else {
+                this.addAction(this.name)
             }
         }
-        return relation;
     }
 
     toRelations() {
-        if (this.level === 0) {
-            this.children.map(child => child.toRelations())
-        } else {
-            this.toRelation();
-            this.children.map(child => child.toRelations());
-        }
+        this.toRelation();
+        this.children.map(child => child.toRelations());
     }
 
-    create(name: string, alias: string, obj: SelectionSetNode, args: ReadonlyArray<ArgumentNode>, variables: any) {
-        this.children.push(new SelectionSet(name, alias, obj, args, variables, this.level + 1, this));
+    create(field: any, variables: any, enums: any = {}) {
+        this.children.push(new SelectionSet(field, variables, enums, this.level + 1, this));
     }
 
     toTypeorm() {
@@ -134,31 +207,27 @@ export class SelectionSet {
         }
     }
 
-    static fromOperationDefinitionNode(operation: OperationDefinitionNode, variables: any) {
+    static fromOperationDefinitionNode(operation: OperationDefinitionNode, variables: any, enums: any = {}) {
         return operation.selectionSet.selections.map(selection => {
             if (isFieldNode(selection)) {
-                const name = selection.name.value;
-                const alias = selection.alias ? selection.alias.value : undefined;
-                return SelectionSet.fromJson(name, alias, selection.selectionSet, selection.arguments!, variables).toTypeorm();
+                return SelectionSet.fromJson(selection, variables, enums).toTypeorm();
             } else if (isFragmentSpreadNode(selection)) {
             } else { }
         }).filter(res => !!res)
     }
 
-    static fromJson(name: string, alias: string, obj: SelectionSetNode, args: ReadonlyArray<ArgumentNode>, variables: any) {
-        const set = new SelectionSet(name, alias, obj, args, variables)
+    static fromJson(field: FieldNode, variables: any, enums: any) {
+        const set = new SelectionSet(field, variables, enums)
         set.toRelations();
         return set;
     }
 
     static fromGraphql(
-        variables: any,
-        info: GraphQLResolveInfo
+        info: GraphQLResolveInfo,
+        enums: any = {}
     ) {
         return info.fieldNodes.map(it => {
-            const name = it.name.value;
-            const alias = it.alias ? it.alias.value : undefined;
-            const set = new SelectionSet(name, alias, it.selectionSet, it.arguments, variables)
+            const set = new SelectionSet(it, info.variableValues, enums)
             set.toRelations();
             return set;
         })

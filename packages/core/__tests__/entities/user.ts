@@ -5,7 +5,7 @@ export class User extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToMany(() => Post, type => type.createUser, {
+    @OneToMany(() => Post, type => type.author, {
         cascade: ['insert', 'update']
     })
     posts: Post[];
@@ -17,4 +17,10 @@ export class User extends BaseEntity {
         name: 'user_like_post'
     })
     likes: Post[];
+
+    async get(obj: { id: number }): Promise<User> {
+        return await User.findOne({
+            id: obj.id
+        })
+    }
 }

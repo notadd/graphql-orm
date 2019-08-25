@@ -123,7 +123,7 @@ export class FindOptionsUtils {
                 }
             });
         if (options.relations) {
-            const allRelations = options.relations.map(relation => relation.name);
+            const allRelations = options.relations.map(relation => relation);
             this.applyRelationsRecursively(qb, allRelations, qb.expressionMap.mainAlias!.name, qb.expressionMap.mainAlias!.metadata, "");
             if (allRelations.length > 0) {
                 throw new FindRelationsNotFoundError(allRelations);

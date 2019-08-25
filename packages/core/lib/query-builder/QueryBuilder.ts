@@ -1,24 +1,24 @@
-import {ObjectLiteral} from "../common/ObjectLiteral";
-import {QueryRunner} from "../query-runner/QueryRunner";
-import {Connection} from "../connection/Connection";
-import {QueryExpressionMap} from "./QueryExpressionMap";
-import {SelectQueryBuilder} from "./SelectQueryBuilder";
-import {UpdateQueryBuilder} from "./UpdateQueryBuilder";
-import {DeleteQueryBuilder} from "./DeleteQueryBuilder";
-import {InsertQueryBuilder} from "./InsertQueryBuilder";
-import {RelationQueryBuilder} from "./RelationQueryBuilder";
-import {ObjectType} from "../common/ObjectType";
-import {Alias} from "./Alias";
-import {Brackets} from "./Brackets";
-import {QueryDeepPartialEntity} from "./QueryPartialEntity";
-import {EntityMetadata} from "../metadata/EntityMetadata";
-import {ColumnMetadata} from "../metadata/ColumnMetadata";
-import {SqljsDriver} from "../driver/sqljs/SqljsDriver";
-import {SqlServerDriver} from "../driver/sqlserver/SqlServerDriver";
-import {OracleDriver} from "../driver/oracle/OracleDriver";
-import {EntitySchema} from "../";
-import {FindOperator} from "../find-options/FindOperator";
-import {In} from "../find-options/operator/In";
+import { ObjectLiteral } from "../common/ObjectLiteral";
+import { QueryRunner } from "../query-runner/QueryRunner";
+import { Connection } from "../connection/Connection";
+import { QueryExpressionMap } from "./QueryExpressionMap";
+import { SelectQueryBuilder } from "./SelectQueryBuilder";
+import { UpdateQueryBuilder } from "./UpdateQueryBuilder";
+import { DeleteQueryBuilder } from "./DeleteQueryBuilder";
+import { InsertQueryBuilder } from "./InsertQueryBuilder";
+import { RelationQueryBuilder } from "./RelationQueryBuilder";
+import { ObjectType } from "../common/ObjectType";
+import { Alias } from "./Alias";
+import { Brackets } from "./Brackets";
+import { QueryDeepPartialEntity } from "./QueryPartialEntity";
+import { EntityMetadata } from "../metadata/EntityMetadata";
+import { ColumnMetadata } from "../metadata/ColumnMetadata";
+import { SqljsDriver } from "../driver/sqljs/SqljsDriver";
+import { SqlServerDriver } from "../driver/sqlserver/SqlServerDriver";
+import { OracleDriver } from "../driver/oracle/OracleDriver";
+import { EntitySchema } from "../";
+import { FindOperator } from "../find-options/FindOperator";
+import { In } from "../find-options/operator/In";
 
 // todo: completely cover query builder with tests
 // todo: entityOrProperty can be target name. implement proper behaviour if it is.
@@ -80,7 +80,7 @@ export abstract class QueryBuilder<Entity> {
     /**
      * QueryBuilder can be initialized from given Connection and QueryRunner objects or from given other QueryBuilder.
      */
-    constructor(connectionOrQueryBuilder: Connection|QueryBuilder<any>, queryRunner?: QueryRunner) {
+    constructor(connectionOrQueryBuilder: Connection | QueryBuilder<any>, queryRunner?: QueryRunner) {
         if (connectionOrQueryBuilder instanceof QueryBuilder) {
             this.connection = connectionOrQueryBuilder.connection;
             this.queryRunner = connectionOrQueryBuilder.queryRunner;
@@ -142,7 +142,7 @@ export abstract class QueryBuilder<Entity> {
      * Creates SELECT query and selects given data.
      * Replaces all previous selections if they exist.
      */
-    select(selection?: string|string[], selectionAliasName?: string): SelectQueryBuilder<Entity> {
+    select(selection?: string | string[], selectionAliasName?: string): SelectQueryBuilder<Entity> {
         this.expressionMap.queryType = "select";
         if (selection instanceof Array) {
             this.expressionMap.selects = selection.map(selection => ({ selection: selection }));
@@ -195,7 +195,7 @@ export abstract class QueryBuilder<Entity> {
     /**
      * Creates UPDATE query for the given entity and applies given update values.
      */
-    update(entity: Function|EntitySchema<Entity>|string, updateSet?: QueryDeepPartialEntity<Entity>): UpdateQueryBuilder<Entity>;
+    update(entity: Function | EntitySchema<Entity> | string, updateSet?: QueryDeepPartialEntity<Entity>): UpdateQueryBuilder<Entity>;
 
     /**
      * Creates UPDATE query for the given table name and applies given update values.
@@ -205,8 +205,8 @@ export abstract class QueryBuilder<Entity> {
     /**
      * Creates UPDATE query and applies given update values.
      */
-    update(entityOrTableNameUpdateSet?: string|Function|EntitySchema<any>|ObjectLiteral, maybeUpdateSet?: ObjectLiteral): UpdateQueryBuilder<any> {
-        const updateSet = maybeUpdateSet ? maybeUpdateSet : entityOrTableNameUpdateSet as ObjectLiteral|undefined;
+    update(entityOrTableNameUpdateSet?: string | Function | EntitySchema<any> | ObjectLiteral, maybeUpdateSet?: ObjectLiteral): UpdateQueryBuilder<any> {
+        const updateSet = maybeUpdateSet ? maybeUpdateSet : entityOrTableNameUpdateSet as ObjectLiteral | undefined;
         entityOrTableNameUpdateSet = entityOrTableNameUpdateSet instanceof EntitySchema ? entityOrTableNameUpdateSet.options.name : entityOrTableNameUpdateSet;
 
         if (entityOrTableNameUpdateSet instanceof Function || typeof entityOrTableNameUpdateSet === "string") {
@@ -247,12 +247,12 @@ export abstract class QueryBuilder<Entity> {
     /**
      * Sets entity's relation with which this query builder gonna work.
      */
-    relation<T>(entityTarget: ObjectType<T>|string, propertyPath: string): RelationQueryBuilder<T>;
+    relation<T>(entityTarget: ObjectType<T> | string, propertyPath: string): RelationQueryBuilder<T>;
 
     /**
      * Sets entity's relation with which this query builder gonna work.
      */
-    relation(entityTargetOrPropertyPath: Function|string, maybePropertyPath?: string): RelationQueryBuilder<Entity> {
+    relation(entityTargetOrPropertyPath: Function | string, maybePropertyPath?: string): RelationQueryBuilder<Entity> {
         const entityTarget = arguments.length === 2 ? entityTargetOrPropertyPath : undefined;
         const propertyPath = arguments.length === 2 ? maybePropertyPath as string : entityTargetOrPropertyPath as string;
 
@@ -279,7 +279,7 @@ export abstract class QueryBuilder<Entity> {
      *
      * todo: move this method to manager? or create a shortcut?
      */
-    hasRelation<T>(target: ObjectType<T>|string, relation: string): boolean;
+    hasRelation<T>(target: ObjectType<T> | string, relation: string): boolean;
 
     /**
      * Checks if given relations exist in the entity.
@@ -287,7 +287,7 @@ export abstract class QueryBuilder<Entity> {
      *
      * todo: move this method to manager? or create a shortcut?
      */
-    hasRelation<T>(target: ObjectType<T>|string, relation: string[]): boolean;
+    hasRelation<T>(target: ObjectType<T> | string, relation: string[]): boolean;
 
     /**
      * Checks if given relation or relations exist in the entity.
@@ -295,7 +295,7 @@ export abstract class QueryBuilder<Entity> {
      *
      * todo: move this method to manager? or create a shortcut?
      */
-    hasRelation<T>(target: ObjectType<T>|string, relation: string|string[]): boolean {
+    hasRelation<T>(target: ObjectType<T> | string, relation: string | string[]): boolean {
         const entityMetadata = this.connection.getMetadata(target);
         const relations = relation instanceof Array ? relation : [relation];
         return relations.every(relation => {
@@ -508,7 +508,7 @@ export abstract class QueryBuilder<Entity> {
      * Specifies FROM which entity's table select/update/delete will be executed.
      * Also sets a main string alias of the selection data.
      */
-    protected createFromAlias(entityTarget: Function|string|((qb: SelectQueryBuilder<any>) => SelectQueryBuilder<any>), aliasName?: string): Alias {
+    protected createFromAlias(entityTarget: Function | string | ((qb: SelectQueryBuilder<any>) => SelectQueryBuilder<any>), aliasName?: string): Alias {
 
         // if table has a metadata then find it to properly escape its properties
         // const metadata = this.connection.entityMetadatas.find(metadata => metadata.tableName === tableName);
@@ -584,7 +584,7 @@ export abstract class QueryBuilder<Entity> {
                     : metadata.discriminatorColumn.databaseName;
 
                 const condition = `${this.replacePropertyNames(column)} IN (:...discriminatorColumnValues)`;
-                return ` WHERE ${ conditions.length ? "(" + conditions + ") AND" : "" } ${condition}`;
+                return ` WHERE ${conditions.length ? "(" + conditions + ") AND" : ""} ${condition}`;
             }
         }
 
@@ -679,7 +679,7 @@ export abstract class QueryBuilder<Entity> {
     /**
      * Creates "WHERE" expression and variables for the given "ids".
      */
-    protected createWhereIdsExpression(ids: any|any[]): string {
+    protected createWhereIdsExpression(ids: any | any[]): string {
         const metadata = this.expressionMap.mainAlias!.metadata;
         const normalized = (Array.isArray(ids) ? ids : [ids]).map(id => metadata.ensureEntityIdMap(id));
 
@@ -723,17 +723,15 @@ export abstract class QueryBuilder<Entity> {
     /**
      * Computes given where argument - transforms to a where string all forms it can take.
      */
-    protected computeWhereParameter(where: string|((qb: this) => string)|Brackets|ObjectLiteral|ObjectLiteral[]) {
+    protected computeWhereParameter(where: string | ((qb: this) => string) | Brackets | ObjectLiteral | ObjectLiteral[]) {
         if (typeof where === "string")
             return where;
-
         if (where instanceof Brackets) {
             const whereQueryBuilder = this.createQueryBuilder();
             where.whereFactory(whereQueryBuilder as any);
             const whereString = whereQueryBuilder.createWhereExpressionString();
             this.setParameters(whereQueryBuilder.getParameters());
             return whereString ? "(" + whereString + ")" : "";
-
         } else if (where instanceof Function) {
             return where(this);
 

@@ -93,7 +93,7 @@ export class MongoEntityManager extends EntityManager {
         const cursor = await this.createEntityCursor(entityClassOrName, query);
         if (FindOptionsUtils.isFindManyOptions(optionsOrConditions)) {
             if (optionsOrConditions.select)
-                cursor.project(this.convertFindOptionsSelectToProjectCriteria(optionsOrConditions.select));
+                cursor.project(this.convertFindOptionsSelectToProjectCriteria(optionsOrConditions.select as any));
             if (optionsOrConditions.skip)
                 cursor.skip(optionsOrConditions.skip);
             if (optionsOrConditions.take)
@@ -114,7 +114,7 @@ export class MongoEntityManager extends EntityManager {
         const cursor = await this.createEntityCursor(entityClassOrName, query);
         if (FindOptionsUtils.isFindManyOptions(optionsOrConditions)) {
             if (optionsOrConditions.select)
-                cursor.project(this.convertFindOptionsSelectToProjectCriteria(optionsOrConditions.select));
+                cursor.project(this.convertFindOptionsSelectToProjectCriteria(optionsOrConditions.select as any));
             if (optionsOrConditions.skip)
                 cursor.skip(optionsOrConditions.skip);
             if (optionsOrConditions.take)
@@ -149,7 +149,7 @@ export class MongoEntityManager extends EntityManager {
         const cursor = await this.createEntityCursor(entityClassOrName, query);
         if (FindOptionsUtils.isFindManyOptions(optionsOrConditions)) {
             if (optionsOrConditions.select)
-                cursor.project(this.convertFindOptionsSelectToProjectCriteria(optionsOrConditions.select));
+                cursor.project(this.convertFindOptionsSelectToProjectCriteria(optionsOrConditions.select as any));
             if (optionsOrConditions.skip)
                 cursor.skip(optionsOrConditions.skip);
             if (optionsOrConditions.take)
@@ -176,7 +176,7 @@ export class MongoEntityManager extends EntityManager {
         const cursor = await this.createEntityCursor(entityClassOrName, query);
         if (FindOptionsUtils.isFindOneOptions(findOneOptionsOrConditions)) {
             if (findOneOptionsOrConditions.select)
-                cursor.project(this.convertFindOptionsSelectToProjectCriteria(findOneOptionsOrConditions.select));
+                cursor.project(this.convertFindOptionsSelectToProjectCriteria(findOneOptionsOrConditions.select as any));
             if (findOneOptionsOrConditions.order)
                 cursor.sort(this.convertFindOptionsOrderToOrderCriteria(findOneOptionsOrConditions.order));
         }

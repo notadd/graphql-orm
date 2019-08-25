@@ -1,4 +1,4 @@
-import { createConnection, SelectionSet } from '../lib';
+import { createConnection, SelectionSet, getRepository } from '../lib';
 import { Post } from './entities/post';
 import { User } from './entities/user';
 import { graphql, GraphQLResolveInfo } from 'graphql';
@@ -21,28 +21,73 @@ async function bootstrap() {
     user.id = 2;
     await user.save();
     const post = new Post();
-    post.createUserId = 1;
+    post.authorUid = 1;
     post.likeUsers = [user];
+    Post.findAndCount()
+
     const schema = makeExecutableSchema({
         typeDefs: `
-        type Hello{
-            nickname: String
+        type Post{
+            id: Int
+            author: User
+        }
+        type User {
+            id: Int
+            get(id: Int): User
+            posts: [Post]
+        }
+        type UserList{
+            count: Int
+            list: [User]
         }
         type Query {
-        hello(name: String): Hello
+        userList: UserList
       }`,
         resolvers: {
             Query: {
-                hello: (
+                userList: async (
                     source: any,
-                    args: any,
+                    variables: any,
                     context: any,
                     info: GraphQLResolveInfo
                 ) => {
-                    const set = SelectionSet.fromGraphql(args, info);
-                    debugger;
+                    const values = info.variableValues;
                     return {
-                        nickname: `hello`
+                        count: async (
+                            source: any,
+                            args: any,
+                            info: GraphQLResolveInfo
+                        ) => {
+                            return 10;
+                        },
+                        list: async (
+                            source: any,
+                            args: any,
+                            info: GraphQLResolveInfo
+                        ) => {
+                            const sets = SelectionSet.fromGraphql(info);
+                            debugger;
+                            const obj = [];
+                            await Promise.all(sets.map(async set => {
+                                const where = {
+                                    select: set.selections as any,
+                                    relations: set.relations,
+                                    where: {},
+                                    order: {}
+                                }
+                                let res = await getRepository(User).find(where);
+                                let result = [];
+                                await Promise.all(set.actions.map(async action => {
+                                    await Promise.all(res && res.map(async li => {
+                                        li[action.name] = await li[action.name](action.args);
+                                        result.push(li);
+                                    }))
+                                }));
+                                if (result && result.length)
+                                    obj.push(...result)
+                            }));
+                            return obj;
+                        }
                     }
                 }
             }
@@ -50,12 +95,27 @@ async function bootstrap() {
     })
     return await graphql({
         schema,
-        source: `{ demo: hello(name: "name"){
-            demoNickname: nickname
+        source: `query getList($id: Int){ 
+        userList {
+            count,
+            list {
+                id,
+                get(id: $id){
+                    id
+                },
+                posts {
+                    id,
+                    author{
+                        id
+                    }
+                }
+            }
         }}`,
         rootValue: {},
         contextValue: {},
-        variableValues: {},
+        variableValues: {
+            id: 1
+        },
         operationName: ``
     }).then(res => {
         if (res.errors) {
