@@ -72,12 +72,14 @@ class SelectionSet {
         const type = this.handlers[this.operation].find(it => it[3] === this.name);
         if (type) {
             this.types = this.entities[type[5]];
-        }
-        if (args && args.length > 0) {
             if (this.types) {
                 const types = this.types.find(type => type.name === this.name);
-                console.log({ types });
+                if (types) {
+                }
+                console.log({ all: this.types, types });
             }
+        }
+        if (args && args.length > 0) {
             args.map((arg, index) => {
                 const name = arg.name.value;
                 if (isVariableNode(arg.value)) {
