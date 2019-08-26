@@ -70,8 +70,12 @@ export class SelectionSet {
     context: any;
     onInit() {
         const args = this.info.arguments;
-        const types = this.handlers[this.operation].find(it => it[3] === this.name)[4];
-        this.arguments = new Array.arguments(this.types.length)
+        const item = this.handlers[this.operation].find(it => it[3] === this.name);
+        let types = [];
+        if(item){
+            types = item[4];
+        }
+        this.arguments = new Array(types.length)
         if (args && args.length > 0) {
             const params = {};
             args.map((arg, index) => {
