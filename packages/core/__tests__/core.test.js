@@ -53,7 +53,7 @@ async function bootstrap() {
                             return 10;
                         },
                         list: async (source, args, info) => {
-                            const sets = lib_1.SelectionSet.fromGraphql(info);
+                            const sets = lib_1.SelectionSet.fromGraphql(info, {}, {}, {});
                             const obj = [];
                             await Promise.all(sets.map(async (set) => {
                                 const condiction = lib_1.SelectionSet.createWhere({

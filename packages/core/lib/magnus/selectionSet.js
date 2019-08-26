@@ -237,7 +237,7 @@ class SelectionSet {
         set.toRelations();
         return set;
     }
-    static fromGraphql(info, enums = {}) {
+    static fromGraphql(info, enums = {}, entities, handlers) {
         return info.fieldNodes.map(it => {
             const set = new SelectionSet(it, info.variableValues, enums);
             set.toRelations();

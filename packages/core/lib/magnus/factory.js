@@ -7,21 +7,21 @@ exports.decoratorsMap = {
     Source: (data, source, variables, context, info) => source,
     Context: (data, source, variables, context, info) => context,
 };
-function createResolvers(metadata, entity, decorators, getController) {
+function createResolvers(handlers, entity, decorators, getController) {
     const obj = {};
     decorators = {
         ...exports.decoratorsMap,
         ...decorators
     };
-    Object.keys(metadata).map(operation => {
-        const items = metadata[operation] || [];
+    Object.keys(handlers).map(operation => {
+        const items = handlers[operation] || [];
         const item = {};
         items.forEach(it => {
             const [fieldName, className, tableName, methodName, argsDef] = it;
             const controller = getController(className);
             if (controller) {
                 const resolver = async (source, variables, context, info) => {
-                    const sets = selectionSet_1.SelectionSet.fromGraphql(info);
+                    const sets = selectionSet_1.SelectionSet.fromGraphql(info, {}, entity, handlers);
                     controller.tablename = tableName;
                     const params = new Array(argsDef.length);
                     const results = {};
@@ -39,7 +39,7 @@ function createResolvers(metadata, entity, decorators, getController) {
                     await Promise.all(sets.map(async (set) => {
                         const config = set.toTypeorm();
                         const result = await controller[methodName](...params);
-                        console.log({ entity, config });
+                        console.log({ entity, config, handlers });
                         // const targetDef = entity[type].find(it => it.name === name);
                         // 赋值
                         if (config.actions && config.actions.length > 0) {

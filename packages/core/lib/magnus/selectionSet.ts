@@ -36,6 +36,8 @@ export function isListValueNode(obj: ValueNode): obj is ListValueNode {
 export function isObjectValueNode(obj: ValueNode): obj is ListValueNode {
     return obj.kind === 'ObjectValue'
 }
+import { Metadatas, HandlerDefMap } from './types';
+
 export class SelectionSet {
     parent: SelectionSet;
     children: SelectionSet[] = [];
@@ -224,7 +226,9 @@ export class SelectionSet {
 
     static fromGraphql(
         info: GraphQLResolveInfo,
-        enums: any = {}
+        enums: any = {},
+        entities: Metadatas,
+        handlers: HandlerDefMap
     ) {
         return info.fieldNodes.map(it => {
             const set = new SelectionSet(it, info.variableValues, enums)

@@ -1,5 +1,5 @@
 import { GraphQLResolveInfo } from 'graphql';
-import { HandlerDefMap, MagnusBase } from '@notadd/magnus-core';
+import { MagnusBase } from '@notadd/magnus-core';
 import { upperFirst } from 'lodash';
 import { SelectionSet } from './selectionSet'
 interface MagnusFieldResolver {
@@ -24,30 +24,22 @@ export const decoratorsMap = {
     Context: (data: any, source: any, variables: any, context: any, info: any) => context,
 };
 
-interface Metadata {
-    name: string;
-    decorators: string[];
-    entity: string;
-    parameters: { name: string, index: number }[];
-}
-interface Metadatas {
-    [key: string]: Metadata[];
-}
-export function createResolvers(metadata: HandlerDefMap, entity: Metadatas, decorators: any, getController: GetController): MagnusResolvers {
+import { Metadatas, HandlerDefMap } from './types';
+export function createResolvers(handlers: HandlerDefMap, entity: Metadatas, decorators: any, getController: GetController): MagnusResolvers {
     const obj: MagnusResolvers = {};
     decorators = {
         ...decoratorsMap,
         ...decorators
     }
-    Object.keys(metadata).map(operation => {
-        const items = metadata[operation] || [];
+    Object.keys(handlers).map(operation => {
+        const items = handlers[operation] || [];
         const item = {};
         items.forEach(it => {
             const [fieldName, className, tableName, methodName, argsDef] = it;
             const controller = getController(className);
             if (controller) {
                 const resolver: MagnusResolver = async (source: any, variables: any, context: any, info: GraphQLResolveInfo) => {
-                    const sets = SelectionSet.fromGraphql(info);
+                    const sets = SelectionSet.fromGraphql(info, {}, entity, handlers);
                     controller.tablename = tableName;
                     const params = new Array(argsDef.length)
                     const results = {};
@@ -67,7 +59,7 @@ export function createResolvers(metadata: HandlerDefMap, entity: Metadatas, deco
                     await Promise.all(sets.map(async set => {
                         const config = set.toTypeorm();
                         const result = await controller[methodName](...params);
-                        console.log({ entity, config })
+                        console.log({ entity, config, handlers })
                         // const targetDef = entity[type].find(it => it.name === name);
                         // 赋值
                         if (config.actions && config.actions.length > 0) {
