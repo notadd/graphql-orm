@@ -57,6 +57,7 @@ class SelectionSet {
         this.selections = [];
         this.relations = [];
         this.actions = [];
+        this.decorators = {};
         this.info = info;
         const name = info.name.value;
         const alias = info.alias ? info.alias.value : undefined;
@@ -69,49 +70,52 @@ class SelectionSet {
     }
     onInit() {
         const args = this.info.arguments;
-        const type = this.handlers[this.operation].find(it => it[3] === this.name);
-        if (type) {
-            this.types = this.entities[type[5]];
-            if (this.types) {
-                const types = this.types.find(type => type.name === this.name);
-                if (types) {
-                }
-                console.log({ all: this.types, types });
-            }
-        }
+        const types = this.handlers[this.operation].find(it => it[3] === this.name)[4];
+        this.arguments = new Array.arguments(this.types.length);
         if (args && args.length > 0) {
+            const params = {};
             args.map((arg, index) => {
                 const name = arg.name.value;
                 if (isVariableNode(arg.value)) {
-                    this.arguments[name] = this.variables[arg.value.name.value];
+                    params[name] = this.variables[arg.value.name.value];
                 }
                 else if (isIntValueNode(arg.value)) {
-                    this.arguments[name] = arg.value.value;
+                    params[name] = arg.value.value;
                 }
                 else if (isFloatValueNode(arg.value)) {
-                    this.arguments[name] = arg.value.value;
+                    params[name] = arg.value.value;
                 }
                 else if (isStringValueNode(arg.value)) {
-                    this.arguments[name] = arg.value.value;
+                    params[name] = arg.value.value;
                 }
                 else if (isBooleanValueNode(arg.value)) {
-                    this.arguments[name] = arg.value.value;
+                    params[name] = arg.value.value;
                 }
                 else if (isNullValueNode(arg.value)) {
-                    this.arguments[name] = null;
+                    params[name] = null;
                 }
                 else if (isEnumValueNode(arg.value)) {
-                    this.arguments[name] = undefined;
+                    params[name] = undefined;
                 }
                 else if (isListValueNode(arg.value)) {
-                    this.arguments[name] = arg.value.values.map(value => this.createValue(value));
+                    params[name] = arg.value.values.map(value => this.createValue(value));
                 }
                 else {
                     let res = {};
                     arg.value.fields.map(field => {
                         res[field.name.value] = this.createValue(field.value);
                     });
-                    this.arguments[name] = res;
+                    params[name] = res;
+                }
+            });
+            types.map((t, index) => {
+                this.arguments[index] = params[t.name];
+                if (t.decorator && t.decorator.length > 0) {
+                    t.decorator.map(dec => {
+                        if (this.decorators[dec]) {
+                            this.arguments[index] = this.decorators[dec](this.arguments[index], this.source, this.variables, this.context, this.info);
+                        }
+                    });
                 }
             });
         }

@@ -52,7 +52,7 @@ export class SelectionSet {
     relations: string[] = [];
     actions: { name: string, args: any }[] = [];
     operation: string;
-    types: Metadata[];
+    types: any[];
     info: FieldNode;
     constructor(info: FieldNode, variables: any, enums: any, level: number = 0, parent?: SelectionSet) {
         this.info = info;
@@ -65,55 +65,68 @@ export class SelectionSet {
         this.variables = variables;
         this.enums = enums;
     }
-
+    decorators: any = {};
+    source: any;
+    context: any;
     onInit() {
         const args = this.info.arguments;
-        const type = this.handlers[this.operation].find(it => it[3] === this.name);
-        if (type) {
-            this.types = this.entities[type[5]];
-            if (this.types) {
-                const types = this.types.find(type => type.name === this.name)
-                if (types) {
-
-                }
-                console.log({ all: this.types, types })
-            }
-        }
+        const types = this.handlers[this.operation].find(it => it[3] === this.name)[4];
+        this.arguments = new Array.arguments(this.types.length)
         if (args && args.length > 0) {
+            const params = {};
             args.map((arg, index) => {
                 const name = arg.name.value;
                 if (isVariableNode(arg.value)) {
-                    this.arguments[name] = this.variables[arg.value.name.value];
-                } else if (isIntValueNode(arg.value)) {
-                    this.arguments[name] = arg.value.value;
-                } else if (isFloatValueNode(arg.value)) {
-                    this.arguments[name] = arg.value.value;
-                } else if (isStringValueNode(arg.value)) {
-                    this.arguments[name] = arg.value.value;
-                } else if (isBooleanValueNode(arg.value)) {
-                    this.arguments[name] = arg.value.value;
-                } else if (isNullValueNode(arg.value)) {
-                    this.arguments[name] = null;
-                } else if (isEnumValueNode(arg.value)) {
-                    this.arguments[name] = undefined;
-                } else if (isListValueNode(arg.value)) {
-                    this.arguments[name] = arg.value.values.map(value => this.createValue(value))
-                } else {
+                    params[name] = this.variables[arg.value.name.value];
+                }
+                else if (isIntValueNode(arg.value)) {
+                    params[name] = arg.value.value;
+                }
+                else if (isFloatValueNode(arg.value)) {
+                    params[name] = arg.value.value;
+                }
+                else if (isStringValueNode(arg.value)) {
+                    params[name] = arg.value.value;
+                }
+                else if (isBooleanValueNode(arg.value)) {
+                    params[name] = arg.value.value;
+                }
+                else if (isNullValueNode(arg.value)) {
+                    params[name] = null;
+                }
+                else if (isEnumValueNode(arg.value)) {
+                    params[name] = undefined;
+                }
+                else if (isListValueNode(arg.value)) {
+                    params[name] = arg.value.values.map(value => this.createValue(value));
+                }
+                else {
                     let res = {};
                     arg.value.fields.map(field => {
-                        res[field.name.value] = this.createValue(field.value)
+                        res[field.name.value] = this.createValue(field.value);
                     });
-                    this.arguments[name] = res;
+                    params[name] = res;
+                }
+            });
+            types.map((t, index) => {
+                this.arguments[index] = params[t.name];
+                if (t.decorator && t.decorator.length > 0) {
+                    t.decorator.map(dec => {
+                        if (this.decorators[dec]) {
+                            this.arguments[index] = this.decorators[dec](this.arguments[index], this.source, this.variables, this.context, this.info)
+                        }
+                    })
                 }
             })
         }
         if (this.info && this.info.selectionSet) {
             this.info.selectionSet.selections && this.info.selectionSet.selections.map(selection => {
                 if (isFieldNode(selection)) {
-                    this.create(selection, this.variables, this.enums)
-                } else if (isFragmentSpreadNode(selection)) { }
+                    this.create(selection, this.variables, this.enums);
+                }
+                else if (isFragmentSpreadNode(selection)) { }
                 else { }
-            })
+            });
         }
     }
 
