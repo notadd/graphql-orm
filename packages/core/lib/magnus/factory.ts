@@ -23,7 +23,17 @@ export const decoratorsMap = {
     Source: (data: any, source: any, variables: any, context: any, info: any) => source,
     Context: (data: any, source: any, variables: any, context: any, info: any) => context,
 };
-export function createResolvers(metadata: HandlerDefMap, decorators: any, getController: GetController): MagnusResolvers {
+
+interface Metadata {
+    name: string;
+    decorators: string[];
+    entity: string;
+    parameters: { name: string, index: number }[];
+}
+interface Metadatas {
+    [key: string]: Metadata[];
+}
+export function createResolvers(metadata: HandlerDefMap, entity: Metadatas, decorators: any, getController: GetController): MagnusResolvers {
     const obj: MagnusResolvers = {};
     decorators = {
         ...decoratorsMap,
@@ -57,6 +67,8 @@ export function createResolvers(metadata: HandlerDefMap, decorators: any, getCon
                     await Promise.all(sets.map(async set => {
                         const config = set.toTypeorm();
                         const result = await controller[methodName](...params);
+                        console.log({ entity, config })
+                        // const targetDef = entity[type].find(it => it.name === name);
                         // 赋值
                         if (config.actions && config.actions.length > 0) {
                             config.actions.map(async action => {

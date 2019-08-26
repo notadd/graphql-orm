@@ -7,7 +7,7 @@ exports.decoratorsMap = {
     Source: (data, source, variables, context, info) => source,
     Context: (data, source, variables, context, info) => context,
 };
-function createResolvers(metadata, decorators, getController) {
+function createResolvers(metadata, entity, decorators, getController) {
     const obj = {};
     decorators = {
         ...exports.decoratorsMap,
@@ -39,6 +39,8 @@ function createResolvers(metadata, decorators, getController) {
                     await Promise.all(sets.map(async (set) => {
                         const config = set.toTypeorm();
                         const result = await controller[methodName](...params);
+                        console.log({ entity, config });
+                        // const targetDef = entity[type].find(it => it.name === name);
                         // 赋值
                         if (config.actions && config.actions.length > 0) {
                             config.actions.map(async (action) => {

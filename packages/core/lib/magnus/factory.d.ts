@@ -21,5 +21,17 @@ export declare const decoratorsMap: {
     Source: (data: any, source: any, variables: any, context: any, info: any) => any;
     Context: (data: any, source: any, variables: any, context: any, info: any) => any;
 };
-export declare function createResolvers(metadata: HandlerDefMap, decorators: any, getController: GetController): MagnusResolvers;
+interface Metadata {
+    name: string;
+    decorators: string[];
+    entity: string;
+    parameters: {
+        name: string;
+        index: number;
+    }[];
+}
+interface Metadatas {
+    [key: string]: Metadata[];
+}
+export declare function createResolvers(metadata: HandlerDefMap, entity: Metadatas, decorators: any, getController: GetController): MagnusResolvers;
 export {};
