@@ -259,6 +259,7 @@ export class SelectionSet {
             set.entities = entities;
             set.handlers = handlers;
             set.operation = info.operation.name.value;
+            set.onInit();
             set.toRelations();
             return set;
         })
