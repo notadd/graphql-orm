@@ -1,6 +1,5 @@
 import { SelectionNode, GraphQLResolveInfo, ListValueNode, EnumValueNode, NullValueNode, BooleanValueNode, StringValueNode, FloatValueNode, IntValueNode, SelectionSetNode, ValueNode, ArgumentNode, VariableNode, OperationDefinitionNode, FieldNode, FragmentSpreadNode, InlineFragmentNode } from 'graphql';
-import { BaseEntity } from '../repository/BaseEntity';
-import { FindOptionsUtils } from '../find-options/FindOptionsUtils';
+import { FindOperator } from '../find-options/FindOperator';
 export function isFieldNode(obj: SelectionNode): obj is FieldNode {
     return obj.kind === 'Field'
 }
@@ -231,5 +230,42 @@ export class SelectionSet {
             set.toRelations();
             return set;
         })
+    }
+    /**
+     * 创建where
+     * "lessThan"
+    | "lessThanOrEqual"
+    | "moreThan"
+    | "moreThanOrEqual"
+    | "equal"
+    | "between"
+    | "in"
+    | "any"
+    | "isNull"
+    | "like"
+    | "raw";
+     */
+    static createWhere(where: any) {
+        if (Array.isArray(where)) {
+            return where;
+        }
+        else if (typeof where === 'object') {
+            let res = {};
+            Object.keys(where).map(key => {
+                let item = where[key];
+                const keys = key.split('_');
+                if (keys.length === 1) {
+                    res[keys[0]] = this.createWhere(item)
+                } else {
+                    const [column, action] = keys;
+                    if (Array.isArray(item)) {
+                        res[column] = new FindOperator(action as any, this.createWhere(item), true, true)
+                    }
+                }
+            });
+            return res;
+        } else {
+            return new FindOperator('equal', where, true, true)
+        }
     }
 }

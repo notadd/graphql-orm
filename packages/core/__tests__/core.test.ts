@@ -66,13 +66,18 @@ async function bootstrap() {
                             info: GraphQLResolveInfo
                         ) => {
                             const sets = SelectionSet.fromGraphql(info);
-                            debugger;
                             const obj = [];
                             await Promise.all(sets.map(async set => {
+                                const condiction = SelectionSet.createWhere({
+                                    id_between: [0, 10]
+                                });
+                                console.log({
+                                    condiction
+                                })
                                 const where = {
                                     select: set.selections as any,
                                     relations: set.relations,
-                                    where: {},
+                                    where: condiction,
                                     order: {}
                                 }
                                 let res = await getRepository(User).find(where);
