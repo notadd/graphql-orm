@@ -66,11 +66,9 @@ class SelectionSet {
         this.alias = alias;
         this.variables = variables;
         this.enums = enums;
-        if (this.operation === 'query') {
-            const type = this.handlers[this.operation][name][5];
-            this.types = this.entities[type];
-            console.log({ types: this.types });
-        }
+        const type = this.handlers[this.operation][name][5];
+        this.types = this.entities[type];
+        console.log({ types: this.types });
         if (args && args.length > 0) {
             if (this.types) {
                 this.types.find(type => type.name === this.name);
@@ -250,6 +248,7 @@ class SelectionSet {
             const set = new SelectionSet(it, info.variableValues, enums);
             set.entities = entities;
             set.handlers = handlers;
+            set.operation = info.operation.name.value;
             set.toRelations();
             return set;
         });
