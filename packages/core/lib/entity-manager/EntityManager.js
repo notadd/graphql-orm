@@ -297,7 +297,6 @@ class EntityManager {
         if (!FindOptionsUtils_1.FindOptionsUtils.isFindManyOptions(optionsOrConditions) || optionsOrConditions.loadEagerRelations !== false)
             FindOptionsUtils_1.FindOptionsUtils.joinEagerRelations(qb, qb.alias, metadata);
         const db = FindOptionsUtils_1.FindOptionsUtils.applyFindManyOptionsOrConditionsToQueryBuilder(qb, optionsOrConditions);
-        console.log(db.getSql());
         return db.getMany();
     }
     /**

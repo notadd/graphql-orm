@@ -646,12 +646,9 @@ export class EntityManager {
     async find<Entity>(entityClass: ObjectType<Entity> | EntitySchema<Entity> | string, optionsOrConditions?: FindManyOptions<Entity> | any): Promise<Entity[]> {
         const metadata = this.connection.getMetadata(entityClass);
         const qb = this.createQueryBuilder<Entity>(entityClass as any, FindOptionsUtils.extractFindManyOptionsAlias(optionsOrConditions) || metadata.name);
-
         if (!FindOptionsUtils.isFindManyOptions(optionsOrConditions) || optionsOrConditions.loadEagerRelations !== false)
             FindOptionsUtils.joinEagerRelations(qb, qb.alias, metadata);
-
         const db = FindOptionsUtils.applyFindManyOptionsOrConditionsToQueryBuilder(qb, optionsOrConditions);
-        console.log(db.getSql())
         return db.getMany();
     }
 

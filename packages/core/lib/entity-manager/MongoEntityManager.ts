@@ -92,7 +92,7 @@ export class MongoEntityManager extends EntityManager {
         const query = this.convertFindManyOptionsOrConditionsToMongodbQuery(optionsOrConditions);
         const cursor = await this.createEntityCursor(entityClassOrName, query);
         if (FindOptionsUtils.isFindManyOptions(optionsOrConditions)) {
-            if (optionsOrConditions.select)
+            if ((optionsOrConditions as any).select)
                 cursor.project(this.convertFindOptionsSelectToProjectCriteria(optionsOrConditions.select as any));
             if (optionsOrConditions.skip)
                 cursor.skip(optionsOrConditions.skip);

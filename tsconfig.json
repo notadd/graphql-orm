@@ -9,7 +9,8 @@
         "lib": [
             "es5",
             "es6",
-            "esnext.asynciterable"
+            "esnext.asynciterable",
+            "esnext.bigint"
         ], /* Specify library files to be included in the compilation. */
         // "allowJs": true,                       /* Allow javascript files to be compiled. */
         // "checkJs": true,                       /* Report errors in .js files. */
