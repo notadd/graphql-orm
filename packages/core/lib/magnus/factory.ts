@@ -39,6 +39,8 @@ export function createResolvers(metadata: HandlerDefMap, decorators: any, getCon
                 const resolver: MagnusResolver = async (source: any, variables: any, context: any, info: GraphQLResolveInfo) => {
                     const sets = SelectionSet.fromGraphql(info);
                     controller.tablename = tableName;
+                    const params = new Array(argsDef.length)
+                    const results = {};
                     argsDef.map(arg => {
                         const { name, type, index, decorator } = arg;
                         params[index] = variables[name]
@@ -52,8 +54,6 @@ export function createResolvers(metadata: HandlerDefMap, decorators: any, getCon
                             })
                         }
                     })
-                    const params = new Array(argsDef.length)
-                    const results = {};
                     await Promise.all(sets.map(async set => {
                         const config = set.toTypeorm();
                         const result = await controller[methodName](...params);
@@ -71,7 +71,7 @@ export function createResolvers(metadata: HandlerDefMap, decorators: any, getCon
                         }
                         results[config.name] = result;
                     }))
-                    return results;
+                    return results[fieldName];
                 }
                 item[fieldName] = resolver;
             }

@@ -23,6 +23,8 @@ function createResolvers(metadata, decorators, getController) {
                 const resolver = async (source, variables, context, info) => {
                     const sets = selectionSet_1.SelectionSet.fromGraphql(info);
                     controller.tablename = tableName;
+                    const params = new Array(argsDef.length);
+                    const results = {};
                     argsDef.map(arg => {
                         const { name, type, index, decorator } = arg;
                         params[index] = variables[name];
@@ -34,8 +36,6 @@ function createResolvers(metadata, decorators, getController) {
                             });
                         }
                     });
-                    const params = new Array(argsDef.length);
-                    const results = {};
                     await Promise.all(sets.map(async (set) => {
                         const config = set.toTypeorm();
                         const result = await controller[methodName](...params);
@@ -54,7 +54,7 @@ function createResolvers(metadata, decorators, getController) {
                         }
                         results[config.name] = result;
                     }));
-                    return results;
+                    return results[fieldName];
                 };
                 item[fieldName] = resolver;
             }
