@@ -1,6 +1,6 @@
 {
 	"name": "@notadd/magnus-typeorm",
-	"version": "0.0.0",
+	"version": "0.0.1",
 	"description": "> TODO: description",
 	"author": "imeepos <1037483576@qq.com>",
 	"homepage": "",
@@ -13,7 +13,9 @@
 		"lib": "lib",
 		"test": "__tests__"
 	},
-	"files": [ "lib" ],
+	"files": [
+		"lib"
+	],
 	"scripts": {
 		"test": "echo \"Error: run tests from root\" && exit 1"
 	}
