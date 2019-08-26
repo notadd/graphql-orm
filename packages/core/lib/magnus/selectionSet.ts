@@ -47,7 +47,7 @@ export class SelectionSet {
     variables: any;
     enums: any;
 
-    arguments: any = {};
+    arguments: any[] = [];
     selections: string[] = [];
     relations: string[] = [];
     actions: { name: string, args: any }[] = [];

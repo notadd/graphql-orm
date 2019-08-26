@@ -20,7 +20,7 @@ export declare class SelectionSet {
     level: number;
     variables: any;
     enums: any;
-    arguments: any;
+    arguments: any[];
     selections: string[];
     relations: string[];
     actions: {

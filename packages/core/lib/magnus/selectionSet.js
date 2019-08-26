@@ -53,7 +53,7 @@ class SelectionSet {
     constructor(info, variables, enums, level = 0, parent) {
         this.children = [];
         this.level = 0;
-        this.arguments = {};
+        this.arguments = [];
         this.selections = [];
         this.relations = [];
         this.actions = [];
