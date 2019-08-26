@@ -72,10 +72,13 @@ class SelectionSet {
         console.log({
             name: this.name,
             entities: this.entities,
-            handlers: this.handlers
+            handlers: this.handlers,
+            operation: this.operation
         });
-        const type = this.handlers[this.operation][this.name][5];
-        this.types = this.entities[type];
+        const type = this.handlers[this.operation].find(it => it[3] === this.name);
+        if (type) {
+            this.types = this.entities[type[5]];
+        }
         console.log({ types: this.types });
         if (args && args.length > 0) {
             if (this.types) {
