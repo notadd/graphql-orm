@@ -76,7 +76,6 @@ export class SelectionSet {
         const type = this.handlers[this.operation][this.name][5];
         this.types = this.entities[type];
         console.log({ types: this.types })
-
         if (args && args.length > 0) {
             if (this.types) {
                 this.types.find(type => type.name === this.name)
