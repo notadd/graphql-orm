@@ -223,7 +223,8 @@ export class SelectionSet {
         set.toRelations();
         return set;
     }
-
+    entities: Metadatas;
+    handlers: HandlerDefMap;
     static fromGraphql(
         info: GraphQLResolveInfo,
         enums: any = {},
@@ -231,7 +232,9 @@ export class SelectionSet {
         handlers: HandlerDefMap
     ) {
         return info.fieldNodes.map(it => {
-            const set = new SelectionSet(it, info.variableValues, enums)
+            const set = new SelectionSet(it, info.variableValues, enums);
+            set.entities = entities;
+            set.handlers = handlers;
             set.toRelations();
             return set;
         })

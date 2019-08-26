@@ -59,6 +59,8 @@ export declare class SelectionSet {
         }[];
     }[];
     static fromJson(field: FieldNode, variables: any, enums: any): SelectionSet;
+    entities: Metadatas;
+    handlers: HandlerDefMap;
     static fromGraphql(info: GraphQLResolveInfo, enums: any, entities: Metadatas, handlers: HandlerDefMap): SelectionSet[];
     /**
      * 创建where

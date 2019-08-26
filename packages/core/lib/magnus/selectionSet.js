@@ -240,6 +240,8 @@ class SelectionSet {
     static fromGraphql(info, enums = {}, entities, handlers) {
         return info.fieldNodes.map(it => {
             const set = new SelectionSet(it, info.variableValues, enums);
+            set.entities = entities;
+            set.handlers = handlers;
             set.toRelations();
             return set;
         });
