@@ -1,0 +1,33 @@
+{
+  "Result": [
+    {
+      "name": "value",
+      "decorators": [],
+      "entity": "number"
+    },
+    {
+      "name": "controller",
+      "decorators": [],
+      "entity": "",
+      "parameters": [
+        {
+          "name": "value",
+          "index": 0
+        }
+      ]
+    },
+    {
+      "name": "dec",
+      "decorators": [
+        "ResolveProperty"
+      ],
+      "entity": "number",
+      "parameters": [
+        {
+          "name": "c",
+          "index": 0
+        }
+      ]
+    }
+  ]
+}

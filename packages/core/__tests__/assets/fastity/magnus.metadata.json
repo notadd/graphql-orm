@@ -1,0 +1,65 @@
+{
+  "Result": [
+    [
+      "dec",
+      "Result",
+      "Result",
+      "dec",
+      [
+        {
+          "name": "c",
+          "type": "Int!",
+          "index": 0,
+          "decorator": []
+        }
+      ],
+      "number"
+    ],
+    [
+      "dec",
+      "Result",
+      "Result",
+      "dec",
+      [
+        {
+          "name": "c",
+          "type": "Int!",
+          "index": 0,
+          "decorator": []
+        }
+      ],
+      "number"
+    ]
+  ],
+  "query": [
+    [
+      "add",
+      "IncController",
+      "",
+      "add",
+      [
+        {
+          "name": "a",
+          "type": "Int!",
+          "index": 0,
+          "decorator": []
+        },
+        {
+          "name": "b",
+          "type": "Int!",
+          "index": 1,
+          "decorator": []
+        },
+        {
+          "name": "headers",
+          "type": "Json!",
+          "index": 2,
+          "decorator": [
+            "Headers"
+          ]
+        }
+      ],
+      "Result"
+    ]
+  ]
+}
