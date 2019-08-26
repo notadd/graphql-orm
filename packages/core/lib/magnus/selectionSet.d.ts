@@ -29,7 +29,9 @@ export declare class SelectionSet {
     }[];
     operation: string;
     types: Metadata[];
+    info: FieldNode;
     constructor(info: FieldNode, variables: any, enums: any, level?: number, parent?: SelectionSet);
+    onInit(): void;
     createValue(val: ValueNode): any;
     getTop(): SelectionSet;
     addSelect(name: string): void;

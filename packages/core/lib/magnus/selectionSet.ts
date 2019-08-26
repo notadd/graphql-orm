@@ -53,18 +53,27 @@ export class SelectionSet {
     actions: { name: string, args: any }[] = [];
     operation: string;
     types: Metadata[];
-
+    info: FieldNode;
     constructor(info: FieldNode, variables: any, enums: any, level: number = 0, parent?: SelectionSet) {
+        this.info = info;
         const name = info.name.value;
         const alias = info.alias ? info.alias.value : undefined;
-        const args = info.arguments;
         this.name = name;
         this.parent = parent;
         this.level = level;
         this.alias = alias;
         this.variables = variables;
         this.enums = enums;
-        const type = this.handlers[this.operation][name][5];
+    }
+
+    onInit() {
+        const args = this.info.arguments;
+        console.log({
+            name: this.name,
+            entities: this.entities,
+            handlers: this.handlers
+        })
+        const type = this.handlers[this.operation][this.name][5];
         this.types = this.entities[type];
         console.log({ types: this.types })
 
@@ -75,7 +84,7 @@ export class SelectionSet {
             args.map((arg, index) => {
                 const name = arg.name.value;
                 if (isVariableNode(arg.value)) {
-                    this.arguments[name] = variables[arg.value.name.value];
+                    this.arguments[name] = this.variables[arg.value.name.value];
                 } else if (isIntValueNode(arg.value)) {
                     this.arguments[name] = arg.value.value;
                 } else if (isFloatValueNode(arg.value)) {
@@ -99,10 +108,10 @@ export class SelectionSet {
                 }
             })
         }
-        if (info && info.selectionSet) {
-            info.selectionSet.selections && info.selectionSet.selections.map(selection => {
+        if (this.info && this.info.selectionSet) {
+            this.info.selectionSet.selections && this.info.selectionSet.selections.map(selection => {
                 if (isFieldNode(selection)) {
-                    this.create(selection, variables, enums)
+                    this.create(selection, this.variables, this.enums)
                 } else if (isFragmentSpreadNode(selection)) { }
                 else { }
             })
@@ -205,7 +214,12 @@ export class SelectionSet {
     }
 
     create(field: any, variables: any, enums: any = {}) {
-        this.children.push(new SelectionSet(field, variables, enums, this.level + 1, this));
+        const set = new SelectionSet(field, variables, enums, this.level + 1, this);
+        set.entities = this.entities;
+        set.handlers = this.handlers;
+        set.operation = this.operation;
+        set.onInit();
+        this.children.push(set);
     }
 
     toTypeorm() {

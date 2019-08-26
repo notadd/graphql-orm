@@ -58,7 +58,7 @@
 	},
 	"dependencies": {
 		"@nestjs/core": "^6.5.3",
-		"@notadd/magnus-core": "^3.4.4",
+		"@notadd/magnus-core": "^3.4.8",
 		"@notadd/magnus-graphql": "^3.4.4",
 		"@types/lodash": "^4.14.137",
 		"app-root-path": "^2.0.1",
