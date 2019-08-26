@@ -234,7 +234,9 @@ export class SelectionSet {
     static fromOperationDefinitionNode(operation: OperationDefinitionNode, variables: any, enums: any = {}) {
         return operation.selectionSet.selections.map(selection => {
             if (isFieldNode(selection)) {
-                return SelectionSet.fromJson(selection, variables, enums).toTypeorm();
+                const set = SelectionSet.fromJson(selection, variables, enums);
+                set.onInit();
+                return set.toTypeorm();
             } else if (isFragmentSpreadNode(selection)) {
             } else { }
         }).filter(res => !!res)
@@ -242,6 +244,7 @@ export class SelectionSet {
 
     static fromJson(field: FieldNode, variables: any, enums: any) {
         const set = new SelectionSet(field, variables, enums)
+        set.onInit();
         set.toRelations();
         return set;
     }
