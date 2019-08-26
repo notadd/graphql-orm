@@ -572,9 +572,9 @@ export class MongoEntityManager extends EntityManager {
         if (FindOptionsUtils.isFindManyOptions(optionsOrConditions))
             // If where condition is passed as a string which contains sql we have to ignore
             // as mongo is not a sql database
-            return typeof optionsOrConditions.where === "string"
+            return typeof (optionsOrConditions as any).where === "string"
                 ? {}
-                : optionsOrConditions.where;
+                : (optionsOrConditions as any).where;
 
         return optionsOrConditions;
     }

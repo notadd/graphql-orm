@@ -71,9 +71,6 @@ async function bootstrap() {
                                 const condiction = SelectionSet.createWhere({
                                     id_between: [0, 10]
                                 });
-                                console.log({
-                                    condiction
-                                })
                                 const where = {
                                     select: set.selections as any,
                                     relations: set.relations,
