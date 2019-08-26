@@ -260,7 +260,7 @@ export class SelectionSet {
             const set = new SelectionSet(it, info.variableValues, enums);
             set.entities = entities;
             set.handlers = handlers;
-            set.operation = info.operation.name.value;
+            set.operation = info.operation.operation;
             set.onInit();
             set.toRelations();
             return set;
