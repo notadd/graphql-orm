@@ -36,7 +36,7 @@ export function isListValueNode(obj: ValueNode): obj is ListValueNode {
 export function isObjectValueNode(obj: ValueNode): obj is ListValueNode {
     return obj.kind === 'ObjectValue'
 }
-import { Metadatas, HandlerDefMap } from './types';
+import { Metadatas, Metadata, HandlerDefMap } from './types';
 
 export class SelectionSet {
     parent: SelectionSet;
@@ -51,6 +51,8 @@ export class SelectionSet {
     selections: string[] = [];
     relations: string[] = [];
     actions: { name: string, args: any }[] = [];
+    operation: string;
+    types: Metadata[];
 
     constructor(info: FieldNode, variables: any, enums: any, level: number = 0, parent?: SelectionSet) {
         const name = info.name.value;
@@ -62,7 +64,15 @@ export class SelectionSet {
         this.alias = alias;
         this.variables = variables;
         this.enums = enums;
+        if (this.operation === 'query') {
+            const type = this.handlers[this.operation][name][5];
+            this.types = this.entities[type];
+            console.log({ types: this.types })
+        }
         if (args && args.length > 0) {
+            if (this.types) {
+                this.types.find(type => type.name === this.name)
+            }
             args.map((arg, index) => {
                 const name = arg.name.value;
                 if (isVariableNode(arg.value)) {
