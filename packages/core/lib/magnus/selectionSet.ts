@@ -296,13 +296,13 @@ export class SelectionSet {
     ) {
         return info.fieldNodes.map(it => {
             const set = new SelectionSet(it, info.variableValues, enums);
-            set.entities = entities;
-            set.handlers = handlers;
-            set.decorators = decorators;
+            set.entities = entities || {};
+            set.handlers = handlers || {};
+            set.decorators = decorators || {};
             set.operation = info.operation.operation;
-            set.context = context;
-            set.source = source;
-            set.variables = variables;
+            set.context = context || {};
+            set.source = source || {};
+            set.variables = variables || {};
             set.onInit();
             set.toRelations();
             return set;
