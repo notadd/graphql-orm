@@ -82,9 +82,9 @@ export class SelectionSet {
         let types = [];
         if (item) {
             this.methods = this.entities[item[5]];
-            types = item[4];
+            types = item[4] || [];
         } else {
-            types = this.findParams(this.name).parameters;
+            types = this.findParams(this.name).parameters || [];
         }
         this.arguments = new Array(types.length)
         if (args && args.length > 0) {
