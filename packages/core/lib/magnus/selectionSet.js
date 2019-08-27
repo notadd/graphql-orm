@@ -68,12 +68,24 @@ class SelectionSet {
         this.variables = variables;
         this.enums = enums;
     }
+    findParams(name) {
+        if (this.parent) {
+            const item = this.parent.methods.find(it => it.name === name);
+            if (item)
+                return item;
+            return this.parent.findParams(name);
+        }
+    }
     onInit() {
         const args = this.info.arguments;
         const item = this.handlers[this.operation].find(it => it[3] === this.name);
         let types = [];
         if (item) {
+            this.methods = this.entities[item[5]];
             types = item[4];
+        }
+        else {
+            types = this.findParams(this.name).parameters;
         }
         this.arguments = new Array(types.length);
         if (args && args.length > 0) {

@@ -11,7 +11,7 @@ export declare function isNullValueNode(obj: ValueNode): obj is NullValueNode;
 export declare function isEnumValueNode(obj: ValueNode): obj is EnumValueNode;
 export declare function isListValueNode(obj: ValueNode): obj is ListValueNode;
 export declare function isObjectValueNode(obj: ValueNode): obj is ListValueNode;
-import { Metadatas, HandlerDefMap } from './types';
+import { Metadatas, Metadata, HandlerDefMap } from './types';
 export declare class SelectionSet {
     parent: SelectionSet;
     children: SelectionSet[];
@@ -34,6 +34,8 @@ export declare class SelectionSet {
     decorators: any;
     source: any;
     context: any;
+    methods: Metadata[];
+    findParams(name: string): Metadata;
     onInit(): void;
     createValue(val: ValueNode): any;
     getTop(): SelectionSet;
