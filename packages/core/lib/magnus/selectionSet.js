@@ -87,7 +87,10 @@ class SelectionSet {
             types = item[4] || [];
         }
         else {
-            types = this.findParams(this.name).parameters || [];
+            const param = this.findParams(this.name);
+            if (param) {
+                types = param.parameters || [];
+            }
         }
         this.arguments = new Array(types.length);
         if (args && args.length > 0) {
