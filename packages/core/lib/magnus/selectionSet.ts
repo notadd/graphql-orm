@@ -72,7 +72,7 @@ export class SelectionSet {
         const args = this.info.arguments;
         const item = this.handlers[this.operation].find(it => it[3] === this.name);
         let types = [];
-        if(item){
+        if (item) {
             types = item[4];
         }
         this.arguments = new Array(types.length)
