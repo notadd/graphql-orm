@@ -6,7 +6,7 @@ const decorator_1 = require("./decorator");
 exports.decoratorsMap = {
     Selection: decorator_1.Selection,
     Relation: decorator_1.Relation,
-    Typeorm: decorator_1.Typeorm
+    GetSelectionSet: decorator_1.GetSelectionSet
 };
 function createResolvers(handlers, entity, decorators, getController) {
     const obj = {};

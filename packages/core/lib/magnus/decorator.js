@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Select = () => () => (variable, that) => {
+exports.Selection = () => () => (variable, that) => {
     if (that) {
         return that.selections;
     }

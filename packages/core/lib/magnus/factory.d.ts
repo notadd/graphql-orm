@@ -19,7 +19,7 @@ interface GetController {
 export declare const decoratorsMap: {
     Selection: any;
     Relation: any;
-    Typeorm: any;
+    GetSelectionSet: any;
 };
 import { Metadatas, HandlerDefMap } from './types';
 export declare function createResolvers(handlers: HandlerDefMap, entity: Metadatas, decorators: any, getController: GetController): MagnusResolvers;
