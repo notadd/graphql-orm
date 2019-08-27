@@ -18,7 +18,11 @@ interface MagnusResolvers {
 interface GetController {
     (name: string): MagnusBase;
 }
-export const decoratorsMap = {};
+import { Selection, Relation } from './decorator'
+export const decoratorsMap = {
+    Selection,
+    Relation
+};
 
 import { Metadatas, HandlerDefMap } from './types';
 export function createResolvers(handlers: HandlerDefMap, entity: Metadatas, decorators: any, getController: GetController): MagnusResolvers {

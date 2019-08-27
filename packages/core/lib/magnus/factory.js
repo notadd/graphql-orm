@@ -2,7 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const lodash_1 = require("lodash");
 const selectionSet_1 = require("./selectionSet");
-exports.decoratorsMap = {};
+const decorator_1 = require("./decorator");
+exports.decoratorsMap = {
+    Selection: decorator_1.Selection,
+    Relation: decorator_1.Relation
+};
 function createResolvers(handlers, entity, decorators, getController) {
     const obj = {};
     decorators = {
