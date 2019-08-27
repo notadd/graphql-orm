@@ -19,9 +19,9 @@ interface GetController {
     (name: string): MagnusBase;
 }
 export const decoratorsMap = {
-    Info: (data: any, source: any, variables: any, context: any, info: any) => info,
-    Source: (data: any, source: any, variables: any, context: any, info: any) => source,
-    Context: (data: any, source: any, variables: any, context: any, info: any) => context,
+    Info: (data: any, that: SelectionSet) => that.info,
+    Source: (data: any, that: SelectionSet) => that.source,
+    Context: (data: any, that: SelectionSet) => that.context,
 };
 
 import { Metadatas, HandlerDefMap } from './types';
@@ -39,28 +39,12 @@ export function createResolvers(handlers: HandlerDefMap, entity: Metadatas, deco
             const controller = getController(className);
             if (controller) {
                 const resolver: MagnusResolver = async (source: any, variables: any, context: any, info: GraphQLResolveInfo) => {
-                    const sets = SelectionSet.fromGraphql(info, {}, entity, handlers);
+                    const sets = SelectionSet.fromGraphql(info, {}, entity, handlers, decorators);
                     controller.tablename = tableName;
-                    const params = new Array(argsDef.length)
                     const results = {};
-                    argsDef.map(arg => {
-                        const { name, type, index, decorator } = arg;
-                        params[index] = variables[name]
-                        if (decorator.length > 0) {
-                            decorator.map(dec => {
-                                if (decorators[dec]) {
-                                    params[index] = decorators[dec](
-                                        params[index], source, variables, context, info
-                                    )
-                                }
-                            })
-                        }
-                    })
                     await Promise.all(sets.map(async set => {
                         const config = set.toTypeorm();
-                        const result = await controller[methodName](...params);
-                        console.log({ entity, config, handlers })
-                        // const targetDef = entity[type].find(it => it.name === name);
+                        const result = await controller[methodName](...set.arguments);
                         // 赋值
                         if (config.actions && config.actions.length > 0) {
                             config.actions.map(async action => {

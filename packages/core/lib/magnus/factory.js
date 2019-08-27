@@ -3,9 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const lodash_1 = require("lodash");
 const selectionSet_1 = require("./selectionSet");
 exports.decoratorsMap = {
-    Info: (data, source, variables, context, info) => info,
-    Source: (data, source, variables, context, info) => source,
-    Context: (data, source, variables, context, info) => context,
+    Info: (data, that) => that.info,
+    Source: (data, that) => that.source,
+    Context: (data, that) => that.context,
 };
 function createResolvers(handlers, entity, decorators, getController) {
     const obj = {};
@@ -21,26 +21,12 @@ function createResolvers(handlers, entity, decorators, getController) {
             const controller = getController(className);
             if (controller) {
                 const resolver = async (source, variables, context, info) => {
-                    const sets = selectionSet_1.SelectionSet.fromGraphql(info, {}, entity, handlers);
+                    const sets = selectionSet_1.SelectionSet.fromGraphql(info, {}, entity, handlers, decorators);
                     controller.tablename = tableName;
-                    const params = new Array(argsDef.length);
                     const results = {};
-                    argsDef.map(arg => {
-                        const { name, type, index, decorator } = arg;
-                        params[index] = variables[name];
-                        if (decorator.length > 0) {
-                            decorator.map(dec => {
-                                if (decorators[dec]) {
-                                    params[index] = decorators[dec](params[index], source, variables, context, info);
-                                }
-                            });
-                        }
-                    });
                     await Promise.all(sets.map(async (set) => {
                         const config = set.toTypeorm();
-                        const result = await controller[methodName](...params);
-                        console.log({ entity, config, handlers });
-                        // const targetDef = entity[type].find(it => it.name === name);
+                        const result = await controller[methodName](...set.arguments);
                         // 赋值
                         if (config.actions && config.actions.length > 0) {
                             config.actions.map(async (action) => {

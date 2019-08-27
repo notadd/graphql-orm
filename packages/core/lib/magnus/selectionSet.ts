@@ -128,7 +128,7 @@ export class SelectionSet {
                 if (t.decorator && t.decorator.length > 0) {
                     t.decorator.map(dec => {
                         if (this.decorators[dec]) {
-                            this.arguments[index] = this.decorators[dec](this.arguments[index], this.source, this.variables, this.context, this.info)
+                            this.arguments[index] = this.decorators[dec](this.arguments[index], this)
                         }
                     })
                 }
@@ -282,12 +282,14 @@ export class SelectionSet {
         info: GraphQLResolveInfo,
         enums: any = {},
         entities: Metadatas,
-        handlers: HandlerDefMap
+        handlers: HandlerDefMap,
+        decorators: object
     ) {
         return info.fieldNodes.map(it => {
             const set = new SelectionSet(it, info.variableValues, enums);
             set.entities = entities;
             set.handlers = handlers;
+            set.decorators = decorators;
             set.operation = info.operation.operation;
             set.onInit();
             set.toRelations();
