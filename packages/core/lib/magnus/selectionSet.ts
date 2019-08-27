@@ -250,6 +250,8 @@ export class SelectionSet {
         set.context = this.context;
         set.variables = this.variables;
         set.source = this.source;
+        set.decorators = this.decorators;
+
         set.onInit();
         this.children.push(set);
     }
