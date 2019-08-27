@@ -80,7 +80,7 @@ export class SelectionSet {
 
     onInit() {
         const args = this.info.arguments;
-        const item = this.handlers[this.operation].find(it => it[3] === this.name);
+        const item = this.handlers[this.operation].find(it => it[0] === this.name);
         let types: any[] = [];
         if (item) {
             this.methods = this.entities[item[5]] || [];
