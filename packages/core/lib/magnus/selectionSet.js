@@ -58,6 +58,7 @@ class SelectionSet {
         this.relations = [];
         this.actions = [];
         this.decorators = {};
+        this.methods = [];
         this.info = info;
         const name = info.name.value;
         const alias = info.alias ? info.alias.value : undefined;
@@ -70,6 +71,7 @@ class SelectionSet {
     }
     findParams(name) {
         if (this.parent) {
+            this.parent.methods = this.parent.methods || [];
             const item = this.parent.methods.find(it => it.name === name);
             if (item)
                 return item;
@@ -81,7 +83,7 @@ class SelectionSet {
         const item = this.handlers[this.operation].find(it => it[3] === this.name);
         let types = [];
         if (item) {
-            this.methods = this.entities[item[5]];
+            this.methods = this.entities[item[5]] || [];
             types = item[4] || [];
         }
         else {

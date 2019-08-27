@@ -68,9 +68,10 @@ export class SelectionSet {
     decorators: any = {};
     source: any;
     context: any;
-    methods: Metadata[];
+    methods: Metadata[] = [];
     findParams(name: string): Metadata {
         if (this.parent) {
+            this.parent.methods = this.parent.methods || [];
             const item = this.parent.methods.find(it => it.name === name)
             if (item) return item;
             return this.parent.findParams(name)
@@ -82,7 +83,7 @@ export class SelectionSet {
         const item = this.handlers[this.operation].find(it => it[3] === this.name);
         let types = [];
         if (item) {
-            this.methods = this.entities[item[5]];
+            this.methods = this.entities[item[5]] || [];
             types = item[4] || [];
         } else {
             types = this.findParams(this.name).parameters || [];
