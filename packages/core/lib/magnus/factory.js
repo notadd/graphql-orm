@@ -42,11 +42,11 @@ function createResolvers(handlers, entity, decorators, getController) {
                             config.actions.map(async (action) => {
                                 if (Array.isArray(result)) {
                                     await Promise.all(result.map(async (res) => {
-                                        res[action.name] = await res[action.name](action.args);
+                                        res[action.name] = await res[action.name](...action.args);
                                     }));
                                 }
                                 else {
-                                    result[action.name] = await result[action.name](action.args);
+                                    result[action.name] = await result[action.name](...action.args);
                                 }
                             });
                         }
