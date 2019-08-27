@@ -1,5 +1,5 @@
 15 error Error: Command failed: git remote update
-15 error Connection reset by 52.74.223.119 port 22
+15 error ssh: connect to host github.com port 22: Network is down
 15 error fatal: Could not read from remote repository.
 15 error
 15 error Please make sure you have the correct access rights
