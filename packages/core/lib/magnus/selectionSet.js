@@ -96,16 +96,16 @@ class SelectionSet {
                     params[name] = this.variables[arg.value.name.value];
                 }
                 else if (isIntValueNode(arg.value)) {
-                    params[name] = arg.value.value;
+                    params[name] = parseInt(arg.value.value, 10);
                 }
                 else if (isFloatValueNode(arg.value)) {
-                    params[name] = arg.value.value;
+                    params[name] = parseFloat(arg.value.value);
                 }
                 else if (isStringValueNode(arg.value)) {
                     params[name] = arg.value.value;
                 }
                 else if (isBooleanValueNode(arg.value)) {
-                    params[name] = arg.value.value;
+                    params[name] = !!arg.value.value;
                 }
                 else if (isNullValueNode(arg.value)) {
                     params[name] = null;
