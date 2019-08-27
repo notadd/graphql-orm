@@ -18,10 +18,11 @@ interface MagnusResolvers {
 interface GetController {
     (name: string): MagnusBase;
 }
-import { Selection, Relation } from './decorator'
+import { Selection, Relation, GetSelectionSet } from './decorator'
 export const decoratorsMap = {
     Selection,
-    Relation
+    Relation,
+    GetSelectionSet
 };
 
 import { Metadatas, HandlerDefMap } from './types';

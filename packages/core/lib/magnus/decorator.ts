@@ -17,3 +17,12 @@ export const Relation: any = () => () => (
         return that.relations
     }
 }
+
+export const GetSelectionSet: any = () => () => (
+    variable: any,
+    that: SelectionSet
+) => {
+    if (that) {
+        return that
+    }
+}
