@@ -18,11 +18,7 @@ interface MagnusResolvers {
 interface GetController {
     (name: string): MagnusBase;
 }
-export const decoratorsMap = {
-    Info: (data: any, that: SelectionSet) => that.info,
-    Source: (data: any, that: SelectionSet) => that.source,
-    Context: (data: any, that: SelectionSet) => that.context,
-};
+export const decoratorsMap = {};
 
 import { Metadatas, HandlerDefMap } from './types';
 export function createResolvers(handlers: HandlerDefMap, entity: Metadatas, decorators: any, getController: GetController): MagnusResolvers {
@@ -45,8 +41,8 @@ export function createResolvers(handlers: HandlerDefMap, entity: Metadatas, deco
                         entities: entity,
                         handlers,
                         decorators,
-                        source, 
-                        variables, 
+                        source,
+                        variables,
                         context
                     });
                     controller.tablename = tableName;
