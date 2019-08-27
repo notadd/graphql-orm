@@ -13,10 +13,10 @@ export declare function isListValueNode(obj: ValueNode): obj is ListValueNode;
 export declare function isObjectValueNode(obj: ValueNode): obj is ListValueNode;
 import { Metadatas, Metadata, HandlerDefMap } from './types';
 export declare class SelectionSet {
-    parent: SelectionSet;
+    parent?: SelectionSet;
     children: SelectionSet[];
     name: string;
-    alias: string;
+    alias?: string;
     level: number;
     variables: any;
     enums: any;
@@ -35,7 +35,7 @@ export declare class SelectionSet {
     source: any;
     context: any;
     methods: Metadata[];
-    findParams(name: string): Metadata;
+    findParams(name: string): Metadata | undefined;
     onInit(): void;
     createValue(val: ValueNode): any;
     getTop(): SelectionSet;
@@ -43,7 +43,7 @@ export declare class SelectionSet {
     addRelation(name: string): void;
     addAction(name: string): void;
     hasChildren(): boolean;
-    getPath(): any[];
+    getPath(): string[];
     toRelation(): void;
     toRelations(): void;
     create(field: any, variables: any, enums?: any): void;

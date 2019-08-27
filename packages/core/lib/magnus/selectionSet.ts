@@ -39,10 +39,10 @@ export function isObjectValueNode(obj: ValueNode): obj is ListValueNode {
 import { Metadatas, Metadata, HandlerDefMap } from './types';
 
 export class SelectionSet {
-    parent: SelectionSet;
+    parent?: SelectionSet;
     children: SelectionSet[] = [];
     name: string;
-    alias: string;
+    alias?: string;
     level: number = 0;
     variables: any;
     enums: any;
@@ -69,7 +69,7 @@ export class SelectionSet {
     source: any;
     context: any;
     methods: Metadata[] = [];
-    findParams(name: string): Metadata {
+    findParams(name: string): Metadata | undefined {
         if (this.parent) {
             this.parent.methods = this.parent.methods || [];
             const item = this.parent.methods.find(it => it.name === name)
@@ -81,12 +81,12 @@ export class SelectionSet {
     onInit() {
         const args = this.info.arguments;
         const item = this.handlers[this.operation].find(it => it[3] === this.name);
-        let types = [];
+        let types: any[] = [];
         if (item) {
             this.methods = this.entities[item[5]] || [];
             types = item[4] || [];
         } else {
-            types = this.findParams(this.name).parameters || [];
+            types = this.findParams(this.name)!.parameters || [];
         }
         this.arguments = new Array(types.length)
         if (args && args.length > 0) {
@@ -213,7 +213,7 @@ export class SelectionSet {
     }
 
     getPath() {
-        let paths = [];
+        let paths: string[] = [];
         if (this.parent) {
             paths.push(...this.parent.getPath())
         }
