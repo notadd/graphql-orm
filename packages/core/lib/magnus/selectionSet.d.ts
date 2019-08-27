@@ -70,7 +70,16 @@ export declare class SelectionSet {
     static fromJson(field: FieldNode, variables: any, enums: any): SelectionSet;
     entities: Metadatas;
     handlers: HandlerDefMap;
-    static fromGraphql(info: GraphQLResolveInfo, enums: any, entities: Metadatas, handlers: HandlerDefMap, decorators: object): SelectionSet[];
+    static fromGraphql({ info, enums, entities, handlers, decorators, context, source, variables }: {
+        info: GraphQLResolveInfo;
+        enums?: any;
+        entities?: any;
+        handlers?: any;
+        decorators?: any;
+        context?: any;
+        source?: any;
+        variables?: any;
+    }): SelectionSet[];
     /**
      * 创建where
      * "lessThan"

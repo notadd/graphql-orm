@@ -76,6 +76,7 @@ export class SelectionSet {
             return this.parent.findParams(name)
         }
     }
+
     onInit() {
         const args = this.info.arguments;
         const item = this.handlers[this.operation].find(it => it[3] === this.name);
@@ -128,7 +129,7 @@ export class SelectionSet {
                 if (t.decorator && t.decorator.length > 0) {
                     t.decorator.map(dec => {
                         if (this.decorators[dec]) {
-                            this.arguments[index] = this.decorators[dec](this.arguments[index], this)
+                            this.arguments[index] = this.decorators[dec]()()(this.arguments[index], this)
                         }
                     })
                 }
@@ -245,6 +246,9 @@ export class SelectionSet {
         set.entities = this.entities;
         set.handlers = this.handlers;
         set.operation = this.operation;
+        set.context = this.context;
+        set.variables = this.variables;
+        set.source = this.source;
         set.onInit();
         this.children.push(set);
     }
@@ -279,11 +283,16 @@ export class SelectionSet {
     entities: Metadatas;
     handlers: HandlerDefMap;
     static fromGraphql(
-        info: GraphQLResolveInfo,
-        enums: any = {},
-        entities: Metadatas,
-        handlers: HandlerDefMap,
-        decorators: object
+        { info, enums, entities, handlers, decorators, context, source, variables }: {
+            info: GraphQLResolveInfo,
+            enums?: any,
+            entities?: any,
+            handlers?: any,
+            decorators?: any,
+            context?: any,
+            source?: any,
+            variables?: any
+        }
     ) {
         return info.fieldNodes.map(it => {
             const set = new SelectionSet(it, info.variableValues, enums);
@@ -291,6 +300,9 @@ export class SelectionSet {
             set.handlers = handlers;
             set.decorators = decorators;
             set.operation = info.operation.operation;
+            set.context = context;
+            set.source = source;
+            set.variables = variables;
             set.onInit();
             set.toRelations();
             return set;

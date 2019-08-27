@@ -65,7 +65,9 @@ async function bootstrap() {
                             args: any,
                             info: GraphQLResolveInfo
                         ) => {
-                            const sets = SelectionSet.fromGraphql(info, {}, {}, {}, {});
+                            const sets = SelectionSet.fromGraphql({
+                                source, info, variables: args, enums: {}
+                            });
                             const obj = [];
                             await Promise.all(sets.map(async set => {
                                 const condiction = SelectionSet.createWhere({

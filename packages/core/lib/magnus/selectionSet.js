@@ -129,7 +129,7 @@ class SelectionSet {
                 if (t.decorator && t.decorator.length > 0) {
                     t.decorator.map(dec => {
                         if (this.decorators[dec]) {
-                            this.arguments[index] = this.decorators[dec](this.arguments[index], this);
+                            this.arguments[index] = this.decorators[dec]()()(this.arguments[index], this);
                         }
                     });
                 }
@@ -248,6 +248,9 @@ class SelectionSet {
         set.entities = this.entities;
         set.handlers = this.handlers;
         set.operation = this.operation;
+        set.context = this.context;
+        set.variables = this.variables;
+        set.source = this.source;
         set.onInit();
         this.children.push(set);
     }
@@ -278,13 +281,16 @@ class SelectionSet {
         set.toRelations();
         return set;
     }
-    static fromGraphql(info, enums = {}, entities, handlers, decorators) {
+    static fromGraphql({ info, enums, entities, handlers, decorators, context, source, variables }) {
         return info.fieldNodes.map(it => {
             const set = new SelectionSet(it, info.variableValues, enums);
             set.entities = entities;
             set.handlers = handlers;
             set.decorators = decorators;
             set.operation = info.operation.operation;
+            set.context = context;
+            set.source = source;
+            set.variables = variables;
             set.onInit();
             set.toRelations();
             return set;

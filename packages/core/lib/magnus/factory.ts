@@ -39,7 +39,16 @@ export function createResolvers(handlers: HandlerDefMap, entity: Metadatas, deco
             const controller = getController(className);
             if (controller) {
                 const resolver: MagnusResolver = async (source: any, variables: any, context: any, info: GraphQLResolveInfo) => {
-                    const sets = SelectionSet.fromGraphql(info, {}, entity, handlers, decorators);
+                    const sets = SelectionSet.fromGraphql({
+                        info: info,
+                        enums: {},
+                        entities: entity,
+                        handlers,
+                        decorators,
+                        source, 
+                        variables, 
+                        context
+                    });
                     controller.tablename = tableName;
                     const results = {};
                     await Promise.all(sets.map(async set => {

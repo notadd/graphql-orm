@@ -21,7 +21,16 @@ function createResolvers(handlers, entity, decorators, getController) {
             const controller = getController(className);
             if (controller) {
                 const resolver = async (source, variables, context, info) => {
-                    const sets = selectionSet_1.SelectionSet.fromGraphql(info, {}, entity, handlers, decorators);
+                    const sets = selectionSet_1.SelectionSet.fromGraphql({
+                        info: info,
+                        enums: {},
+                        entities: entity,
+                        handlers,
+                        decorators,
+                        source,
+                        variables,
+                        context
+                    });
                     controller.tablename = tableName;
                     const results = {};
                     await Promise.all(sets.map(async (set) => {
