@@ -153,7 +153,7 @@ class SelectionSet {
             args.map((arg, index) => {
                 const name = arg.name.value;
                 if (isVariableNode(arg.value)) {
-                    params[name] = this.variables[arg.value.name.value];
+                    params[name] = this.variables[arg.name.value];
                 }
                 else if (isIntValueNode(arg.value)) {
                     params[name] = parseInt(arg.value.value, 10);
