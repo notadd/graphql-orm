@@ -89,6 +89,9 @@ class SelectionSet {
         if (relation) {
             this.relation = `${relation}.${name}`;
         }
+        else {
+            this.relation = name;
+        }
     }
     getRelation() {
         if (this.relation)
@@ -137,7 +140,7 @@ class SelectionSet {
                             this.addSelect(param.name);
                         }
                         else {
-                            this.addSelect(`${this.relation}.${param.name}`);
+                            this.addSelect(`${rel}.${param.name}`);
                         }
                     }
                     types = param.parameters || [];
@@ -250,6 +253,8 @@ class SelectionSet {
         }
     }
     addRelation(name) {
+        const relation = this.getRelation();
+        console.log(relation);
         if (this.parent) {
             if (name || this.relation) {
                 this.parent.addRelation(name || `${this.relation}`);
