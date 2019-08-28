@@ -250,10 +250,14 @@ class SelectionSet {
     }
     addRelation(name) {
         if (this.parent) {
-            this.parent.addRelation(`${this.relation}`);
-            const item = this.parent.relations.find(re => re === name);
-            if (!item) {
-                this.parent.relations.push(name);
+            if (name || this.relation) {
+                this.parent.addRelation(name || `${this.relation}`);
+            }
+            if (name) {
+                const item = this.parent.relations.find(re => re === name);
+                if (!item) {
+                    this.parent.relations.push(name);
+                }
             }
         }
     }
