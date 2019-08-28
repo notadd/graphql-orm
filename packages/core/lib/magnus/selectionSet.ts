@@ -78,18 +78,42 @@ export class SelectionSet {
         }
     }
     type: string;
+    currentEntity: string;
+    relation: string;
+    getCurrentEntity() {
+        if (this.currentEntity) return this.currentEntity;
+        if (this.parent) return this.parent.getCurrentEntity();
+    }
     onInit() {
         const args = this.info.arguments;
         const item = this.handlers[this.operation].find(it => it[0] === this.name);
         let types: any[] = [];
         if (item) {
-            this.methods = this.entities[item[5]] || [];
+            const type: any = item[5];
             types = item[4] || [];
-            this.type = item[5];
+            if (type) {
+                this.type = type.type
+                this.currentEntity = type.fullName.replace(type.type, '');
+                this.methods = this.entities[this.type] || [];
+            }
         } else {
-            const param = this.findParams(this.name);
-            if (param) {
-                types = param!.parameters || [];
+            const params = this.entities[this.getCurrentEntity()];
+            if (params) {
+                const param: any = params.find(it => it.name === this.name);
+                if (param) {
+                    if (param.decorators.include('ManyToMany')) {
+                        this.relation = param.name;
+                    } else if (param.decorators.include('ManyToOne')) {
+                        this.relation = param.name;
+                    } else if (param.decorators.include('OneToMany')) {
+                        this.relation = param.name;
+                    } else if (param.decorators.include('OneToOne')) {
+                        this.relation = param.name;
+                    } else {
+                        this.addSelect(param.name)
+                    }
+                    types = param!.parameters || [];
+                }
             }
         }
         this.arguments = new Array(types.length)
@@ -177,13 +201,6 @@ export class SelectionSet {
         }
     }
 
-    get isEntity() {
-        if (this.methods.length > 0) {
-            return true;
-        }
-        return false;
-    }
-
     getTop(): SelectionSet {
         if (this.parent) return this.parent.getTop();
         return this;
@@ -191,31 +208,30 @@ export class SelectionSet {
 
     addSelect(name: string): void {
         if (this.parent) {
-            this.parent.addSelect(name);
-            const item = this.parent.selections.find(re => re === name);
+            this.parent.addSelect(name)
+            const item = this.parent.selections.find(re => re === name)
             if (!item) {
-                this.parent.selections.push(name);
+                this.parent.selections.push(name)
             }
         }
     }
 
     addRelation(name: string): void {
         if (this.parent) {
-            // this.parent.addSelect(name);
-            this.parent.addRelation(`${this.parent.name}.${name}`);
-            const item = this.parent.relations.find(re => re === name);
+            this.parent.addRelation(`${this.parent.name}.${name}`)
+            const item = this.parent.relations.find(re => re === name)
             if (!item) {
-                this.parent.relations.push(name);
+                this.parent.relations.push(name)
             }
         }
     }
 
     addAction(name: string) {
         if (this.parent) {
-            this.parent.addAction(`${this.parent.name}.${name}`);
-            const item = this.parent.actions.find(re => re.name === name);
+            this.parent.addAction(`${this.parent.name}.${name}`)
+            const item = this.parent.actions.find(re => re.name === name)
             if (!item) {
-                this.parent.actions.push({ name, args: this.arguments });
+                this.parent.actions.push({ name, args: this.arguments })
             }
         }
     }
@@ -232,21 +248,18 @@ export class SelectionSet {
         paths.push(this.name);
         return paths;
     }
-
     toRelation() {
-        if (this.hasChildren() && this.isEntity) {
+        if (this.hasChildren()) {
             if (Object.keys(this.arguments).length === 0) {
-                this.addRelation(this.name);
+                this.addRelation(this.name)
             } else {
-                this.addAction(this.name);
+                this.addAction(this.name)
             }
         } else {
-            if (this.isEntity) {
-                if (Object.keys(this.arguments).length === 0) {
-                    this.addSelect(this.name);
-                } else {
-                    this.addAction(this.name);
-                }
+            if (Object.keys(this.arguments).length === 0) {
+                this.addSelect(this.name)
+            } else {
+                this.addAction(this.name)
             }
         }
     }

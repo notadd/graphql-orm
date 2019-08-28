@@ -821,10 +821,10 @@
   resolved "https://registry.yarnpkg.com/@nodelib/fs.stat/-/fs.stat-1.1.3.tgz#2b5a3ab3f918cca48a8c754c08168e3f03eba61b"
   integrity sha512-shAmDyaQC4H92APFoIaVDHCx5bStIocgvbwQyxPRrbUY20V1EYTbSDchWbuwlMG3V17cprZhA6+78JfB+3DTPw==
 
-"@notadd/magnus-core@^3.4.8":
-  version "3.4.8"
-  resolved "https://registry.yarnpkg.com/@notadd/magnus-core/-/magnus-core-3.4.8.tgz#35ac229db66e6c14e8497a48ec93be6962739198"
-  integrity sha512-H6Lz1InUeOfxdW0rCRL2/xWLNod8Tk4PSTIHgXgcd5VSH2FLryRZQefqr3MNon/052iqxk8oxAXPa8Wq4T2zDg==
+"@notadd/magnus-core@^3.4.17":
+  version "3.4.17"
+  resolved "https://registry.yarnpkg.com/@notadd/magnus-core/-/magnus-core-3.4.17.tgz#a32f6d506a2fdf9a1397142b6c33eade5045685c"
+  integrity sha512-GnG/I0gCoQXW406Zfe1vJVtIubSuMSxSMb8dNt6E9WIKXP+cOKo6tHh9DpYdvNOtlIP6LLHsUFPX2KYqH7o1Nw==
   dependencies:
     graphql "^14.4.2"
     tslib "^1.10.0"
