@@ -84,6 +84,16 @@ export class SelectionSet {
         if (this.currentEntity) return this.currentEntity;
         if (this.parent) return this.parent.getCurrentEntity();
     }
+    getRelation() {
+        let relations = [];
+        if (this.parent) {
+            relations.push(...this.parent.getRelation())
+        }
+        if (this.relation) {
+            relations.push(this.relation);
+        }
+        return relations;
+    }
     onInit() {
         const args = this.info.arguments;
         const item = this.handlers[this.operation].find(it => it[0] === this.name);
@@ -217,8 +227,8 @@ export class SelectionSet {
     }
 
     addRelation(name: string): void {
-        if (this.parent) {
-            this.parent.addRelation(`${this.parent.name}.${name}`)
+        if (this.parent && this.parent.relation) {
+            this.parent.addRelation(`${this.getRelation().join('.')}.${name}`)
             const item = this.parent.relations.find(re => re === name)
             if (!item) {
                 this.parent.relations.push(name)
@@ -257,7 +267,7 @@ export class SelectionSet {
             }
         } else {
             if (Object.keys(this.arguments).length === 0) {
-                this.addSelect(this.name)
+                // this.addSelect(this.name)
             } else {
                 this.addAction(this.name)
             }
