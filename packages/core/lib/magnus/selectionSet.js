@@ -85,10 +85,12 @@ class SelectionSet {
             return this.parent.getCurrentEntity();
     }
     getRelation() {
-        if (this.relation)
-            return this.relation;
+        let relations = [];
         if (this.parent)
-            return this.parent.getRelation();
+            relations.push(...this.parent.getRelation());
+        if (this.relation)
+            relations.push(this.relation);
+        return relations;
     }
     onInit() {
         const args = this.info.arguments;
@@ -108,36 +110,43 @@ class SelectionSet {
             if (params) {
                 const param = params.find(it => it.name === this.name);
                 if (param) {
+                    this.currentEntity = param.entity;
                     if (param.decorators.includes('ManyToMany')) {
-                        const rel = this.getRelation();
+                        const rel = this.getRelation().join('.');
                         if (rel)
                             this.relation = `${rel}.${param.name}`;
                         this.relation = param.name;
                         this.addRelation();
                     }
                     else if (param.decorators.includes('ManyToOne')) {
-                        const rel = this.getRelation();
+                        const rel = this.getRelation().join('.');
                         if (rel)
                             this.relation = `${rel}.${param.name}`;
                         this.relation = param.name;
                         this.addRelation();
                     }
                     else if (param.decorators.includes('OneToMany')) {
-                        const rel = this.getRelation();
+                        const rel = this.getRelation().join('.');
                         if (rel)
                             this.relation = `${rel}.${param.name}`;
                         this.relation = param.name;
                         this.addRelation();
                     }
                     else if (param.decorators.includes('OneToOne')) {
-                        const rel = this.getRelation();
+                        const rel = this.getRelation().join('.');
                         if (rel)
                             this.relation = `${rel}.${param.name}`;
                         this.relation = param.name;
                         this.addRelation();
                     }
                     else {
-                        this.addSelect(param.name);
+                        const rel = this.getRelation().join('.');
+                        if (rel) {
+                            // this.addRelation()
+                        }
+                        else {
+                            this.addSelect(param.name);
+                        }
                     }
                     types = param.parameters || [];
                 }
