@@ -84,11 +84,15 @@ export class SelectionSet {
         if (this.currentEntity) return this.currentEntity;
         if (this.parent) return this.parent.getCurrentEntity();
     }
+    setRelation(name: string) {
+        const relation = this.getRelation();
+        if (relation) {
+            this.relation = `${relation}.${name}`
+        }
+    }
     getRelation() {
-        let relations = [];
-        if (this.parent) relations.push(...this.parent.getRelation());
-        if (this.relation) relations.push(this.relation)
-        return relations;
+        if (this.relation) return this.relation;
+        if (this.parent) return this.parent.getRelation();
     }
     onInit() {
         const args = this.info.arguments;
@@ -109,39 +113,27 @@ export class SelectionSet {
                 if (param) {
                     this.currentEntity = param.entity;
                     if (param.decorators.includes('ManyToMany')) {
-                        const rel = this.getRelation().join('.');
-                        if (rel)
-                            this.relation = `${rel}.${param.name}`;
-                        this.relation = param.name;
+                        this.setRelation(param.name);
                         this.addRelation();
                     }
                     else if (param.decorators.includes('ManyToOne')) {
-                        const rel = this.getRelation().join('.');
-                        if (rel)
-                            this.relation = `${rel}.${param.name}`;
-                        this.relation = param.name;
+                        this.setRelation(param.name);
                         this.addRelation();
                     }
                     else if (param.decorators.includes('OneToMany')) {
-                        const rel = this.getRelation().join('.');
-                        if (rel)
-                            this.relation = `${rel}.${param.name}`;
-                        this.relation = param.name;
+                        this.setRelation(param.name);
                         this.addRelation();
                     }
                     else if (param.decorators.includes('OneToOne')) {
-                        const rel = this.getRelation().join('.');
-                        if (rel)
-                            this.relation = `${rel}.${param.name}`;
-                        this.relation = param.name;
+                        this.setRelation(param.name);
                         this.addRelation();
                     }
                     else {
-                        const rel = this.getRelation().join('.');
-                        if (rel) {
-                            // this.addRelation()
-                        } else {
+                        const rel = this.getRelation();
+                        if (!rel) {
                             this.addSelect(param.name);
+                        } else {
+                            this.addSelect(`${this.relation}.${param.name}`);
                         }
                     }
                     types = param!.parameters || [];

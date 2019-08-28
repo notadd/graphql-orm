@@ -40,7 +40,8 @@ export declare class SelectionSet {
     currentEntity: string;
     relation: string;
     getCurrentEntity(): any;
-    getRelation(): any[];
+    setRelation(name: string): void;
+    getRelation(): any;
     onInit(): void;
     createValue(val: ValueNode): any;
     getTop(): SelectionSet;
