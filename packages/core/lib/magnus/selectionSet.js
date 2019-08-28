@@ -85,14 +85,10 @@ class SelectionSet {
             return this.parent.getCurrentEntity();
     }
     getRelation() {
-        let relations = [];
-        if (this.parent) {
-            relations.push(...this.parent.getRelation());
-        }
-        if (this.relation) {
-            relations.push(this.relation);
-        }
-        return relations;
+        if (this.relation)
+            return this.relation;
+        if (this.parent)
+            return this.parent.getRelation();
     }
     onInit() {
         const args = this.info.arguments;
@@ -112,17 +108,33 @@ class SelectionSet {
             if (params) {
                 const param = params.find(it => it.name === this.name);
                 if (param) {
-                    if (param.decorators.include('ManyToMany')) {
+                    if (param.decorators.includes('ManyToMany')) {
+                        const rel = this.getRelation();
+                        if (rel)
+                            this.relation = `${rel}.${param.name}`;
                         this.relation = param.name;
+                        this.addRelation();
                     }
-                    else if (param.decorators.include('ManyToOne')) {
+                    else if (param.decorators.includes('ManyToOne')) {
+                        const rel = this.getRelation();
+                        if (rel)
+                            this.relation = `${rel}.${param.name}`;
                         this.relation = param.name;
+                        this.addRelation();
                     }
-                    else if (param.decorators.include('OneToMany')) {
+                    else if (param.decorators.includes('OneToMany')) {
+                        const rel = this.getRelation();
+                        if (rel)
+                            this.relation = `${rel}.${param.name}`;
                         this.relation = param.name;
+                        this.addRelation();
                     }
-                    else if (param.decorators.include('OneToOne')) {
+                    else if (param.decorators.includes('OneToOne')) {
+                        const rel = this.getRelation();
+                        if (rel)
+                            this.relation = `${rel}.${param.name}`;
                         this.relation = param.name;
+                        this.addRelation();
                     }
                     else {
                         this.addSelect(param.name);
@@ -237,8 +249,8 @@ class SelectionSet {
         }
     }
     addRelation(name) {
-        if (this.parent && this.parent.relation) {
-            this.parent.addRelation(`${this.getRelation().join('.')}.${name}`);
+        if (this.parent) {
+            this.parent.addRelation(`${this.relation}`);
             const item = this.parent.relations.find(re => re === name);
             if (!item) {
                 this.parent.relations.push(name);
@@ -267,18 +279,12 @@ class SelectionSet {
     }
     toRelation() {
         if (this.hasChildren()) {
-            if (Object.keys(this.arguments).length === 0) {
-                this.addRelation(this.name);
-            }
-            else {
+            if (Object.keys(this.arguments).length > 0) {
                 this.addAction(this.name);
             }
         }
         else {
-            if (Object.keys(this.arguments).length === 0) {
-                // this.addSelect(this.name)
-            }
-            else {
+            if (Object.keys(this.arguments).length > 0) {
                 this.addAction(this.name);
             }
         }
