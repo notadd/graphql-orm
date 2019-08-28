@@ -77,7 +77,7 @@ export class SelectionSet {
             return this.parent.findParams(name)
         }
     }
-
+    type: string;
     onInit() {
         const args = this.info.arguments;
         const item = this.handlers[this.operation].find(it => it[0] === this.name);
@@ -85,6 +85,7 @@ export class SelectionSet {
         if (item) {
             this.methods = this.entities[item[5]] || [];
             types = item[4] || [];
+            this.type = item[5];
         } else {
             const param = this.findParams(this.name);
             if (param) {
@@ -176,6 +177,13 @@ export class SelectionSet {
         }
     }
 
+    get isEntity() {
+        if (this.methods.length > 0) {
+            return true;
+        }
+        return false;
+    }
+
     getTop(): SelectionSet {
         if (this.parent) return this.parent.getTop();
         return this;
@@ -183,30 +191,31 @@ export class SelectionSet {
 
     addSelect(name: string): void {
         if (this.parent) {
-            this.parent.addSelect(name)
-            const item = this.parent.selections.find(re => re === name)
+            this.parent.addSelect(name);
+            const item = this.parent.selections.find(re => re === name);
             if (!item) {
-                this.parent.selections.push(name)
+                this.parent.selections.push(name);
             }
         }
     }
 
     addRelation(name: string): void {
         if (this.parent) {
-            this.parent.addRelation(`${this.parent.name}.${name}`)
-            const item = this.parent.relations.find(re => re === name)
+            // this.parent.addSelect(name);
+            this.parent.addRelation(`${this.parent.name}.${name}`);
+            const item = this.parent.relations.find(re => re === name);
             if (!item) {
-                this.parent.relations.push(name)
+                this.parent.relations.push(name);
             }
         }
     }
 
     addAction(name: string) {
         if (this.parent) {
-            this.parent.addAction(`${this.parent.name}.${name}`)
-            const item = this.parent.actions.find(re => re.name === name)
+            this.parent.addAction(`${this.parent.name}.${name}`);
+            const item = this.parent.actions.find(re => re.name === name);
             if (!item) {
-                this.parent.actions.push({ name, args: this.arguments })
+                this.parent.actions.push({ name, args: this.arguments });
             }
         }
     }
@@ -225,17 +234,19 @@ export class SelectionSet {
     }
 
     toRelation() {
-        if (this.hasChildren()) {
+        if (this.hasChildren() && this.isEntity) {
             if (Object.keys(this.arguments).length === 0) {
-                this.addRelation(this.name)
+                this.addRelation(this.name);
             } else {
-                this.addAction(this.name)
+                this.addAction(this.name);
             }
         } else {
-            if (Object.keys(this.arguments).length === 0) {
-                this.addSelect(this.name)
-            } else {
-                this.addAction(this.name)
+            if (this.isEntity) {
+                if (Object.keys(this.arguments).length === 0) {
+                    this.addSelect(this.name);
+                } else {
+                    this.addAction(this.name);
+                }
             }
         }
     }

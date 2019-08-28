@@ -85,6 +85,7 @@ class SelectionSet {
         if (item) {
             this.methods = this.entities[item[5]] || [];
             types = item[4] || [];
+            this.type = item[5];
         }
         else {
             const param = this.findParams(this.name);
@@ -183,6 +184,12 @@ class SelectionSet {
             return res;
         }
     }
+    get isEntity() {
+        if (this.methods.length > 0) {
+            return true;
+        }
+        return false;
+    }
     getTop() {
         if (this.parent)
             return this.parent.getTop();
@@ -199,6 +206,7 @@ class SelectionSet {
     }
     addRelation(name) {
         if (this.parent) {
+            // this.parent.addSelect(name);
             this.parent.addRelation(`${this.parent.name}.${name}`);
             const item = this.parent.relations.find(re => re === name);
             if (!item) {
@@ -227,7 +235,7 @@ class SelectionSet {
         return paths;
     }
     toRelation() {
-        if (this.hasChildren()) {
+        if (this.hasChildren() && this.isEntity) {
             if (Object.keys(this.arguments).length === 0) {
                 this.addRelation(this.name);
             }
@@ -236,11 +244,13 @@ class SelectionSet {
             }
         }
         else {
-            if (Object.keys(this.arguments).length === 0) {
-                this.addSelect(this.name);
-            }
-            else {
-                this.addAction(this.name);
+            if (this.isEntity) {
+                if (Object.keys(this.arguments).length === 0) {
+                    this.addSelect(this.name);
+                }
+                else {
+                    this.addAction(this.name);
+                }
             }
         }
     }

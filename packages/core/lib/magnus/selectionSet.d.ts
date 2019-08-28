@@ -36,8 +36,10 @@ export declare class SelectionSet {
     context: any;
     methods: Metadata[];
     findParams(name: string): Metadata | undefined;
+    type: string;
     onInit(): void;
     createValue(val: ValueNode): any;
+    readonly isEntity: boolean;
     getTop(): SelectionSet;
     addSelect(name: string): void;
     addRelation(name: string): void;
