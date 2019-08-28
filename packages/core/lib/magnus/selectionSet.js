@@ -140,7 +140,7 @@ class SelectionSet {
                             this.addSelect(param.name);
                         }
                         else {
-                            this.addSelect(`${rel}.${param.name}`);
+                            // this.addSelect(`${rel}.${param.name}`);
                         }
                     }
                     types = param.parameters || [];
