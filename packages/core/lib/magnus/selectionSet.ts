@@ -243,7 +243,6 @@ export class SelectionSet {
     }
     addRelation(name?: string): void {
         const relation = this.getRelation();
-        console.log(relation)
         if (this.parent) {
             if (name || this.relation) {
                 this.parent.addRelation(name || `${this.relation}`);

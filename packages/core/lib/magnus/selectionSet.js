@@ -254,7 +254,6 @@ class SelectionSet {
     }
     addRelation(name) {
         const relation = this.getRelation();
-        console.log(relation);
         if (this.parent) {
             if (name || this.relation) {
                 this.parent.addRelation(name || `${this.relation}`);
