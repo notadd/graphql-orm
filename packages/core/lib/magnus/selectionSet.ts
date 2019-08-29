@@ -396,6 +396,9 @@ export class SelectionSet {
                     let operator: FindOperatorType = `equal`;
                     const act = action.toLocaleLowerCase();
                     switch (act) {
+                        case 'not':
+                            operator = 'not';
+                            break;
                         case 'lt':
                             operator = 'lessThan';
                             break;

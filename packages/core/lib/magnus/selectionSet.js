@@ -387,6 +387,9 @@ class SelectionSet {
                     let operator = `equal`;
                     const act = action.toLocaleLowerCase();
                     switch (act) {
+                        case 'not':
+                            operator = 'not';
+                            break;
                         case 'lt':
                             operator = 'lessThan';
                             break;
