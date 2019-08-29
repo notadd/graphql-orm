@@ -384,11 +384,48 @@ class SelectionSet {
                 }
                 else {
                     const [column, action] = keys;
+                    let operator = `equal`;
+                    const act = action.toLocaleLowerCase();
+                    switch (act) {
+                        case 'lt':
+                            operator = 'lessThan';
+                            break;
+                        case 'lte':
+                            operator = 'lessThanOrEqual';
+                            break;
+                        case 'gt':
+                            operator = 'moreThan';
+                            break;
+                        case 'gte':
+                            operator = 'moreThanOrEqual';
+                            break;
+                        case 'like':
+                            operator = 'like';
+                            break;
+                        case 'between':
+                            operator = 'between';
+                            break;
+                        case 'in':
+                            operator = 'in';
+                            break;
+                        case 'any':
+                            operator = 'any';
+                            break;
+                        case 'isNull':
+                            operator = 'isNull';
+                            break;
+                        case 'raw':
+                            operator = 'raw';
+                            break;
+                        default:
+                            operator = 'equal';
+                            break;
+                    }
                     if (Array.isArray(item)) {
-                        res[column] = new FindOperator_1.FindOperator(action, this.createWhere(item), true, true);
+                        res[column] = new FindOperator_1.FindOperator(operator, this.createWhere(item), true, true);
                     }
                     else {
-                        res[column] = new FindOperator_1.FindOperator(action, this.createWhere(item), true, false);
+                        res[column] = new FindOperator_1.FindOperator(operator, this.createWhere(item), true, false);
                     }
                 }
             });
