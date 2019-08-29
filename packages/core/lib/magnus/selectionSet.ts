@@ -397,36 +397,48 @@ export class SelectionSet {
                     const act = action.toLocaleLowerCase();
                     switch (act) {
                         case 'not':
+                        case 'Not':
                             operator = 'not';
                             break;
                         case 'lt':
+                        case 'Lt':
                             operator = 'lessThan';
                             break;
                         case 'lte':
+                        case 'Lte':
                             operator = 'lessThanOrEqual';
                             break;
                         case 'gt':
+                        case 'Gt':
                             operator = 'moreThan';
                             break;
                         case 'gte':
+                        case 'Gte':
                             operator = 'moreThanOrEqual';
                             break;
                         case 'like':
+                        case 'Like':
                             operator = 'like';
                             break;
                         case 'between':
+                        case 'Between':
                             operator = 'between';
                             break;
                         case 'in':
+                        case 'In':
                             operator = 'in';
                             break;
                         case 'any':
+                        case 'Any':
                             operator = 'any';
                             break;
                         case 'isNull':
+                        case 'isnull':
+                        case 'IsNull':
                             operator = 'isNull';
                             break;
                         case 'raw':
+                        case 'Raw':
                             operator = 'raw';
                             break;
                         default:
