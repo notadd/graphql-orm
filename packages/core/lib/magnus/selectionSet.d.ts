@@ -1,4 +1,4 @@
-import { SelectionNode, GraphQLResolveInfo, ListValueNode, EnumValueNode, NullValueNode, BooleanValueNode, StringValueNode, FloatValueNode, IntValueNode, ValueNode, VariableNode, OperationDefinitionNode, FieldNode, FragmentSpreadNode, InlineFragmentNode } from 'graphql';
+import { SelectionNode, GraphQLResolveInfo, ListValueNode, EnumValueNode, NullValueNode, BooleanValueNode, StringValueNode, FloatValueNode, IntValueNode, ValueNode, VariableNode, OperationDefinitionNode, FieldNode, FragmentSpreadNode, InlineFragmentNode } from "graphql";
 export declare function isFieldNode(obj: SelectionNode): obj is FieldNode;
 export declare function isFragmentSpreadNode(obj: SelectionNode): obj is FragmentSpreadNode;
 export declare function isInlineFragmentNode(obj: SelectionNode): obj is InlineFragmentNode;
@@ -11,7 +11,7 @@ export declare function isNullValueNode(obj: ValueNode): obj is NullValueNode;
 export declare function isEnumValueNode(obj: ValueNode): obj is EnumValueNode;
 export declare function isListValueNode(obj: ValueNode): obj is ListValueNode;
 export declare function isObjectValueNode(obj: ValueNode): obj is ListValueNode;
-import { Metadatas, Metadata, HandlerDefMap } from './types';
+import { Metadatas, Metadata, HandlerDefMap } from "./types";
 export declare class SelectionSet {
     parent?: SelectionSet;
     children: SelectionSet[];
@@ -87,18 +87,18 @@ export declare class SelectionSet {
         variables?: any;
     }): SelectionSet[];
     /**
-     * 创建where
-     * "lessThan"
-    | "lessThanOrEqual"
-    | "moreThan"
-    | "moreThanOrEqual"
-    | "equal"
-    | "between"
-    | "in"
-    | "any"
-    | "isNull"
-    | "like"
-    | "raw";
-     */
+       * 创建where
+       * "lessThan"
+      | "lessThanOrEqual"
+      | "moreThan"
+      | "moreThanOrEqual"
+      | "equal"
+      | "between"
+      | "in"
+      | "any"
+      | "isNull"
+      | "like"
+      | "raw";
+       */
     static createWhere(where: any): {};
 }

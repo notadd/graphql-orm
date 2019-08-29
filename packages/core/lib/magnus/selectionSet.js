@@ -2,51 +2,51 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const FindOperator_1 = require("../find-options/FindOperator");
 function isFieldNode(obj) {
-    return obj.kind === 'Field';
+    return obj.kind === "Field";
 }
 exports.isFieldNode = isFieldNode;
 function isFragmentSpreadNode(obj) {
-    return obj.kind === 'FragmentSpread';
+    return obj.kind === "FragmentSpread";
 }
 exports.isFragmentSpreadNode = isFragmentSpreadNode;
 function isInlineFragmentNode(obj) {
-    return obj.kind === 'InlineFragment';
+    return obj.kind === "InlineFragment";
 }
 exports.isInlineFragmentNode = isInlineFragmentNode;
 function isVariableNode(obj) {
-    return obj.kind === 'Variable';
+    return obj.kind === "Variable";
 }
 exports.isVariableNode = isVariableNode;
 function isIntValueNode(obj) {
-    return obj.kind === 'IntValue';
+    return obj.kind === "IntValue";
 }
 exports.isIntValueNode = isIntValueNode;
 function isFloatValueNode(obj) {
-    return obj.kind === 'FloatValue';
+    return obj.kind === "FloatValue";
 }
 exports.isFloatValueNode = isFloatValueNode;
 function isStringValueNode(obj) {
-    return obj.kind === 'StringValue';
+    return obj.kind === "StringValue";
 }
 exports.isStringValueNode = isStringValueNode;
 function isBooleanValueNode(obj) {
-    return obj.kind === 'BooleanValue';
+    return obj.kind === "BooleanValue";
 }
 exports.isBooleanValueNode = isBooleanValueNode;
 function isNullValueNode(obj) {
-    return obj.kind === 'NullValue';
+    return obj.kind === "NullValue";
 }
 exports.isNullValueNode = isNullValueNode;
 function isEnumValueNode(obj) {
-    return obj.kind === 'EnumValue';
+    return obj.kind === "EnumValue";
 }
 exports.isEnumValueNode = isEnumValueNode;
 function isListValueNode(obj) {
-    return obj.kind === 'ListValue';
+    return obj.kind === "ListValue";
 }
 exports.isListValueNode = isListValueNode;
 function isObjectValueNode(obj) {
-    return obj.kind === 'ObjectValue';
+    return obj.kind === "ObjectValue";
 }
 exports.isObjectValueNode = isObjectValueNode;
 class SelectionSet {
@@ -108,7 +108,7 @@ class SelectionSet {
             types = item[4] || [];
             if (type) {
                 this.type = type.type;
-                this.currentEntity = type.fullName.replace(type.type, '');
+                this.currentEntity = type.fullName.replace(type.type, "");
                 this.methods = this.entities[this.type] || [];
             }
         }
@@ -118,19 +118,27 @@ class SelectionSet {
                 const param = params.find(it => it.name === this.name);
                 if (param) {
                     this.currentEntity = param.entity;
-                    if (param.decorators.includes('ManyToMany')) {
+                    if (param.decorators.includes("ManyToMany")) {
                         this.setRelation(param.name);
                         this.addRelation();
                     }
-                    else if (param.decorators.includes('ManyToOne')) {
+                    else if (param.decorators.includes("ManyToOne")) {
                         this.setRelation(param.name);
                         this.addRelation();
                     }
-                    else if (param.decorators.includes('OneToMany')) {
+                    else if (param.decorators.includes("TreeParent")) {
                         this.setRelation(param.name);
                         this.addRelation();
                     }
-                    else if (param.decorators.includes('OneToOne')) {
+                    else if (param.decorators.includes("TreeChildren")) {
+                        this.setRelation(param.name);
+                        this.addRelation();
+                    }
+                    else if (param.decorators.includes("OneToMany")) {
+                        this.setRelation(param.name);
+                        this.addRelation();
+                    }
+                    else if (param.decorators.includes("OneToOne")) {
                         this.setRelation(param.name);
                         this.addRelation();
                     }
@@ -196,13 +204,16 @@ class SelectionSet {
             });
         }
         if (this.info && this.info.selectionSet) {
-            this.info.selectionSet.selections && this.info.selectionSet.selections.map(selection => {
-                if (isFieldNode(selection)) {
-                    this.create(selection, this.variables, this.enums);
-                }
-                else if (isFragmentSpreadNode(selection)) { }
-                else { }
-            });
+            this.info.selectionSet.selections &&
+                this.info.selectionSet.selections.map(selection => {
+                    if (isFieldNode(selection)) {
+                        this.create(selection, this.variables, this.enums);
+                    }
+                    else if (isFragmentSpreadNode(selection)) {
+                    }
+                    else {
+                    }
+                });
         }
     }
     createValue(val) {
@@ -324,7 +335,8 @@ class SelectionSet {
         };
     }
     static fromOperationDefinitionNode(operation, variables, enums = {}) {
-        return operation.selectionSet.selections.map(selection => {
+        return operation.selectionSet.selections
+            .map(selection => {
             if (isFieldNode(selection)) {
                 const set = SelectionSet.fromJson(selection, variables, enums);
                 set.onInit();
@@ -332,8 +344,10 @@ class SelectionSet {
             }
             else if (isFragmentSpreadNode(selection)) {
             }
-            else { }
-        }).filter(res => !!res);
+            else {
+            }
+        })
+            .filter(res => !!res);
     }
     static fromJson(field, variables, enums) {
         const set = new SelectionSet(field, variables, enums);
@@ -357,28 +371,28 @@ class SelectionSet {
         });
     }
     /**
-     * 创建where
-     * "lessThan"
-    | "lessThanOrEqual"
-    | "moreThan"
-    | "moreThanOrEqual"
-    | "equal"
-    | "between"
-    | "in"
-    | "any"
-    | "isNull"
-    | "like"
-    | "raw";
-     */
+       * 创建where
+       * "lessThan"
+      | "lessThanOrEqual"
+      | "moreThan"
+      | "moreThanOrEqual"
+      | "equal"
+      | "between"
+      | "in"
+      | "any"
+      | "isNull"
+      | "like"
+      | "raw";
+       */
     static createWhere(where) {
         if (Array.isArray(where)) {
             return where;
         }
-        else if (typeof where === 'object') {
+        else if (typeof where === "object") {
             let res = {};
             Object.keys(where).map(key => {
                 let item = where[key];
-                const keys = key.split('_');
+                const keys = key.split("_");
                 if (keys.length === 1) {
                     res[keys[0]] = this.createWhere(item);
                 }
@@ -387,53 +401,53 @@ class SelectionSet {
                     let operator = `equal`;
                     const act = action.toLocaleLowerCase();
                     switch (act) {
-                        case 'not':
-                        case 'Not':
-                            operator = 'not';
+                        case "not":
+                        case "Not":
+                            operator = "not";
                             break;
-                        case 'lt':
-                        case 'Lt':
-                            operator = 'lessThan';
+                        case "lt":
+                        case "Lt":
+                            operator = "lessThan";
                             break;
-                        case 'lte':
-                        case 'Lte':
-                            operator = 'lessThanOrEqual';
+                        case "lte":
+                        case "Lte":
+                            operator = "lessThanOrEqual";
                             break;
-                        case 'gt':
-                        case 'Gt':
-                            operator = 'moreThan';
+                        case "gt":
+                        case "Gt":
+                            operator = "moreThan";
                             break;
-                        case 'gte':
-                        case 'Gte':
-                            operator = 'moreThanOrEqual';
+                        case "gte":
+                        case "Gte":
+                            operator = "moreThanOrEqual";
                             break;
-                        case 'like':
-                        case 'Like':
-                            operator = 'like';
+                        case "like":
+                        case "Like":
+                            operator = "like";
                             break;
-                        case 'between':
-                        case 'Between':
-                            operator = 'between';
+                        case "between":
+                        case "Between":
+                            operator = "between";
                             break;
-                        case 'in':
-                        case 'In':
-                            operator = 'in';
+                        case "in":
+                        case "In":
+                            operator = "in";
                             break;
-                        case 'any':
-                        case 'Any':
-                            operator = 'any';
+                        case "any":
+                        case "Any":
+                            operator = "any";
                             break;
-                        case 'isNull':
-                        case 'isnull':
-                        case 'IsNull':
-                            operator = 'isNull';
+                        case "isNull":
+                        case "isnull":
+                        case "IsNull":
+                            operator = "isNull";
                             break;
-                        case 'raw':
-                        case 'Raw':
-                            operator = 'raw';
+                        case "raw":
+                        case "Raw":
+                            operator = "raw";
                             break;
                         default:
-                            operator = 'equal';
+                            operator = "equal";
                             break;
                     }
                     if (Array.isArray(item)) {
@@ -447,7 +461,7 @@ class SelectionSet {
             return res;
         }
         else {
-            return new FindOperator_1.FindOperator('equal', where, true, false);
+            return new FindOperator_1.FindOperator("equal", where, true, false);
         }
     }
 }
