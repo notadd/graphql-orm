@@ -387,12 +387,15 @@ class SelectionSet {
                     if (Array.isArray(item)) {
                         res[column] = new FindOperator_1.FindOperator(action, this.createWhere(item), true, true);
                     }
+                    else {
+                        res[column] = new FindOperator_1.FindOperator(action, this.createWhere(item), true, false);
+                    }
                 }
             });
             return res;
         }
         else {
-            return new FindOperator_1.FindOperator('equal', where, true, true);
+            return new FindOperator_1.FindOperator('equal', where, true, false);
         }
     }
 }

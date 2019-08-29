@@ -88,7 +88,7 @@ export class SelectionSet {
         const relation = this.getRelation();
         if (relation) {
             this.relation = `${relation}.${name}`
-        }else{
+        } else {
             this.relation = name;
         }
     }
@@ -394,12 +394,14 @@ export class SelectionSet {
                     const [column, action] = keys;
                     if (Array.isArray(item)) {
                         res[column] = new FindOperator(action as any, this.createWhere(item), true, true)
+                    } else {
+                        res[column] = new FindOperator(action as any, this.createWhere(item), true, false)
                     }
                 }
             });
             return res;
         } else {
-            return new FindOperator('equal', where, true, true)
+            return new FindOperator('equal', where, true, false)
         }
     }
 }
