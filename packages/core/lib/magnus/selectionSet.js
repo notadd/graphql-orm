@@ -118,7 +118,10 @@ class SelectionSet {
                 const param = params.find(it => it.name === this.name);
                 if (param) {
                     this.currentEntity = param.entity;
-                    if (param.decorators.includes("ManyToMany")) {
+                    if (param.decorators.includes("ResolveProperty")) {
+                        this.addAction(param.name);
+                    }
+                    else if (param.decorators.includes("ManyToMany")) {
                         this.setRelation(param.name);
                         this.addRelation();
                     }
