@@ -8,9 +8,7 @@ import {
   StringValueNode,
   FloatValueNode,
   IntValueNode,
-  SelectionSetNode,
   ValueNode,
-  ArgumentNode,
   VariableNode,
   OperationDefinitionNode,
   FieldNode,
@@ -65,6 +63,10 @@ export class SelectionSet {
   parent?: SelectionSet;
   children: SelectionSet[] = [];
   name: string;
+  /**
+   * 路径
+   */
+  path: string;
   alias?: string;
   level: number = 0;
   variables: any;
@@ -73,7 +75,7 @@ export class SelectionSet {
   arguments: any[] = [];
   selections: string[] = [];
   relations: string[] = [];
-  actions: { name: string; args: any }[] = [];
+  actions: { name: string; args: any; path: string }[] = [];
   operation: string;
   types: any[];
   info: FieldNode;
@@ -110,7 +112,11 @@ export class SelectionSet {
   currentEntity: string;
   relation: string;
   getCurrentEntity() {
-    if (this.currentEntity) return this.currentEntity;
+    if (this.currentEntity) {
+      if (this.isEntity) {
+        return this.currentEntity;
+      }
+    }
     if (this.parent) return this.parent.getCurrentEntity();
   }
   setRelation(name: string) {
@@ -122,56 +128,83 @@ export class SelectionSet {
     }
   }
   getRelation() {
+    if (!this.isAction) {
+      return;
+    }
     if (this.relation) return this.relation;
     if (this.parent) return this.parent.getRelation();
   }
+  isAction: boolean = false;
+  isEntity: boolean = false;
+  typeArgument: any;
+  handlerEntity(type: any) {
+    if (!type) {
+      return;
+    }
+    this.type = type.type;
+    this.currentEntity = type.fullName.replace(type.type, "");
+    if (this.entities[this.type]) {
+      this.methods = this.entities[this.type];
+    } else {
+      this.isEntity = true;
+      this.methods = this.entities[this.getCurrentEntity()];
+    }
+    if (type.typeArguments && type.typeArguments.length > 0) {
+      this.typeArgument = type.typeArguments[0];
+    }
+  }
   onInit() {
     const args = this.info.arguments;
-    const item = this.handlers[this.operation].find(it => it[0] === this.name);
-    let types: any[] = [];
-    if (item) {
-      const type: any = item[5];
-      types = item[4] || [];
-      if (type) {
-        this.type = type.type;
-        this.currentEntity = type.fullName.replace(type.type, "");
-        this.methods = this.entities[this.type] || [];
+    let types = [];
+    if (this.parent) {
+      const param = this.parent.methods.find(
+        method => method.name === this.name
+      );
+      if (param) {
+        if (param.parameters) {
+          types = param.parameters;
+        }
+        this.handlerEntity(param.entity);
+        if (param.decorators.includes("ResolveProperty")) {
+          this.isAction = true;
+          this.addAction(this.getPath().join("."));
+        } else if (param.decorators.includes("ManyToMany")) {
+          this.setRelation(param.name);
+          this.addRelation();
+        } else if (param.decorators.includes("ManyToOne")) {
+          this.setRelation(param.name);
+          this.addRelation();
+        } else if (param.decorators.includes("TreeParent")) {
+          this.setRelation(param.name);
+          this.addRelation();
+        } else if (param.decorators.includes("TreeChildren")) {
+          this.setRelation(param.name);
+          this.addRelation();
+        } else if (param.decorators.includes("OneToMany")) {
+          this.setRelation(param.name);
+          this.addRelation();
+        } else if (param.decorators.includes("OneToOne")) {
+          this.setRelation(param.name);
+          this.addRelation();
+        } else {
+          const rel = this.getRelation();
+          if (!rel) {
+            this.addSelect(param.name);
+          } else {
+            // this.addSelect(`${rel}.${param.name}`);
+          }
+        }
+        types = param.parameters || [];
       }
     } else {
-      const params = this.entities[this.getCurrentEntity()];
-      if (params) {
-        const param: any = params.find(it => it.name === this.name);
-        if (param) {
-          this.currentEntity = param.entity;
-          if (param.decorators.includes("ResolveProperty")) {
-            this.addAction(param.name);
-          } else if (param.decorators.includes("ManyToMany")) {
-            this.setRelation(param.name);
-            this.addRelation();
-          } else if (param.decorators.includes("ManyToOne")) {
-            this.setRelation(param.name);
-            this.addRelation();
-          } else if (param.decorators.includes("TreeParent")) {
-            this.setRelation(param.name);
-            this.addRelation();
-          } else if (param.decorators.includes("TreeChildren")) {
-            this.setRelation(param.name);
-            this.addRelation();
-          } else if (param.decorators.includes("OneToMany")) {
-            this.setRelation(param.name);
-            this.addRelation();
-          } else if (param.decorators.includes("OneToOne")) {
-            this.setRelation(param.name);
-            this.addRelation();
-          } else {
-            const rel = this.getRelation();
-            if (!rel) {
-              this.addSelect(param.name);
-            } else {
-              // this.addSelect(`${rel}.${param.name}`);
-            }
-          }
-          types = param!.parameters || [];
+      const item = this.handlers[this.operation].find(
+        it => it[0] === this.name
+      );
+      if (item) {
+        const type = item[5];
+        types = item[4] || [];
+        if (type && !this.type) {
+          this.handlerEntity(type);
         }
       }
     }
@@ -290,7 +323,11 @@ export class SelectionSet {
       this.parent.addAction(`${this.parent.name}.${name}`);
       const item = this.parent.actions.find(re => re.name === name);
       if (!item) {
-        this.parent.actions.push({ name, args: this.arguments });
+        this.parent.actions.push({
+          name: this.name,
+          args: this.arguments,
+          path: name
+        });
       }
     }
   }
@@ -333,7 +370,9 @@ export class SelectionSet {
     set.variables = this.variables;
     set.source = this.source;
     set.decorators = this.decorators;
-
+    if (this.typeArgument) {
+      set.handlerEntity(this.typeArgument);
+    }
     set.onInit();
     this.children.push(set);
   }

@@ -2,6 +2,7 @@ import { GraphQLResolveInfo } from "graphql";
 import { MagnusBase } from "@notadd/magnus-core";
 import { upperFirst } from "lodash";
 import { SelectionSet } from "./selectionSet";
+import { get, set } from "lodash";
 interface MagnusFieldResolver {
   (source: any, variables: any, info: GraphQLResolveInfo): any;
 }
@@ -30,6 +31,16 @@ export const decoratorsMap = {
   GetSelectionSet
 };
 import { Metadatas, HandlerDefMap } from "./types";
+export async function callActionByPath(data: any, action: any) {
+  const actions = (action.path as string).split(".");
+  actions.pop();
+  const that = get(data, actions.join("."));
+  const list = get(data, action.path);
+  if (typeof list === "function") {
+    const result = await list.bind(that)(...action.args);
+    set(data, action.path, result);
+  }
+}
 export function createResolvers(
   handlers: HandlerDefMap,
   entity: Metadatas,
@@ -72,21 +83,9 @@ export function createResolvers(
               const result = await controller[methodName](...set.arguments);
               // 赋值
               if (config.actions && config.actions.length > 0) {
-                config.actions.map(async action => {
-                  if (Array.isArray(result)) {
-                    await Promise.all(
-                      result.map(async res => {
-                        res[action.name] = await res[action.name](
-                          ...action.args
-                        );
-                      })
-                    );
-                  } else {
-                    result[action.name] = await result[action.name](
-                      ...action.args
-                    );
-                  }
-                });
+                await Promise.all(
+                  config.actions.map(action => callActionByPath(result, action))
+                );
               }
               results[config.name] = result;
             })

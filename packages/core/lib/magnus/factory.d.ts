@@ -22,5 +22,6 @@ export declare const decoratorsMap: {
     GetSelectionSet: any;
 };
 import { Metadatas, HandlerDefMap } from "./types";
+export declare function callActionByPath(data: any, action: any): Promise<void>;
 export declare function createResolvers(handlers: HandlerDefMap, entity: Metadatas, decorators: any, getController: GetController): MagnusResolvers;
 export {};

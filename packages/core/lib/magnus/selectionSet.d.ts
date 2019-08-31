@@ -16,6 +16,10 @@ export declare class SelectionSet {
     parent?: SelectionSet;
     children: SelectionSet[];
     name: string;
+    /**
+     * 路径
+     */
+    path: string;
     alias?: string;
     level: number;
     variables: any;
@@ -26,6 +30,7 @@ export declare class SelectionSet {
     actions: {
         name: string;
         args: any;
+        path: string;
     }[];
     operation: string;
     types: any[];
@@ -42,6 +47,10 @@ export declare class SelectionSet {
     getCurrentEntity(): any;
     setRelation(name: string): void;
     getRelation(): any;
+    isAction: boolean;
+    isEntity: boolean;
+    typeArgument: any;
+    handlerEntity(type: any): void;
     onInit(): void;
     createValue(val: ValueNode): any;
     getTop(): SelectionSet;
@@ -61,6 +70,7 @@ export declare class SelectionSet {
         actions: {
             name: string;
             args: any;
+            path: string;
         }[];
     };
     static fromOperationDefinitionNode(operation: OperationDefinitionNode, variables: any, enums?: any): {
@@ -71,6 +81,7 @@ export declare class SelectionSet {
         actions: {
             name: string;
             args: any;
+            path: string;
         }[];
     }[];
     static fromJson(field: FieldNode, variables: any, enums: any): SelectionSet;

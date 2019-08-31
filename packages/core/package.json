@@ -1,23 +1,23 @@
 {
-	"name": "@notadd/magnus-typeorm",
-	"version": "0.2.7",
-	"description": "> TODO: description",
-	"author": "imeepos <1037483576@qq.com>",
-	"homepage": "",
-	"license": "ISC",
-	"main": "lib/index.js",
-	"publishConfig": {
-		"access": "public"
-	},
-	"directories": {
-		"lib": "lib",
-		"test": "__tests__"
-	},
-	"files": [
-		"lib"
-	],
-	"scripts": {
-		"test": "echo \"Error: run tests from root\" && exit 1"
-	},
-	"gitHead": "db233b781fcdb2e95dccfd9ebfcf3a9536977a7b"
+  "name": "@notadd/magnus-typeorm",
+  "version": "0.3.9",
+  "description": "> TODO: description",
+  "author": "imeepos <1037483576@qq.com>",
+  "homepage": "",
+  "license": "ISC",
+  "main": "lib/index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "gitHead": "db233b781fcdb2e95dccfd9ebfcf3a9536977a7b"
 }

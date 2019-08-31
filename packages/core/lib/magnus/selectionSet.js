@@ -59,6 +59,8 @@ class SelectionSet {
         this.actions = [];
         this.decorators = {};
         this.methods = [];
+        this.isAction = false;
+        this.isEntity = false;
         this.info = info;
         const name = info.name.value;
         const alias = info.alias ? info.alias.value : undefined;
@@ -79,8 +81,11 @@ class SelectionSet {
         }
     }
     getCurrentEntity() {
-        if (this.currentEntity)
-            return this.currentEntity;
+        if (this.currentEntity) {
+            if (this.isEntity) {
+                return this.currentEntity;
+            }
+        }
         if (this.parent)
             return this.parent.getCurrentEntity();
     }
@@ -94,67 +99,88 @@ class SelectionSet {
         }
     }
     getRelation() {
+        if (!this.isAction) {
+            return;
+        }
         if (this.relation)
             return this.relation;
         if (this.parent)
             return this.parent.getRelation();
     }
+    handlerEntity(type) {
+        if (!type) {
+            return;
+        }
+        this.type = type.type;
+        this.currentEntity = type.fullName.replace(type.type, "");
+        if (this.entities[this.type]) {
+            this.methods = this.entities[this.type];
+        }
+        else {
+            this.isEntity = true;
+            this.methods = this.entities[this.getCurrentEntity()];
+        }
+        if (type.typeArguments && type.typeArguments.length > 0) {
+            this.typeArgument = type.typeArguments[0];
+        }
+    }
     onInit() {
         const args = this.info.arguments;
-        const item = this.handlers[this.operation].find(it => it[0] === this.name);
         let types = [];
-        if (item) {
-            const type = item[5];
-            types = item[4] || [];
-            if (type) {
-                this.type = type.type;
-                this.currentEntity = type.fullName.replace(type.type, "");
-                this.methods = this.entities[this.type] || [];
+        if (this.parent) {
+            const param = this.parent.methods.find(method => method.name === this.name);
+            if (param) {
+                if (param.parameters) {
+                    types = param.parameters;
+                }
+                this.handlerEntity(param.entity);
+                if (param.decorators.includes("ResolveProperty")) {
+                    this.isAction = true;
+                    this.addAction(this.getPath().join("."));
+                }
+                else if (param.decorators.includes("ManyToMany")) {
+                    this.setRelation(param.name);
+                    this.addRelation();
+                }
+                else if (param.decorators.includes("ManyToOne")) {
+                    this.setRelation(param.name);
+                    this.addRelation();
+                }
+                else if (param.decorators.includes("TreeParent")) {
+                    this.setRelation(param.name);
+                    this.addRelation();
+                }
+                else if (param.decorators.includes("TreeChildren")) {
+                    this.setRelation(param.name);
+                    this.addRelation();
+                }
+                else if (param.decorators.includes("OneToMany")) {
+                    this.setRelation(param.name);
+                    this.addRelation();
+                }
+                else if (param.decorators.includes("OneToOne")) {
+                    this.setRelation(param.name);
+                    this.addRelation();
+                }
+                else {
+                    const rel = this.getRelation();
+                    if (!rel) {
+                        this.addSelect(param.name);
+                    }
+                    else {
+                        // this.addSelect(`${rel}.${param.name}`);
+                    }
+                }
+                types = param.parameters || [];
             }
         }
         else {
-            const params = this.entities[this.getCurrentEntity()];
-            if (params) {
-                const param = params.find(it => it.name === this.name);
-                if (param) {
-                    this.currentEntity = param.entity;
-                    if (param.decorators.includes("ResolveProperty")) {
-                        this.addAction(param.name);
-                    }
-                    else if (param.decorators.includes("ManyToMany")) {
-                        this.setRelation(param.name);
-                        this.addRelation();
-                    }
-                    else if (param.decorators.includes("ManyToOne")) {
-                        this.setRelation(param.name);
-                        this.addRelation();
-                    }
-                    else if (param.decorators.includes("TreeParent")) {
-                        this.setRelation(param.name);
-                        this.addRelation();
-                    }
-                    else if (param.decorators.includes("TreeChildren")) {
-                        this.setRelation(param.name);
-                        this.addRelation();
-                    }
-                    else if (param.decorators.includes("OneToMany")) {
-                        this.setRelation(param.name);
-                        this.addRelation();
-                    }
-                    else if (param.decorators.includes("OneToOne")) {
-                        this.setRelation(param.name);
-                        this.addRelation();
-                    }
-                    else {
-                        const rel = this.getRelation();
-                        if (!rel) {
-                            this.addSelect(param.name);
-                        }
-                        else {
-                            // this.addSelect(`${rel}.${param.name}`);
-                        }
-                    }
-                    types = param.parameters || [];
+            const item = this.handlers[this.operation].find(it => it[0] === this.name);
+            if (item) {
+                const type = item[5];
+                types = item[4] || [];
+                if (type && !this.type) {
+                    this.handlerEntity(type);
                 }
             }
         }
@@ -285,7 +311,11 @@ class SelectionSet {
             this.parent.addAction(`${this.parent.name}.${name}`);
             const item = this.parent.actions.find(re => re.name === name);
             if (!item) {
-                this.parent.actions.push({ name, args: this.arguments });
+                this.parent.actions.push({
+                    name: this.name,
+                    args: this.arguments,
+                    path: name
+                });
             }
         }
     }
@@ -325,6 +355,9 @@ class SelectionSet {
         set.variables = this.variables;
         set.source = this.source;
         set.decorators = this.decorators;
+        if (this.typeArgument) {
+            set.handlerEntity(this.typeArgument);
+        }
         set.onInit();
         this.children.push(set);
     }
