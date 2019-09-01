@@ -5,6 +5,7 @@ function __export(m) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var factory_1 = require("./factory");
 exports.createResolvers = factory_1.createResolvers;
+// export * from './selectionSet';
 __export(require("./selectionSet"));
 __export(require("./decorator"));
 //# sourceMappingURL=index.js.map

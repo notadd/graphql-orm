@@ -1,273 +1,199 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const FindOperator_1 = require("../find-options/FindOperator");
-function isFieldNode(obj) {
-    return obj.kind === "Field";
-}
-exports.isFieldNode = isFieldNode;
-function isFragmentSpreadNode(obj) {
-    return obj.kind === "FragmentSpread";
-}
-exports.isFragmentSpreadNode = isFragmentSpreadNode;
-function isInlineFragmentNode(obj) {
-    return obj.kind === "InlineFragment";
-}
-exports.isInlineFragmentNode = isInlineFragmentNode;
-function isVariableNode(obj) {
-    return obj.kind === "Variable";
-}
-exports.isVariableNode = isVariableNode;
-function isIntValueNode(obj) {
-    return obj.kind === "IntValue";
-}
-exports.isIntValueNode = isIntValueNode;
-function isFloatValueNode(obj) {
-    return obj.kind === "FloatValue";
-}
-exports.isFloatValueNode = isFloatValueNode;
-function isStringValueNode(obj) {
-    return obj.kind === "StringValue";
-}
-exports.isStringValueNode = isStringValueNode;
-function isBooleanValueNode(obj) {
-    return obj.kind === "BooleanValue";
-}
-exports.isBooleanValueNode = isBooleanValueNode;
-function isNullValueNode(obj) {
-    return obj.kind === "NullValue";
-}
-exports.isNullValueNode = isNullValueNode;
-function isEnumValueNode(obj) {
-    return obj.kind === "EnumValue";
-}
-exports.isEnumValueNode = isEnumValueNode;
-function isListValueNode(obj) {
-    return obj.kind === "ListValue";
-}
-exports.isListValueNode = isListValueNode;
-function isObjectValueNode(obj) {
-    return obj.kind === "ObjectValue";
-}
-exports.isObjectValueNode = isObjectValueNode;
-class SelectionSet {
-    constructor(info, variables, enums, level = 0, parent) {
+const utils_1 = require("./utils");
+const createWhere_1 = require("./createWhere");
+class SelectionSet extends createWhere_1.CreateWhere {
+    constructor(info, variables, level = 0, parent) {
+        super();
         this.children = [];
-        this.level = 0;
-        this.arguments = [];
-        this.selections = [];
-        this.relations = [];
-        this.actions = [];
-        this.decorators = {};
-        this.methods = [];
-        this.isAction = false;
-        this.isEntity = false;
+        /**
+         * 结果
+         */
+        this.members = [];
+        /**
+         * 类型
+         */
+        this.type = 'code';
         this.info = info;
         const name = info.name.value;
         const alias = info.alias ? info.alias.value : undefined;
         this.name = name;
-        this.parent = parent;
+        if (parent)
+            this.parent = parent;
         this.level = level;
-        this.alias = alias;
+        if (alias)
+            this.alias = alias;
         this.variables = variables;
-        this.enums = enums;
     }
-    findParams(name) {
-        if (this.parent) {
-            this.parent.methods = this.parent.methods || [];
-            const item = this.parent.methods.find(it => it.name === name);
-            if (item)
-                return item;
-            return this.parent.findParams(name);
-        }
-    }
-    getCurrentEntity() {
-        if (this.currentEntity) {
-            if (this.isEntity) {
-                return this.currentEntity;
+    /**
+     * 查找relations
+     */
+    getRelations(parent = '', relations = []) {
+        if (this.type === 'relation') {
+            if (parent.length > 0) {
+                parent = `${parent}.${this.name}`;
             }
-        }
-        if (this.parent)
-            return this.parent.getCurrentEntity();
-    }
-    setRelation(name) {
-        const relation = this.getRelation();
-        if (relation) {
-            this.relation = `${relation}.${name}`;
-        }
-        else {
-            this.relation = name;
-        }
-    }
-    getRelation() {
-        if (!this.isAction) {
-            return;
-        }
-        if (this.relation)
-            return this.relation;
-        if (this.parent)
-            return this.parent.getRelation();
-    }
-    handlerEntity(type) {
-        if (!type) {
-            return;
-        }
-        this.type = type.type;
-        this.currentEntity = type.fullName.replace(type.type, "");
-        if (this.entities[this.type]) {
-            this.methods = this.entities[this.type];
-        }
-        else {
-            this.isEntity = true;
-            this.methods = this.entities[this.getCurrentEntity()];
-        }
-        if (type.typeArguments && type.typeArguments.length > 0) {
-            this.typeArgument = type.typeArguments[0];
-        }
-    }
-    onInit() {
-        const args = this.info.arguments;
-        let types = [];
-        if (this.parent) {
-            const param = this.parent.methods.find(method => method.name === this.name);
-            if (param) {
-                if (param.parameters) {
-                    types = param.parameters;
-                }
-                this.handlerEntity(param.entity);
-                if (param.decorators.includes("ResolveProperty")) {
-                    this.isAction = true;
-                    this.addAction(this.getPath().join("."));
-                }
-                else if (param.decorators.includes("ManyToMany")) {
-                    this.setRelation(param.name);
-                    this.addRelation();
-                }
-                else if (param.decorators.includes("ManyToOne")) {
-                    this.setRelation(param.name);
-                    this.addRelation();
-                }
-                else if (param.decorators.includes("TreeParent")) {
-                    this.setRelation(param.name);
-                    this.addRelation();
-                }
-                else if (param.decorators.includes("TreeChildren")) {
-                    this.setRelation(param.name);
-                    this.addRelation();
-                }
-                else if (param.decorators.includes("OneToMany")) {
-                    this.setRelation(param.name);
-                    this.addRelation();
-                }
-                else if (param.decorators.includes("OneToOne")) {
-                    this.setRelation(param.name);
-                    this.addRelation();
-                }
-                else {
-                    const rel = this.getRelation();
-                    if (!rel) {
-                        this.addSelect(param.name);
-                    }
-                    else {
-                        // this.addSelect(`${rel}.${param.name}`);
-                    }
-                }
-                types = param.parameters || [];
+            else {
+                parent = this.name;
             }
+            relations.push(parent);
         }
-        else {
-            const item = this.handlers[this.operation].find(it => it[0] === this.name);
-            if (item) {
-                const type = item[5];
-                types = item[4] || [];
-                if (type && !this.type) {
-                    this.handlerEntity(type);
-                }
-            }
+        if (this.children) {
+            this.children.map(child => {
+                child.getRelations(parent, relations);
+            });
         }
-        this.arguments = new Array(types.length);
-        if (args && args.length > 0) {
-            const params = {};
-            args.map((arg, index) => {
-                const name = arg.name.value;
-                if (isVariableNode(arg.value)) {
-                    params[name] = this.variables[arg.name.value];
-                }
-                else if (isIntValueNode(arg.value)) {
-                    params[name] = parseInt(arg.value.value, 10);
-                }
-                else if (isFloatValueNode(arg.value)) {
-                    params[name] = parseFloat(arg.value.value);
-                }
-                else if (isStringValueNode(arg.value)) {
-                    params[name] = arg.value.value;
-                }
-                else if (isBooleanValueNode(arg.value)) {
-                    params[name] = !!arg.value.value;
-                }
-                else if (isNullValueNode(arg.value)) {
-                    params[name] = null;
-                }
-                else if (isEnumValueNode(arg.value)) {
-                    params[name] = undefined;
-                }
-                else if (isListValueNode(arg.value)) {
-                    params[name] = arg.value.values.map(value => this.createValue(value));
-                }
-                else {
-                    let res = {};
-                    arg.value.fields.map(field => {
-                        res[field.name.value] = this.createValue(field.value);
-                    });
-                    params[name] = res;
+        return relations;
+    }
+    getSelection(res) {
+        if (this.type === 'select') {
+            res = res || this.parent;
+        }
+        this.children.map(child => res = child.getSelection(res));
+        return res;
+    }
+    getSelections(selections = []) {
+        let selection = this.getSelection();
+        if (selection) {
+            selection.children.map(child => {
+                if (child.type === 'select') {
+                    selections.push(child.name);
                 }
             });
-            types.map((t, index) => {
-                this.arguments[index] = params[t.name];
+        }
+        return selections;
+    }
+    getAction(res) {
+        if (this.type === 'action') {
+            res = res || this.parent;
+        }
+        this.children.map(child => res = child.getAction(res));
+        return res;
+    }
+    getActions(actions = [], skipSelf = true) {
+        let selection = this.getAction();
+        if (selection) {
+            selection.children.map(child => {
+                if (child.type === 'action') {
+                    actions.push(child);
+                }
+            });
+        }
+        return actions;
+    }
+    static fromGraphql({ info, enums, entities, handlers, decorators, context, source, variables }) {
+        return info.fieldNodes.map(it => {
+            const set = new SelectionSet(it, info.variableValues);
+            set.entities = entities || {};
+            set.handlers = handlers || {};
+            set.decorators = decorators || {};
+            set.operation = info.operation.operation;
+            set.context = context || {};
+            set.source = source || {};
+            set.variables = variables || {};
+            set.enums = enums;
+            set.onInit();
+            return set;
+        });
+    }
+    getArguments() {
+        const args = this.info.arguments;
+        const _arguments = new Array(this.parameters.length);
+        if (this.parameters && this.parameters.length > 0) {
+            const params = {};
+            args && args.map((arg, index) => {
+                const name = arg.name.value;
+                params[name] = this.createArgument(arg);
+            });
+            this.parameters.map((t, index) => {
+                _arguments[index] = params[t.name];
                 if (t.decorator && t.decorator.length > 0) {
                     t.decorator.map(dec => {
                         if (this.decorators[dec]) {
-                            this.arguments[index] = this.decorators[dec]()()(this.arguments[index], this);
+                            _arguments[index] = this.decorators[dec]()()(_arguments[index], this);
                         }
                     });
                 }
             });
         }
+        return _arguments;
+    }
+    onInit() {
+        if (this.parent) { }
+        else {
+            // 根元素
+            let types = [];
+            const root = this.handlers[this.operation] && this.handlers[this.operation].find(it => it[0] === this.name);
+            if (root) {
+                const type = root[5];
+                types = root[4] || [];
+                this.parameters = types;
+                this.handlerType(type);
+            }
+        }
         if (this.info && this.info.selectionSet) {
             this.info.selectionSet.selections &&
                 this.info.selectionSet.selections.map(selection => {
-                    if (isFieldNode(selection)) {
-                        this.create(selection, this.variables, this.enums);
+                    if (utils_1.isFieldNode(selection)) {
+                        this.create(selection, this.variables);
                     }
-                    else if (isFragmentSpreadNode(selection)) {
+                    else if (utils_1.isFragmentSpreadNode(selection)) {
                     }
                     else {
                     }
                 });
         }
     }
+    create(field, variables) {
+        const set = new SelectionSet(field, variables, this.level + 1, this);
+        /**
+         * 全局参数传递
+         */
+        set.entities = this.entities;
+        set.handlers = this.handlers;
+        set.operation = this.operation;
+        set.context = this.context;
+        set.variables = this.variables;
+        set.source = this.source;
+        set.decorators = this.decorators;
+        set.enums = this.enums;
+        /**
+         * 构造必备信息
+         */
+        const member = this.members && this.members.find(member => member.name === set.name);
+        if (member) {
+            set.handlerType(member.entity);
+            /**
+             * set 的members中存在relations
+             */
+            set.setMember(member);
+        }
+        set.onInit();
+        this.children.push(set);
+    }
     createValue(val) {
-        if (isVariableNode(val)) {
+        if (utils_1.isVariableNode(val)) {
             return this.variables[val.name.value];
         }
-        else if (isIntValueNode(val)) {
+        else if (utils_1.isIntValueNode(val)) {
             return val.value;
         }
-        else if (isFloatValueNode(val)) {
+        else if (utils_1.isFloatValueNode(val)) {
             return val.value;
         }
-        else if (isStringValueNode(val)) {
+        else if (utils_1.isStringValueNode(val)) {
             return val.value;
         }
-        else if (isBooleanValueNode(val)) {
+        else if (utils_1.isBooleanValueNode(val)) {
             return val.value;
         }
-        else if (isNullValueNode(val)) {
+        else if (utils_1.isNullValueNode(val)) {
             return null;
         }
-        else if (isEnumValueNode(val)) {
+        else if (utils_1.isEnumValueNode(val)) {
             return undefined;
         }
-        else if (isListValueNode(val)) {
+        else if (utils_1.isListValueNode(val)) {
             return val.values.map(value => this.createValue(value));
         }
         else {
@@ -278,49 +204,144 @@ class SelectionSet {
             return res;
         }
     }
-    getTop() {
-        if (this.parent)
-            return this.parent.getTop();
-        return this;
-    }
-    addSelect(name) {
-        if (this.parent) {
-            this.parent.addSelect(name);
-            const item = this.parent.selections.find(re => re === name);
-            if (!item) {
-                this.parent.selections.push(name);
-            }
+    createArgument(arg) {
+        if (utils_1.isVariableNode(arg.value)) {
+            return this.variables[arg.name.value];
+        }
+        else if (utils_1.isIntValueNode(arg.value)) {
+            return parseInt(arg.value.value, 10);
+        }
+        else if (utils_1.isFloatValueNode(arg.value)) {
+            return parseFloat(arg.value.value);
+        }
+        else if (utils_1.isStringValueNode(arg.value)) {
+            return arg.value.value;
+        }
+        else if (utils_1.isBooleanValueNode(arg.value)) {
+            return !!arg.value.value;
+        }
+        else if (utils_1.isNullValueNode(arg.value)) {
+            return null;
+        }
+        else if (utils_1.isEnumValueNode(arg.value)) {
+            return undefined;
+        }
+        else if (utils_1.isListValueNode(arg.value)) {
+            return arg.value.values.map(value => this.createValue(value));
+        }
+        else {
+            let res = {};
+            arg.value.fields.map(field => {
+                res[field.name.value] = this.createValue(field.value);
+            });
+            return res;
         }
     }
-    addRelation(name) {
-        const relation = this.getRelation();
+    setMember(param) {
+        if (param.decorators.includes("ResolveProperty")) {
+            this.parameters = param.parameters;
+            this.type = 'action';
+        }
+        else if (param.decorators.includes("ManyToMany")) {
+            this.type = 'relation';
+        }
+        else if (param.decorators.includes("ManyToOne")) {
+            this.type = 'relation';
+        }
+        else if (param.decorators.includes("TreeParent")) {
+            this.type = 'relation';
+        }
+        else if (param.decorators.includes("TreeChildren")) {
+            this.type = 'relation';
+        }
+        else if (param.decorators.includes("OneToMany")) {
+            this.type = 'relation';
+        }
+        else if (param.decorators.includes("OneToOne")) {
+            this.type = 'relation';
+        }
+        else if (param.decorators.includes('Column')) {
+            this.type = 'select';
+        }
+        else if (param.decorators.includes('UpdateDateColumn')) {
+            this.type = 'select';
+        }
+        else if (param.decorators.includes('CreateDateColumn')) {
+            this.type = 'select';
+        }
+        else if (param.decorators.includes('PrimaryGeneratedColumn')) {
+            this.type = 'select';
+        }
+        else if (param.decorators.includes('PrimaryColumn')) {
+            this.type = 'select';
+        }
+        else if (param.decorators.includes('ObjectIdColumn')) {
+            this.type = 'select';
+        }
+    }
+    getCurrentEntity() {
+        if (this.currentEntity) {
+            return this.currentEntity;
+        }
         if (this.parent) {
-            if (name || this.relation) {
-                this.parent.addRelation(name || `${this.relation}`);
-            }
-            if (name) {
-                const item = this.parent.relations.find(re => re === name);
-                if (!item) {
-                    this.parent.relations.push(name);
+            return this.parent.getCurrentEntity();
+        }
+    }
+    getFullName() {
+        if (this.fullName) {
+            return this.fullName;
+        }
+        if (this.parent) {
+            return this.parent.getFullName();
+        }
+    }
+    handlerType(type) {
+        if (typeof type === 'object') {
+            if (typeof type.type === 'string') {
+                if (type.isEntity) {
+                    this.isEntity = true;
+                    this.currentEntity = this.getFullName();
+                    this.members = this.entities[this.currentEntity];
+                }
+                else {
+                    this.fullName = type.fullName.length > 0 ? type.fullName : undefined;
+                    this.members = this.entities[type.type];
                 }
             }
-        }
-    }
-    addAction(name) {
-        if (this.parent) {
-            this.parent.addAction(`${this.parent.name}.${name}`);
-            const item = this.parent.actions.find(re => re.name === name);
-            if (!item) {
-                this.parent.actions.push({
-                    name: this.name,
-                    args: this.arguments,
-                    path: name
-                });
+            else {
+                this.handlerType(type.type);
             }
         }
+        else if (type) {
+        }
+        else {
+        }
     }
-    hasChildren() {
-        return this.children.length > 0;
+    toString(set) {
+        let that = set || this;
+        let space = ``;
+        let child = ``;
+        for (let i = 0; i < that.level; i++) {
+            space += `\t`;
+        }
+        if (that.children && that.children.length > 0) {
+            child += `${that.children.map(child => that.toString(child)).join('\n')}`;
+        }
+        if (child.length > 0) {
+            return `${space}${that.name}:${this.fullName}{\n${that.children.map(child => that.toString(child)).join('\n')}\n${space}}`;
+        }
+        return `${space}${that.name}:${this.fullName}`;
+    }
+    get typeorm() {
+        return {
+            alias: this.alias,
+            name: this.name,
+            select: this.getSelections() || [],
+            relations: this.getRelations() || [],
+            actions: this.getActions() || [],
+            path: this.getPath().join('.'),
+            arguments: this.getArguments() || []
+        };
     }
     getPath() {
         let paths = [];
@@ -330,175 +351,10 @@ class SelectionSet {
         paths.push(this.name);
         return paths;
     }
-    toRelation() {
-        if (this.hasChildren()) {
-            if (Object.keys(this.arguments).length > 0) {
-                this.addAction(this.name);
-            }
-        }
-        else {
-            if (Object.keys(this.arguments).length > 0) {
-                this.addAction(this.name);
-            }
-        }
-    }
-    toRelations() {
-        this.toRelation();
-        this.children.map(child => child.toRelations());
-    }
-    create(field, variables, enums = {}) {
-        const set = new SelectionSet(field, variables, enums, this.level + 1, this);
-        set.entities = this.entities;
-        set.handlers = this.handlers;
-        set.operation = this.operation;
-        set.context = this.context;
-        set.variables = this.variables;
-        set.source = this.source;
-        set.decorators = this.decorators;
-        if (this.typeArgument) {
-            set.handlerEntity(this.typeArgument);
-        }
-        set.onInit();
-        this.children.push(set);
-    }
-    toTypeorm() {
-        return {
-            alias: this.alias,
-            name: this.name,
-            select: this.selections,
-            relations: this.relations,
-            actions: this.actions
-        };
-    }
-    static fromOperationDefinitionNode(operation, variables, enums = {}) {
-        return operation.selectionSet.selections
-            .map(selection => {
-            if (isFieldNode(selection)) {
-                const set = SelectionSet.fromJson(selection, variables, enums);
-                set.onInit();
-                return set.toTypeorm();
-            }
-            else if (isFragmentSpreadNode(selection)) {
-            }
-            else {
-            }
-        })
-            .filter(res => !!res);
-    }
-    static fromJson(field, variables, enums) {
-        const set = new SelectionSet(field, variables, enums);
-        set.onInit();
-        set.toRelations();
-        return set;
-    }
-    static fromGraphql({ info, enums, entities, handlers, decorators, context, source, variables }) {
-        return info.fieldNodes.map(it => {
-            const set = new SelectionSet(it, info.variableValues, enums);
-            set.entities = entities || {};
-            set.handlers = handlers || {};
-            set.decorators = decorators || {};
-            set.operation = info.operation.operation;
-            set.context = context || {};
-            set.source = source || {};
-            set.variables = variables || {};
-            set.onInit();
-            set.toRelations();
-            return set;
-        });
-    }
-    /**
-       * 创建where
-       * "lessThan"
-      | "lessThanOrEqual"
-      | "moreThan"
-      | "moreThanOrEqual"
-      | "equal"
-      | "between"
-      | "in"
-      | "any"
-      | "isNull"
-      | "like"
-      | "raw";
-       */
-    static createWhere(where) {
-        if (Array.isArray(where)) {
-            return where;
-        }
-        else if (typeof where === "object") {
-            let res = {};
-            Object.keys(where).map(key => {
-                let item = where[key];
-                const keys = key.split("_");
-                if (keys.length === 1) {
-                    res[keys[0]] = this.createWhere(item);
-                }
-                else {
-                    const [column, action] = keys;
-                    let operator = `equal`;
-                    const act = action.toLocaleLowerCase();
-                    switch (act) {
-                        case "not":
-                        case "Not":
-                            operator = "not";
-                            break;
-                        case "lt":
-                        case "Lt":
-                            operator = "lessThan";
-                            break;
-                        case "lte":
-                        case "Lte":
-                            operator = "lessThanOrEqual";
-                            break;
-                        case "gt":
-                        case "Gt":
-                            operator = "moreThan";
-                            break;
-                        case "gte":
-                        case "Gte":
-                            operator = "moreThanOrEqual";
-                            break;
-                        case "like":
-                        case "Like":
-                            operator = "like";
-                            break;
-                        case "between":
-                        case "Between":
-                            operator = "between";
-                            break;
-                        case "in":
-                        case "In":
-                            operator = "in";
-                            break;
-                        case "any":
-                        case "Any":
-                            operator = "any";
-                            break;
-                        case "isNull":
-                        case "isnull":
-                        case "IsNull":
-                            operator = "isNull";
-                            break;
-                        case "raw":
-                        case "Raw":
-                            operator = "raw";
-                            break;
-                        default:
-                            operator = "equal";
-                            break;
-                    }
-                    if (Array.isArray(item)) {
-                        res[column] = new FindOperator_1.FindOperator(operator, this.createWhere(item), true, true);
-                    }
-                    else {
-                        res[column] = new FindOperator_1.FindOperator(operator, this.createWhere(item), true, false);
-                    }
-                }
-            });
-            return res;
-        }
-        else {
-            return new FindOperator_1.FindOperator("equal", where, true, false);
-        }
+    getTop() {
+        if (this.parent)
+            return this.parent.getTop();
+        return this;
     }
 }
 exports.SelectionSet = SelectionSet;

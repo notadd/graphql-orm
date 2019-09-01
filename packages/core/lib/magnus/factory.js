@@ -2,24 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const lodash_1 = require("lodash");
 const selectionSet_1 = require("./selectionSet");
-const lodash_2 = require("lodash");
 const decorator_1 = require("./decorator");
 exports.decoratorsMap = {
     Selection: decorator_1.Selection,
     Relation: decorator_1.Relation,
-    GetSelectionSet: decorator_1.GetSelectionSet
+    GetSelectionSet: decorator_1.GetSelectionSet,
+    Typeorm: decorator_1.Typeorm
 };
-async function callActionByPath(data, action) {
-    const actions = action.path.split(".");
-    actions.pop();
-    const that = lodash_2.get(data, actions.join("."));
-    const list = lodash_2.get(data, action.path);
-    if (typeof list === "function") {
-        const result = await list.bind(that)(...action.args);
-        lodash_2.set(data, action.path, result);
-    }
-}
-exports.callActionByPath = callActionByPath;
 function createResolvers(handlers, entity, decorators, getController) {
     const obj = {};
     decorators = {
@@ -47,12 +36,8 @@ function createResolvers(handlers, entity, decorators, getController) {
                     controller.tablename = tableName;
                     const results = {};
                     await Promise.all(sets.map(async (set) => {
-                        const config = set.toTypeorm();
-                        const result = await controller[methodName](...set.arguments);
-                        // 赋值
-                        if (config.actions && config.actions.length > 0) {
-                            await Promise.all(config.actions.map(action => callActionByPath(result, action)));
-                        }
+                        const config = set.typeorm;
+                        const result = await controller[methodName](...config.arguments);
                         results[config.name] = result;
                     }));
                     return results[fieldName];

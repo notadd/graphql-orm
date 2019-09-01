@@ -5,7 +5,7 @@ export const Selection: any = () => () => (
     that: SelectionSet
 ) => {
     if (that) {
-        return that.selections
+        return that.getSelections()
     }
 }
 
@@ -14,7 +14,25 @@ export const Relation: any = () => () => (
     that: SelectionSet
 ) => {
     if (that) {
-        return that.relations
+        return that.getRelations()
+    }
+}
+
+export const Action: any = () => () => (
+    variable: any,
+    that: SelectionSet
+) => {
+    if (that) {
+        return that.getActions()
+    }
+}
+
+export const Typeorm: any = () => () => (
+    variable: any,
+    that: SelectionSet
+) => {
+    if (that) {
+        return that.typeorm
     }
 }
 

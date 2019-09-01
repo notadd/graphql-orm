@@ -70,10 +70,10 @@ async function bootstrap() {
                                 let res = await lib_1.getRepository(user_1.User).find(where);
                                 let result = [];
                                 await Promise.all(set.actions.map(async (action) => {
-                                    await Promise.all(res && res.map(async (li) => {
-                                        li[action.name] = await li[action.name](action.args);
-                                        result.push(li);
-                                    }));
+                                    // await Promise.all(res && res.map(async li => {
+                                    //     li[action.name] = await li[action.name](action.args);
+                                    //     result.push(li);
+                                    // }))
                                 }));
                                 if (result && result.length)
                                     obj.push(...result);

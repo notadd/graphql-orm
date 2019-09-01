@@ -1,92 +1,42 @@
-import { SelectionNode, GraphQLResolveInfo, ListValueNode, EnumValueNode, NullValueNode, BooleanValueNode, StringValueNode, FloatValueNode, IntValueNode, ValueNode, VariableNode, OperationDefinitionNode, FieldNode, FragmentSpreadNode, InlineFragmentNode } from "graphql";
-export declare function isFieldNode(obj: SelectionNode): obj is FieldNode;
-export declare function isFragmentSpreadNode(obj: SelectionNode): obj is FragmentSpreadNode;
-export declare function isInlineFragmentNode(obj: SelectionNode): obj is InlineFragmentNode;
-export declare function isVariableNode(obj: ValueNode): obj is VariableNode;
-export declare function isIntValueNode(obj: ValueNode): obj is IntValueNode;
-export declare function isFloatValueNode(obj: ValueNode): obj is FloatValueNode;
-export declare function isStringValueNode(obj: ValueNode): obj is StringValueNode;
-export declare function isBooleanValueNode(obj: ValueNode): obj is BooleanValueNode;
-export declare function isNullValueNode(obj: ValueNode): obj is NullValueNode;
-export declare function isEnumValueNode(obj: ValueNode): obj is EnumValueNode;
-export declare function isListValueNode(obj: ValueNode): obj is ListValueNode;
-export declare function isObjectValueNode(obj: ValueNode): obj is ListValueNode;
-import { Metadatas, Metadata, HandlerDefMap } from "./types";
-export declare class SelectionSet {
-    parent?: SelectionSet;
-    children: SelectionSet[];
-    name: string;
+import { GraphQLResolveInfo, FieldNode, ValueNode } from "graphql";
+import { CreateWhere } from './createWhere';
+export declare class SelectionSet extends CreateWhere {
     /**
-     * 路径
+     * 全局参数
      */
-    path: string;
-    alias?: string;
-    level: number;
-    variables: any;
-    enums: any;
-    arguments: any[];
-    selections: string[];
-    relations: string[];
-    actions: {
-        name: string;
-        args: any;
-        path: string;
-    }[];
-    operation: string;
-    types: any[];
-    info: FieldNode;
-    constructor(info: FieldNode, variables: any, enums: any, level?: number, parent?: SelectionSet);
-    decorators: any;
-    source: any;
+    private enums;
+    private entities;
+    private handlers;
+    private decorators;
+    private operation;
     context: any;
-    methods: Metadata[];
-    findParams(name: string): Metadata | undefined;
-    type: string;
-    currentEntity: string;
-    relation: string;
-    getCurrentEntity(): any;
-    setRelation(name: string): void;
-    getRelation(): any;
-    isAction: boolean;
-    isEntity: boolean;
-    typeArgument: any;
-    handlerEntity(type: any): void;
-    onInit(): void;
-    createValue(val: ValueNode): any;
-    getTop(): SelectionSet;
-    addSelect(name: string): void;
-    addRelation(name?: string): void;
-    addAction(name: string): void;
-    hasChildren(): boolean;
-    getPath(): string[];
-    toRelation(): void;
-    toRelations(): void;
-    create(field: any, variables: any, enums?: any): void;
-    toTypeorm(): {
-        alias: string;
-        name: string;
-        select: string[];
-        relations: string[];
-        actions: {
-            name: string;
-            args: any;
-            path: string;
-        }[];
-    };
-    static fromOperationDefinitionNode(operation: OperationDefinitionNode, variables: any, enums?: any): {
-        alias: string;
-        name: string;
-        select: string[];
-        relations: string[];
-        actions: {
-            name: string;
-            args: any;
-            path: string;
-        }[];
-    }[];
-    static fromJson(field: FieldNode, variables: any, enums: any): SelectionSet;
-    entities: Metadatas;
-    handlers: HandlerDefMap;
+    source: any;
+    private variables;
+    name: string;
+    private parent;
+    private children;
+    info: FieldNode;
+    private level;
+    private alias;
+    /**
+     * 结果
+     */
+    private members;
+    private currentEntity;
+    private fullName;
+    /**
+     * 类型
+     */
+    private type;
+    /**
+     * 查找relations
+     */
+    getRelations(parent?: string, relations?: string[]): string[];
+    getSelection(res?: SelectionSet): SelectionSet;
+    getSelections(selections?: string[]): string[];
+    getAction(res?: SelectionSet): SelectionSet;
+    getActions(actions?: any[], skipSelf?: boolean): any[];
+    constructor(info: FieldNode, variables: any, level?: number, parent?: SelectionSet);
     static fromGraphql({ info, enums, entities, handlers, decorators, context, source, variables }: {
         info: GraphQLResolveInfo;
         enums?: any;
@@ -97,19 +47,27 @@ export declare class SelectionSet {
         source?: any;
         variables?: any;
     }): SelectionSet[];
-    /**
-       * 创建where
-       * "lessThan"
-      | "lessThanOrEqual"
-      | "moreThan"
-      | "moreThanOrEqual"
-      | "equal"
-      | "between"
-      | "in"
-      | "any"
-      | "isNull"
-      | "like"
-      | "raw";
-       */
-    static createWhere(where: any): {};
+    getArguments(): any[];
+    onInit(): void;
+    create(field: FieldNode, variables: any): void;
+    createValue(val: ValueNode): any;
+    createArgument(arg: any): any;
+    parameters: any[];
+    setMember(param: any): void;
+    getCurrentEntity(): any;
+    getFullName(): any;
+    isEntity: boolean;
+    handlerType(type: any): void;
+    toString(set?: SelectionSet): any;
+    readonly typeorm: {
+        alias: string;
+        name: string;
+        select: string[];
+        relations: string[];
+        actions: any[];
+        path: string;
+        arguments: any[];
+    };
+    getPath(): string[];
+    getTop(): SelectionSet;
 }
