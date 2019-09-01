@@ -1,4 +1,5 @@
-import { FindOperator, FindOperatorType } from "typeorm";
+import { FindOperatorType } from "../find-options/FindOperatorType";
+import { FindOperator } from "../find-options/FindOperator";
 
 export class CreateWhere {
     static createWhere(where: any) {

@@ -1,4 +1,4 @@
-import { GraphQLResolveInfo, FieldNode, ValueNode } from "graphql";
+import { GraphQLResolveInfo, FieldNode } from "graphql";
 import { CreateWhere } from './createWhere';
 export declare class SelectionSet extends CreateWhere {
     /**
@@ -13,7 +13,7 @@ export declare class SelectionSet extends CreateWhere {
     source: any;
     private variables;
     name: string;
-    private parent;
+    parent?: SelectionSet;
     private children;
     info: FieldNode;
     private level;
@@ -31,11 +31,11 @@ export declare class SelectionSet extends CreateWhere {
     /**
      * 查找relations
      */
-    getRelations(parent?: string, relations?: string[]): string[];
-    getSelection(res?: SelectionSet): SelectionSet;
-    getSelections(selections?: string[]): string[];
-    getAction(res?: SelectionSet): SelectionSet;
-    getActions(actions?: any[], skipSelf?: boolean): any[];
+    getRelations(parent?: string, relations?: any[]): any[];
+    private getSelection;
+    getSelections(selections?: any[]): any[];
+    private getAction;
+    getActions(actions?: SelectionSet[]): SelectionSet[];
     constructor(info: FieldNode, variables: any, level?: number, parent?: SelectionSet);
     static fromGraphql({ info, enums, entities, handlers, decorators, context, source, variables }: {
         info: GraphQLResolveInfo;
@@ -49,25 +49,16 @@ export declare class SelectionSet extends CreateWhere {
     }): SelectionSet[];
     getArguments(): any[];
     onInit(): void;
-    create(field: FieldNode, variables: any): void;
-    createValue(val: ValueNode): any;
-    createArgument(arg: any): any;
+    private create;
+    private createValue;
+    private createArgument;
     parameters: any[];
     setMember(param: any): void;
-    getCurrentEntity(): any;
-    getFullName(): any;
+    private getCurrentEntity;
+    private getFullName;
     isEntity: boolean;
-    handlerType(type: any): void;
+    private handlerType;
     toString(set?: SelectionSet): any;
-    readonly typeorm: {
-        alias: string;
-        name: string;
-        select: string[];
-        relations: string[];
-        actions: any[];
-        path: string;
-        arguments: any[];
-    };
     getPath(): string[];
     getTop(): SelectionSet;
 }

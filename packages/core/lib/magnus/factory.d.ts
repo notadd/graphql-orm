@@ -20,7 +20,6 @@ export declare const decoratorsMap: {
     Selection: any;
     Relation: any;
     GetSelectionSet: any;
-    Typeorm: any;
 };
 import { Metadatas, HandlerDefMap } from "./types";
 export declare function createResolvers(handlers: HandlerDefMap, entity: Metadatas, decorators: any, getController: GetController): MagnusResolvers;

@@ -16,7 +16,7 @@ export class SelectionSet extends CreateWhere {
     private variables: any;
 
     name: string;
-    private parent: SelectionSet;
+    parent?: SelectionSet;
     private children: SelectionSet[] = [];
 
     info: FieldNode;
@@ -39,7 +39,7 @@ export class SelectionSet extends CreateWhere {
     /**
      * 查找relations
      */
-    getRelations(parent: string = '', relations: string[] = []) {
+    getRelations(parent: string = '', relations: any[] = []) {
         if (this.type === 'relation') {
             if (parent.length > 0) {
                 parent = `${parent}.${this.name}`
@@ -55,14 +55,15 @@ export class SelectionSet extends CreateWhere {
         }
         return relations;
     }
-    getSelection(res?: SelectionSet) {
+    private getSelection(res?: SelectionSet) {
         if (this.type === 'select') {
             res = res || this.parent;
+            return res;
         }
         this.children.map(child => res = child.getSelection(res));
         return res;
     }
-    getSelections(selections: string[] = []) {
+    getSelections(selections: any[] = []) {
         let selection = this.getSelection();
         if (selection) {
             selection.children.map(child => {
@@ -74,15 +75,16 @@ export class SelectionSet extends CreateWhere {
         return selections;
     }
 
-    getAction(res?: SelectionSet) {
+    private getAction(res?: SelectionSet) {
         if (this.type === 'action') {
             res = res || this.parent;
+            return res;
         }
         this.children.map(child => res = child.getAction(res));
         return res;
     }
 
-    getActions(actions: any[] = [], skipSelf: boolean = true) {
+    getActions(actions: SelectionSet[] = []) {
         let selection = this.getAction();
         if (selection) {
             selection.children.map(child => {
@@ -181,7 +183,7 @@ export class SelectionSet extends CreateWhere {
             if (root) {
                 const type = root[5];
                 types = root[4] || [];
-                this.parameters = types;
+                this.parameters = types || [];
                 this.handlerType(type);
             }
 
@@ -197,7 +199,7 @@ export class SelectionSet extends CreateWhere {
                 });
         }
     }
-    create(field: FieldNode, variables: any) {
+    private create(field: FieldNode, variables: any) {
         const set = new SelectionSet(field, variables, this.level + 1, this);
         /**
          * 全局参数传递
@@ -225,7 +227,7 @@ export class SelectionSet extends CreateWhere {
         this.children.push(set);
     }
 
-    createValue(val: ValueNode) {
+    private createValue(val: ValueNode) {
         if (isVariableNode(val)) {
             return this.variables[val.name.value];
         } else if (isIntValueNode(val)) {
@@ -251,7 +253,7 @@ export class SelectionSet extends CreateWhere {
         }
     }
 
-    createArgument(arg: any) {
+    private createArgument(arg: any) {
         if (isVariableNode(arg.value)) {
             return this.variables[arg.name.value];
         } else if (isIntValueNode(arg.value)) {
@@ -276,10 +278,10 @@ export class SelectionSet extends CreateWhere {
             return res;
         }
     }
-    parameters: any[];
+    parameters: any[] = [];
     setMember(param: any) {
         if (param.decorators.includes("ResolveProperty")) {
-            this.parameters = param.parameters;
+            this.parameters = param.parameters || [];
             this.type = 'action';
         }
         else if (param.decorators.includes("ManyToMany")) {
@@ -315,7 +317,7 @@ export class SelectionSet extends CreateWhere {
         }
     }
 
-    getCurrentEntity() {
+    private getCurrentEntity() {
         if (this.currentEntity) {
             return this.currentEntity;
         }
@@ -323,7 +325,7 @@ export class SelectionSet extends CreateWhere {
             return this.parent.getCurrentEntity();
         }
     }
-    getFullName() {
+    private getFullName() {
         if (this.fullName) {
             return this.fullName;
         }
@@ -332,7 +334,7 @@ export class SelectionSet extends CreateWhere {
         }
     }
     isEntity: boolean;
-    handlerType(type: any) {
+    private handlerType(type: any) {
         if (typeof type === 'object') {
             if (typeof type.type === 'string') {
                 if (type.isEntity) {
@@ -368,17 +370,6 @@ export class SelectionSet extends CreateWhere {
             return `${space}${that.name}:${this.fullName}{\n${that.children.map(child => that.toString(child)).join('\n')}\n${space}}`
         }
         return `${space}${that.name}:${this.fullName}`
-    }
-    get typeorm() {
-        return {
-            alias: this.alias,
-            name: this.name,
-            select: this.getSelections() || [],
-            relations: this.getRelations() || [],
-            actions: this.getActions() || [],
-            path: this.getPath().join('.'),
-            arguments: this.getArguments() || []
-        };
     }
     getPath() {
         let paths: string[] = [];

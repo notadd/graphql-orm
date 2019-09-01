@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const typeorm_1 = require("typeorm");
+const FindOperator_1 = require("../find-options/FindOperator");
 class CreateWhere {
     static createWhere(where) {
         if (Array.isArray(where)) {
@@ -69,17 +69,17 @@ class CreateWhere {
                             break;
                     }
                     if (Array.isArray(item)) {
-                        res[column] = new typeorm_1.FindOperator(operator, this.createWhere(item), true, true);
+                        res[column] = new FindOperator_1.FindOperator(operator, this.createWhere(item), true, true);
                     }
                     else {
-                        res[column] = new typeorm_1.FindOperator(operator, this.createWhere(item), true, false);
+                        res[column] = new FindOperator_1.FindOperator(operator, this.createWhere(item), true, false);
                     }
                 }
             });
             return res;
         }
         else {
-            return new typeorm_1.FindOperator("equal", where, true, false);
+            return new FindOperator_1.FindOperator("equal", where, true, false);
         }
     }
 }

@@ -27,15 +27,6 @@ export const Action: any = () => () => (
     }
 }
 
-export const Typeorm: any = () => () => (
-    variable: any,
-    that: SelectionSet
-) => {
-    if (that) {
-        return that.typeorm
-    }
-}
-
 export const GetSelectionSet: any = () => () => (
     variable: any,
     that: SelectionSet

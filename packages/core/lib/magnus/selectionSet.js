@@ -14,6 +14,7 @@ class SelectionSet extends createWhere_1.CreateWhere {
          * 类型
          */
         this.type = 'code';
+        this.parameters = [];
         this.info = info;
         const name = info.name.value;
         const alias = info.alias ? info.alias.value : undefined;
@@ -48,6 +49,7 @@ class SelectionSet extends createWhere_1.CreateWhere {
     getSelection(res) {
         if (this.type === 'select') {
             res = res || this.parent;
+            return res;
         }
         this.children.map(child => res = child.getSelection(res));
         return res;
@@ -66,11 +68,12 @@ class SelectionSet extends createWhere_1.CreateWhere {
     getAction(res) {
         if (this.type === 'action') {
             res = res || this.parent;
+            return res;
         }
         this.children.map(child => res = child.getAction(res));
         return res;
     }
-    getActions(actions = [], skipSelf = true) {
+    getActions(actions = []) {
         let selection = this.getAction();
         if (selection) {
             selection.children.map(child => {
@@ -127,7 +130,7 @@ class SelectionSet extends createWhere_1.CreateWhere {
             if (root) {
                 const type = root[5];
                 types = root[4] || [];
-                this.parameters = types;
+                this.parameters = types || [];
                 this.handlerType(type);
             }
         }
@@ -239,7 +242,7 @@ class SelectionSet extends createWhere_1.CreateWhere {
     }
     setMember(param) {
         if (param.decorators.includes("ResolveProperty")) {
-            this.parameters = param.parameters;
+            this.parameters = param.parameters || [];
             this.type = 'action';
         }
         else if (param.decorators.includes("ManyToMany")) {
@@ -331,17 +334,6 @@ class SelectionSet extends createWhere_1.CreateWhere {
             return `${space}${that.name}:${this.fullName}{\n${that.children.map(child => that.toString(child)).join('\n')}\n${space}}`;
         }
         return `${space}${that.name}:${this.fullName}`;
-    }
-    get typeorm() {
-        return {
-            alias: this.alias,
-            name: this.name,
-            select: this.getSelections() || [],
-            relations: this.getRelations() || [],
-            actions: this.getActions() || [],
-            path: this.getPath().join('.'),
-            arguments: this.getArguments() || []
-        };
     }
     getPath() {
         let paths = [];

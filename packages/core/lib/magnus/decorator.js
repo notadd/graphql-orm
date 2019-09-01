@@ -15,11 +15,6 @@ exports.Action = () => () => (variable, that) => {
         return that.getActions();
     }
 };
-exports.Typeorm = () => () => (variable, that) => {
-    if (that) {
-        return that.typeorm;
-    }
-};
 exports.GetSelectionSet = () => () => (variable, that) => {
     if (that) {
         return that;
