@@ -1,5 +1,5 @@
 import { GraphQLResolveInfo, FieldNode } from "graphql";
-import { CreateWhere } from './createWhere';
+import { CreateWhere } from "./createWhere";
 export declare class SelectionSet extends CreateWhere {
     /**
      * 全局参数
@@ -57,6 +57,7 @@ export declare class SelectionSet extends CreateWhere {
     private getCurrentEntity;
     private getFullName;
     isEntity: boolean;
+    findCurrentEntity(type: any): any;
     private handlerType;
     toString(set?: SelectionSet): any;
     getPath(): string[];
