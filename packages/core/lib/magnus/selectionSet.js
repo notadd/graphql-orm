@@ -13,7 +13,7 @@ class SelectionSet extends createWhere_1.CreateWhere {
         /**
          * 类型
          */
-        this.type = 'code';
+        this.type = "code";
         this.parameters = [];
         this.info = info;
         const name = info.name.value;
@@ -29,8 +29,8 @@ class SelectionSet extends createWhere_1.CreateWhere {
     /**
      * 查找relations
      */
-    getRelations(parent = '', relations = []) {
-        if (this.type === 'relation') {
+    getRelations(parent = "", relations = []) {
+        if (this.type === "relation") {
             if (parent.length > 0) {
                 parent = `${parent}.${this.name}`;
             }
@@ -47,18 +47,18 @@ class SelectionSet extends createWhere_1.CreateWhere {
         return relations;
     }
     getSelection(res) {
-        if (this.type === 'select') {
+        if (this.type === "select") {
             res = res || this.parent;
             return res;
         }
-        this.children.map(child => res = child.getSelection(res));
+        this.children.map(child => (res = child.getSelection(res)));
         return res;
     }
     getSelections(selections = []) {
         let selection = this.getSelection();
         if (selection) {
             selection.children.map(child => {
-                if (child.type === 'select') {
+                if (child.type === "select") {
                     selections.push(child.name);
                 }
             });
@@ -66,18 +66,18 @@ class SelectionSet extends createWhere_1.CreateWhere {
         return selections;
     }
     getAction(res) {
-        if (this.type === 'action') {
+        if (this.type === "action") {
             res = res || this.parent;
             return res;
         }
-        this.children.map(child => res = child.getAction(res));
+        this.children.map(child => (res = child.getAction(res)));
         return res;
     }
     getActions(actions = []) {
         let selection = this.getAction();
         if (selection) {
             selection.children.map(child => {
-                if (child.type === 'action') {
+                if (child.type === "action") {
                     actions.push(child);
                 }
             });
@@ -104,10 +104,11 @@ class SelectionSet extends createWhere_1.CreateWhere {
         const _arguments = new Array(this.parameters.length);
         if (this.parameters && this.parameters.length > 0) {
             const params = {};
-            args && args.map((arg, index) => {
-                const name = arg.name.value;
-                params[name] = this.createArgument(arg);
-            });
+            args &&
+                args.map((arg, index) => {
+                    const name = arg.name.value;
+                    params[name] = this.createArgument(arg);
+                });
             this.parameters.map((t, index) => {
                 _arguments[index] = params[t.name];
                 if (t.decorator && t.decorator.length > 0) {
@@ -122,11 +123,13 @@ class SelectionSet extends createWhere_1.CreateWhere {
         return _arguments;
     }
     onInit() {
-        if (this.parent) { }
+        if (this.parent) {
+        }
         else {
             // 根元素
             let types = [];
-            const root = this.handlers[this.operation] && this.handlers[this.operation].find(it => it[0] === this.name);
+            const root = this.handlers[this.operation] &&
+                this.handlers[this.operation].find(it => it[0] === this.name);
             if (root) {
                 const type = root[5];
                 types = root[4] || [];
@@ -243,43 +246,43 @@ class SelectionSet extends createWhere_1.CreateWhere {
     setMember(param) {
         if (param.decorators.includes("ResolveProperty")) {
             this.parameters = param.parameters || [];
-            this.type = 'action';
+            this.type = "action";
         }
         else if (param.decorators.includes("ManyToMany")) {
-            this.type = 'relation';
+            this.type = "relation";
         }
         else if (param.decorators.includes("ManyToOne")) {
-            this.type = 'relation';
+            this.type = "relation";
         }
         else if (param.decorators.includes("TreeParent")) {
-            this.type = 'relation';
+            this.type = "relation";
         }
         else if (param.decorators.includes("TreeChildren")) {
-            this.type = 'relation';
+            this.type = "relation";
         }
         else if (param.decorators.includes("OneToMany")) {
-            this.type = 'relation';
+            this.type = "relation";
         }
         else if (param.decorators.includes("OneToOne")) {
-            this.type = 'relation';
+            this.type = "relation";
         }
-        else if (param.decorators.includes('Column')) {
-            this.type = 'select';
+        else if (param.decorators.includes("Column")) {
+            this.type = "select";
         }
-        else if (param.decorators.includes('UpdateDateColumn')) {
-            this.type = 'select';
+        else if (param.decorators.includes("UpdateDateColumn")) {
+            this.type = "select";
         }
-        else if (param.decorators.includes('CreateDateColumn')) {
-            this.type = 'select';
+        else if (param.decorators.includes("CreateDateColumn")) {
+            this.type = "select";
         }
-        else if (param.decorators.includes('PrimaryGeneratedColumn')) {
-            this.type = 'select';
+        else if (param.decorators.includes("PrimaryGeneratedColumn")) {
+            this.type = "select";
         }
-        else if (param.decorators.includes('PrimaryColumn')) {
-            this.type = 'select';
+        else if (param.decorators.includes("PrimaryColumn")) {
+            this.type = "select";
         }
-        else if (param.decorators.includes('ObjectIdColumn')) {
-            this.type = 'select';
+        else if (param.decorators.includes("ObjectIdColumn")) {
+            this.type = "select";
         }
     }
     getCurrentEntity() {
@@ -298,17 +301,32 @@ class SelectionSet extends createWhere_1.CreateWhere {
             return this.parent.getFullName();
         }
     }
+    findCurrentEntity(type) {
+        if (type.isEntity)
+            return type;
+        const item = type.typeArguments &&
+            type.typeArguments.find(type => this.findCurrentEntity(type));
+        if (item)
+            return item;
+    }
     handlerType(type) {
-        if (typeof type === 'object') {
-            if (typeof type.type === 'string') {
+        const currentEntity = this.findCurrentEntity(type);
+        if (currentEntity)
+            this.fullName = currentEntity.currentEntity;
+        if (typeof type === "object") {
+            if (typeof type.type === "string") {
                 if (type.isEntity) {
                     this.isEntity = true;
-                    this.currentEntity = this.getFullName();
+                    this.currentEntity = type.currentEntity;
                     this.members = this.entities[this.currentEntity];
                 }
                 else {
-                    this.fullName = type.fullName.length > 0 ? type.fullName : undefined;
-                    this.members = this.entities[type.type];
+                    if (this.entities[type.type]) {
+                        this.members = this.entities[type.type];
+                    }
+                    else {
+                        this.members = this.entities[this.getFullName()];
+                    }
                 }
             }
             else {
@@ -328,12 +346,14 @@ class SelectionSet extends createWhere_1.CreateWhere {
             space += `\t`;
         }
         if (that.children && that.children.length > 0) {
-            child += `${that.children.map(child => that.toString(child)).join('\n')}`;
+            child += `${that.children.map(child => that.toString(child)).join("\n")}`;
         }
         if (child.length > 0) {
-            return `${space}${that.name}:${this.fullName}{\n${that.children.map(child => that.toString(child)).join('\n')}\n${space}}`;
+            return `${space}${that.name}:${this.currentEntity}{\n${that.children
+                .map(child => that.toString(child))
+                .join("\n")}\n${space}}`;
         }
-        return `${space}${that.name}:${this.fullName}`;
+        return `${space}${that.name}:${this.currentEntity}`;
     }
     getPath() {
         let paths = [];

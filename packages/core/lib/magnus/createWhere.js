@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const FindOperator_1 = require("../find-options/FindOperator");
 class CreateWhere {
     static createWhere(where) {
+        if (!where)
+            return where;
         if (Array.isArray(where)) {
             return where;
         }
