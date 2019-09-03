@@ -9,7 +9,9 @@ function createWhere(where: any) {
             const keys = key.split("_");
             const [column, action] = keys;
             let items = cache.get(column);
-            if (!items) cache.set(column, new Set());
+            if (!items) {
+                items = new Set();
+            }
             if (!action) {
                 items!.add(
                     new FindOperator('equal', value)
