@@ -5,12 +5,12 @@ function createWhere(where) {
     const cache = new Map();
     if (typeof where === 'object') {
         Object.keys(where).map(key => {
-            let items = cache.get(key);
-            if (!items)
-                cache.set(key, new Set());
             const value = where[key];
             const keys = key.split("_");
             const [column, action] = keys;
+            let items = cache.get(column);
+            if (!items)
+                cache.set(column, new Set());
             if (!action) {
                 items.add(new FindOperator_1.FindOperator('equal', value));
             }
@@ -79,13 +79,16 @@ function createWhere(where) {
                     items.add(new FindOperator_1.FindOperator(operator, value, true, false));
                 }
             }
+            cache.set(column, items);
         });
     }
-    const result = {};
+    const result = [];
     cache.forEach((ca, key) => {
-        result[key] = [
-            ...ca
-        ];
+        ca.forEach(it => {
+            result.push({
+                [`${key}`]: it
+            });
+        });
     });
     return result;
 }

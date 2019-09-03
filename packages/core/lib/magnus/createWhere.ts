@@ -5,13 +5,13 @@ function createWhere(where: any) {
     const cache: Map<string, Set<any>> = new Map();
     if (typeof where === 'object') {
         Object.keys(where).map(key => {
-            let items = cache.get(key);
-            if (!items) cache.set(key, new Set());
             const value = where[key];
             const keys = key.split("_");
             const [column, action] = keys;
+            let items = cache.get(column);
+            if (!items) cache.set(column, new Set());
             if (!action) {
-                items.add(
+                items!.add(
                     new FindOperator('equal', value)
                 )
             } else {
@@ -50,7 +50,7 @@ function createWhere(where: any) {
                             start = new Date(start);
                             end = new Date(end)
                         }
-                        return items.add(new FindOperator('between', [start, end], false, true));
+                        return items!.add(new FindOperator('between', [start, end], false, true));
                     case "in":
                     case "In":
                         operator = "in";
@@ -73,22 +73,25 @@ function createWhere(where: any) {
                         break;
                 }
                 if (Array.isArray(value)) {
-                    items.add(
+                    items!.add(
                         new FindOperator(operator, value, true, true)
                     )
                 } else {
-                    items.add(
+                    items!.add(
                         new FindOperator(operator, value, true, false)
                     )
                 }
             }
+            cache.set(column, items!)
         })
     }
-    const result = {};
+    const result: any = [];
     cache.forEach((ca, key) => {
-        result[key] = [
-            ...ca
-        ]
+        ca.forEach(it => {
+            result.push({
+                [`${key}`]: it
+            })
+        })
     })
     return result;
 }
