@@ -48,6 +48,14 @@ class CreateWhere {
                         case "between":
                         case "Between":
                             operator = "between";
+                            if (Array.isArray(item)) {
+                                item = item.map(it => {
+                                    if (typeof it === 'string') {
+                                        return new Date(it);
+                                    }
+                                    return it;
+                                });
+                            }
                             break;
                         case "in":
                         case "In":
@@ -70,23 +78,7 @@ class CreateWhere {
                             operator = "equal";
                             break;
                     }
-                    if (Array.isArray(item)) {
-                        res[column] = new FindOperator_1.FindOperator(operator, this.createWhere(item), true, true);
-                    }
-                    else {
-                        if (operator === 'between') {
-                            if (typeof item === 'string') {
-                            }
-                        }
-                        if (operator === 'isNull') {
-                            if (item) {
-                                res[column] = new FindOperator_1.FindOperator(operator, null);
-                            }
-                            else {
-                                res[column] = new FindOperator_1.FindOperator('not', null, true, false);
-                            }
-                        }
-                    }
+                    res[column] = new FindOperator_1.FindOperator(operator, this.createWhere(item), true, true);
                 }
             });
             return res;
