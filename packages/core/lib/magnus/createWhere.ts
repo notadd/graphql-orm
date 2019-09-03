@@ -11,11 +11,11 @@ export class CreateWhere {
             Object.keys(where).map(key => {
                 let item = where[key];
                 const keys = key.split("_");
+                const [column, action] = keys;
                 if (keys.length === 1) {
-                    res[keys[0]] = this.createWhere(item);
+                    res[column] = this.createWhere(item);
                 } else {
-                    const [column, action] = keys;
-                    let operator: FindOperatorType = `equal`;
+                    let operator: FindOperatorType;
                     const act = action.toLocaleLowerCase();
                     switch (act) {
                         case "not":
@@ -44,15 +44,13 @@ export class CreateWhere {
                             break;
                         case "between":
                         case "Between":
-                            operator = "between";
-                            if (Array.isArray(item)) {
-                                item = item.map(it => {
-                                    if (typeof it === 'string') {
-                                        return new Date(it);
-                                    }
-                                    return it;
-                                });
+                            // operator = "between";
+                            let [start, end] = item;
+                            if (typeof start === 'string') {
+                                start = new Date(start);
+                                end = new Date(end)
                             }
+                            res[column] = new FindOperator('between', [start, end], true, true)
                             break;
                         case "in":
                         case "In":
@@ -75,12 +73,13 @@ export class CreateWhere {
                             operator = "equal";
                             break;
                     }
-                    res[column] = new FindOperator(
-                        operator,
-                        this.createWhere(item),
-                        true,
-                        true
-                    );
+                    if (operator)
+                        res[column] = new FindOperator(
+                            operator,
+                            this.createWhere(item),
+                            true,
+                            true
+                        );
                 }
             });
             return res;
