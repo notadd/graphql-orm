@@ -1,6 +1,7 @@
 import { JoinOptions } from "./JoinOptions";
 import { ObjectLiteral } from "../common/ObjectLiteral";
 import { FindConditions } from "./FindConditions";
+import { Brackets } from "../query-builder/Brackets";
 /**
  * Defines a special criteria to find specific entity.
  */
@@ -12,7 +13,7 @@ export interface FindOneOptions<Entity = any> {
     /**
      * Simple condition that should be applied to match entities.
      */
-    where?: FindConditions<Entity>[] | FindConditions<Entity> | ObjectLiteral | string;
+    where?: Brackets | Brackets[] | FindConditions<Entity>[] | FindConditions<Entity> | ObjectLiteral | string;
     /**
      * Indicates what relations of entity should be loaded (simplified left join form).
      * [[],[]]

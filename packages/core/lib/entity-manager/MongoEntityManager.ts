@@ -120,7 +120,7 @@ export class MongoEntityManager extends EntityManager {
             if (optionsOrConditions.take)
                 cursor.limit(optionsOrConditions.take);
             if (optionsOrConditions.order)
-                cursor.sort(this.convertFindOptionsOrderToOrderCriteria(optionsOrConditions.order));
+                cursor.sort(this.convertFindOptionsOrderToOrderCriteria((optionsOrConditions as any).order));
         }
         const [results, count] = await Promise.all<any>([
             cursor.toArray(),
@@ -148,9 +148,9 @@ export class MongoEntityManager extends EntityManager {
 
         const cursor = await this.createEntityCursor(entityClassOrName, query);
         if (FindOptionsUtils.isFindManyOptions(optionsOrConditions)) {
-            if (optionsOrConditions.select)
-                cursor.project(this.convertFindOptionsSelectToProjectCriteria(optionsOrConditions.select as any));
-            if (optionsOrConditions.skip)
+            if ((optionsOrConditions as any).select)
+                cursor.project(this.convertFindOptionsSelectToProjectCriteria((optionsOrConditions as any).select));
+            if ((optionsOrConditions as any).skip)
                 cursor.skip(optionsOrConditions.skip);
             if ((optionsOrConditions as any).take)
                 cursor.limit((optionsOrConditions as any).take);
