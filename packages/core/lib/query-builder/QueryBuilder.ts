@@ -748,6 +748,11 @@ export abstract class QueryBuilder<Entity> {
                             let parameterValue = column.getEntityValue(where, true);
                             const parameterName = "where_" + whereIndex + "_" + propertyIndex + "_" + columnIndex;
                             const parameterBaseCount = Object.keys(this.expressionMap.nativeParameters).filter(x => x.startsWith(parameterName)).length;
+                            console.log({
+                                aliasPath,
+                                column,
+                                columnIndex
+                            })
                             if (parameterValue === null) {
                                 return `${aliasPath} IS NULL`;
                             } else if (parameterValue instanceof FindOperator) {
