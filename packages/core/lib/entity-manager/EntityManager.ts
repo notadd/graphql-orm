@@ -813,45 +813,35 @@ export class EntityManager {
      * Finds first entity that matches given conditions.
      */
     async findOne<Entity>(entityClass: ObjectType<Entity> | EntitySchema<Entity> | string, idOrOptionsOrConditions?: string | string[] | number | number[] | Date | Date[] | ObjectID | ObjectID[] | FindOneOptions<Entity> | any, maybeOptions?: FindOneOptions<Entity>): Promise<Entity | undefined> {
-
         let findOptions: FindManyOptions<any> | FindOneOptions<any> | undefined = undefined;
         if (FindOptionsUtils.isFindOneOptions(idOrOptionsOrConditions)) {
             findOptions = idOrOptionsOrConditions;
         } else if (maybeOptions && FindOptionsUtils.isFindOneOptions(maybeOptions)) {
             findOptions = maybeOptions;
         }
-
         let options: ObjectLiteral | undefined = undefined;
         if (idOrOptionsOrConditions instanceof Object && !FindOptionsUtils.isFindOneOptions(idOrOptionsOrConditions))
             options = idOrOptionsOrConditions as ObjectLiteral;
-
         const metadata = this.connection.getMetadata(entityClass);
         let alias: string = metadata.name;
         if (findOptions && findOptions.join) {
             alias = findOptions.join.alias;
-
         } else if (maybeOptions && FindOptionsUtils.isFindOneOptions(maybeOptions) && maybeOptions.join) {
             alias = maybeOptions.join.alias;
         }
         const qb = this.createQueryBuilder<Entity>(entityClass as any, alias);
-
         if (!findOptions || findOptions.loadEagerRelations !== false)
             FindOptionsUtils.joinEagerRelations(qb, qb.alias, qb.expressionMap.mainAlias!.metadata);
-
         findOptions = {
             ...(findOptions || {}),
             take: 1,
         };
-
         FindOptionsUtils.applyOptionsToQueryBuilder(qb, findOptions);
-
         if (options) {
             qb.where(options);
-
         } else if (typeof idOrOptionsOrConditions === "string" || typeof idOrOptionsOrConditions === "number" || (idOrOptionsOrConditions as any) instanceof Date) {
             qb.andWhereInIds(metadata.ensureEntityIdMap(idOrOptionsOrConditions));
         }
-
         return qb.getOne();
     }
 
@@ -923,7 +913,6 @@ export class EntityManager {
         const queryRunner = this.queryRunner || this.connection.createQueryRunner("master");
         try {
             return await queryRunner.clearTable(metadata.tablePath); // await is needed here because we are using finally
-
         } finally {
             if (!this.queryRunner)
                 await queryRunner.release();
@@ -937,15 +926,12 @@ export class EntityManager {
         conditions: any,
         propertyPath: string,
         value: number | string): Promise<UpdateResult> {
-
         const metadata = this.connection.getMetadata(entityClass);
         const column = metadata.findColumnWithPropertyPath(propertyPath);
         if (!column)
             throw new Error(`Column ${propertyPath} was not found in ${metadata.targetName} entity.`);
-
         if (isNaN(Number(value)))
             throw new Error(`Value "${value}" is not a number.`);
-
         // convert possible embeded path "social.likes" into object { social: { like: () => value } }
         const values: QueryDeepPartialEntity<Entity> = propertyPath
             .split(".")
@@ -1001,7 +987,6 @@ export class EntityManager {
      * When single database connection is not used, repository is being obtained from the connection.
      */
     getRepository<Entity>(target: ObjectType<Entity> | EntitySchema<Entity> | string): Repository<Entity> {
-
         // throw exception if there is no repository with this target registered
         if (!this.connection.hasMetadata(target))
             throw new RepositoryNotFoundError(this.connection.name, target);

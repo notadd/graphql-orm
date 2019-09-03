@@ -153,7 +153,7 @@ export class MongoEntityManager extends EntityManager {
             if (optionsOrConditions.skip)
                 cursor.skip(optionsOrConditions.skip);
             if ((optionsOrConditions as any).take)
-                cursor.limit(optionsOrConditions.take);
+                cursor.limit((optionsOrConditions as any).take);
             if ((optionsOrConditions as any).order)
                 cursor.sort(this.convertFindOptionsOrderToOrderCriteria((optionsOrConditions as any).order));
         }

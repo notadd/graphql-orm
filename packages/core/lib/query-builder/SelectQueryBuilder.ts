@@ -1066,22 +1066,18 @@ export class SelectQueryBuilder<Entity> extends QueryBuilder<Entity> implements 
     async getOne(): Promise<Entity | undefined> {
         const results = await this.getRawAndEntities();
         const result = results.entities[0] as any;
-
         if (result && this.expressionMap.lockMode === "optimistic" && this.expressionMap.lockVersion) {
             const metadata = this.expressionMap.mainAlias!.metadata;
-
             if (this.expressionMap.lockVersion instanceof Date) {
                 const actualVersion = metadata.updateDateColumn!.getEntityValue(result); // what if columns arent set?
                 if (actualVersion.getTime() !== this.expressionMap.lockVersion.getTime())
                     throw new OptimisticLockVersionMismatchError(metadata.name, this.expressionMap.lockVersion, actualVersion);
-
             } else {
                 const actualVersion = metadata.versionColumn!.getEntityValue(result); // what if columns arent set?
                 if (actualVersion !== this.expressionMap.lockVersion)
                     throw new OptimisticLockVersionMismatchError(metadata.name, this.expressionMap.lockVersion, actualVersion);
             }
         }
-
         return result;
     }
 

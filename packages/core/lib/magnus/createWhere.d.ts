@@ -1,3 +1,3 @@
 export declare class CreateWhere {
-    static createWhere(where: any): any;
+    static createWhere(where: any): {};
 }

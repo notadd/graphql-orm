@@ -734,28 +734,22 @@ export abstract class QueryBuilder<Entity> {
             return whereString ? "(" + whereString + ")" : "";
         } else if (where instanceof Function) {
             return where(this);
-
         } else if (where instanceof Object) {
             const wheres: ObjectLiteral[] = where instanceof Array ? where : [where];
             let andConditions: string[];
             let parameterIndex = Object.keys(this.expressionMap.nativeParameters).length;
-
             if (this.expressionMap.mainAlias!.hasMetadata) {
                 andConditions = wheres.map((where, whereIndex) => {
                     const propertyPaths = EntityMetadata.createPropertyPath(this.expressionMap.mainAlias!.metadata, where);
-
                     return propertyPaths.map((propertyPath, propertyIndex) => {
                         const columns = this.expressionMap.mainAlias!.metadata.findColumnsWithPropertyPath(propertyPath);
                         return columns.map((column, columnIndex) => {
-
                             const aliasPath = this.expressionMap.aliasNamePrefixingEnabled ? `${this.alias}.${propertyPath}` : column.propertyPath;
                             let parameterValue = column.getEntityValue(where, true);
                             const parameterName = "where_" + whereIndex + "_" + propertyIndex + "_" + columnIndex;
                             const parameterBaseCount = Object.keys(this.expressionMap.nativeParameters).filter(x => x.startsWith(parameterName)).length;
-
                             if (parameterValue === null) {
                                 return `${aliasPath} IS NULL`;
-
                             } else if (parameterValue instanceof FindOperator) {
                                 let parameters: any[] = [];
                                 if (parameterValue.useParameter) {
@@ -767,7 +761,6 @@ export abstract class QueryBuilder<Entity> {
                                     });
                                 }
                                 return parameterValue.toSql(this.connection, aliasPath, parameters);
-
                             } else {
                                 this.expressionMap.nativeParameters[parameterName] = parameterValue;
                                 parameterIndex++;
@@ -778,7 +771,6 @@ export abstract class QueryBuilder<Entity> {
                         }).filter(expression => !!expression).join(" AND ");
                     }).filter(expression => !!expression).join(" AND ");
                 });
-
             } else {
                 andConditions = wheres.map((where, whereIndex) => {
                     return Object.keys(where).map((key, parameterIndex) => {
@@ -796,10 +788,8 @@ export abstract class QueryBuilder<Entity> {
                     }).join(" AND ");
                 });
             }
-
             if (andConditions.length > 1)
                 return andConditions.map(where => "(" + where + ")").join(" OR ");
-
             return andConditions.join("");
         }
 

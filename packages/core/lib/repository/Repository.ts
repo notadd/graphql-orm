@@ -1,19 +1,19 @@
-import {EntityMetadata} from "../metadata/EntityMetadata";
-import {FindManyOptions} from "../find-options/FindManyOptions";
-import {ObjectLiteral} from "../common/ObjectLiteral";
-import {FindOneOptions} from "../find-options/FindOneOptions";
-import {DeepPartial} from "../common/DeepPartial";
-import {SaveOptions} from "./SaveOptions";
-import {RemoveOptions} from "./RemoveOptions";
-import {EntityManager} from "../entity-manager/EntityManager";
-import {QueryRunner} from "../query-runner/QueryRunner";
-import {SelectQueryBuilder} from "../query-builder/SelectQueryBuilder";
-import {DeleteResult} from "../query-builder/result/DeleteResult";
-import {UpdateResult} from "../query-builder/result/UpdateResult";
-import {InsertResult} from "../query-builder/result/InsertResult";
-import {QueryDeepPartialEntity} from "../query-builder/QueryPartialEntity";
-import {ObjectID} from "../driver/mongodb/typings";
-import {FindConditions} from "../find-options/FindConditions";
+import { EntityMetadata } from "../metadata/EntityMetadata";
+import { FindManyOptions } from "../find-options/FindManyOptions";
+import { ObjectLiteral } from "../common/ObjectLiteral";
+import { FindOneOptions } from "../find-options/FindOneOptions";
+import { DeepPartial } from "../common/DeepPartial";
+import { SaveOptions } from "./SaveOptions";
+import { RemoveOptions } from "./RemoveOptions";
+import { EntityManager } from "../entity-manager/EntityManager";
+import { QueryRunner } from "../query-runner/QueryRunner";
+import { SelectQueryBuilder } from "../query-builder/SelectQueryBuilder";
+import { DeleteResult } from "../query-builder/result/DeleteResult";
+import { UpdateResult } from "../query-builder/result/UpdateResult";
+import { InsertResult } from "../query-builder/result/InsertResult";
+import { QueryDeepPartialEntity } from "../query-builder/QueryPartialEntity";
+import { ObjectID } from "../driver/mongodb/typings";
+import { FindConditions } from "../find-options/FindConditions";
 
 /**
  * Repository is supposed to work with your entity objects. Find entities, insert, update, delete, etc.
@@ -55,7 +55,7 @@ export class Repository<Entity extends ObjectLiteral> {
      * If this repository manages entity from schema,
      * then it returns a name of that schema instead.
      */
-    get target(): Function|string {
+    get target(): Function | string {
         return this.metadata.target;
     }
 
@@ -95,7 +95,7 @@ export class Repository<Entity extends ObjectLiteral> {
      * Creates a new entity instance or instances.
      * Can copy properties from the given object into new entities.
      */
-    create(plainEntityLikeOrPlainEntityLikes?: DeepPartial<Entity>|DeepPartial<Entity>[]): Entity|Entity[] {
+    create(plainEntityLikeOrPlainEntityLikes?: DeepPartial<Entity> | DeepPartial<Entity>[]): Entity | Entity[] {
         return this.manager.create<any>(this.metadata.target as any, plainEntityLikeOrPlainEntityLikes as any);
     }
 
@@ -115,7 +115,7 @@ export class Repository<Entity extends ObjectLiteral> {
      * Note that given entity-like object must have an entity id / primary key to find entity by.
      * Returns undefined if entity with given id was not found.
      */
-    preload(entityLike: DeepPartial<Entity>): Promise<Entity|undefined> {
+    preload(entityLike: DeepPartial<Entity>): Promise<Entity | undefined> {
         return this.manager.preload(this.metadata.target as any, entityLike);
     }
 
@@ -146,7 +146,7 @@ export class Repository<Entity extends ObjectLiteral> {
     /**
      * Saves one or many given entities.
      */
-    save<T extends DeepPartial<Entity>>(entityOrEntities: T|T[], options?: SaveOptions): Promise<T|T[]> {
+    save<T extends DeepPartial<Entity>>(entityOrEntities: T | T[], options?: SaveOptions): Promise<T | T[]> {
         return this.manager.save<T>(this.metadata.target as any, entityOrEntities as any, options);
     }
 
@@ -163,7 +163,7 @@ export class Repository<Entity extends ObjectLiteral> {
     /**
      * Removes one or many given entities.
      */
-    remove(entityOrEntities: Entity|Entity[], options?: RemoveOptions): Promise<Entity|Entity[]> {
+    remove(entityOrEntities: Entity | Entity[], options?: RemoveOptions): Promise<Entity | Entity[]> {
         return this.manager.remove(this.metadata.target as any, entityOrEntities as any, options);
     }
 
@@ -173,7 +173,7 @@ export class Repository<Entity extends ObjectLiteral> {
      * Executes fast and efficient INSERT query.
      * Does not check if entity exist in the database, so query will fail if duplicate entity is being inserted.
      */
-    insert(entity: QueryDeepPartialEntity<Entity>|(QueryDeepPartialEntity<Entity>[])): Promise<InsertResult> {
+    insert(entity: QueryDeepPartialEntity<Entity> | (QueryDeepPartialEntity<Entity>[])): Promise<InsertResult> {
         return this.manager.insert(this.metadata.target as any, entity);
     }
 
@@ -183,7 +183,7 @@ export class Repository<Entity extends ObjectLiteral> {
      * Executes fast and efficient UPDATE query.
      * Does not check if entity exist in the database.
      */
-    update(criteria: string|string[]|number|number[]|Date|Date[]|ObjectID|ObjectID[]|FindConditions<Entity>, partialEntity: QueryDeepPartialEntity<Entity>): Promise<UpdateResult> {
+    update(criteria: string | string[] | number | number[] | Date | Date[] | ObjectID | ObjectID[] | FindConditions<Entity>, partialEntity: QueryDeepPartialEntity<Entity>): Promise<UpdateResult> {
         return this.manager.update(this.metadata.target as any, criteria as any, partialEntity);
     }
 
@@ -193,7 +193,7 @@ export class Repository<Entity extends ObjectLiteral> {
      * Executes fast and efficient DELETE query.
      * Does not check if entity exist in the database.
      */
-    delete(criteria: string|string[]|number|number[]|Date|Date[]|ObjectID|ObjectID[]|FindConditions<Entity>): Promise<DeleteResult> {
+    delete(criteria: string | string[] | number | number[] | Date | Date[] | ObjectID | ObjectID[] | FindConditions<Entity>): Promise<DeleteResult> {
         return this.manager.delete(this.metadata.target as any, criteria as any);
     }
 
@@ -210,7 +210,7 @@ export class Repository<Entity extends ObjectLiteral> {
     /**
      * Counts entities that match given find options or conditions.
      */
-    count(optionsOrConditions?: FindManyOptions<Entity>|FindConditions<Entity>): Promise<number> {
+    count(optionsOrConditions?: FindManyOptions<Entity> | FindConditions<Entity>): Promise<number> {
         return this.manager.count(this.metadata.target as any, optionsOrConditions as any);
     }
 
@@ -227,7 +227,7 @@ export class Repository<Entity extends ObjectLiteral> {
     /**
      * Finds entities that match given find options or conditions.
      */
-    find(optionsOrConditions?: FindManyOptions<Entity>|FindConditions<Entity>): Promise<Entity[]> {
+    find(optionsOrConditions?: FindManyOptions<Entity> | FindConditions<Entity>): Promise<Entity[]> {
         return this.manager.find(this.metadata.target as any, optionsOrConditions as any);
     }
 
@@ -236,21 +236,21 @@ export class Repository<Entity extends ObjectLiteral> {
      * Also counts all entities that match given conditions,
      * but ignores pagination settings (from and take options).
      */
-    findAndCount(options?: FindManyOptions<Entity>): Promise<[ Entity[], number ]>;
+    findAndCount(options?: FindManyOptions<Entity>): Promise<[Entity[], number]>;
 
     /**
      * Finds entities that match given conditions.
      * Also counts all entities that match given conditions,
      * but ignores pagination settings (from and take options).
      */
-    findAndCount(conditions?: FindConditions<Entity>): Promise<[ Entity[], number ]>;
+    findAndCount(conditions?: FindConditions<Entity>): Promise<[Entity[], number]>;
 
     /**
      * Finds entities that match given find options or conditions.
      * Also counts all entities that match given conditions,
      * but ignores pagination settings (from and take options).
      */
-    findAndCount(optionsOrConditions?: FindManyOptions<Entity>|FindConditions<Entity>): Promise<[ Entity[], number ]> {
+    findAndCount(optionsOrConditions?: FindManyOptions<Entity> | FindConditions<Entity>): Promise<[Entity[], number]> {
         return this.manager.findAndCount(this.metadata.target as any, optionsOrConditions as any);
     }
 
@@ -270,36 +270,36 @@ export class Repository<Entity extends ObjectLiteral> {
      * Finds entities by ids.
      * Optionally find options can be applied.
      */
-    findByIds(ids: any[], optionsOrConditions?: FindManyOptions<Entity>|FindConditions<Entity>): Promise<Entity[]> {
+    findByIds(ids: any[], optionsOrConditions?: FindManyOptions<Entity> | FindConditions<Entity>): Promise<Entity[]> {
         return this.manager.findByIds(this.metadata.target as any, ids, optionsOrConditions as any);
     }
 
     /**
      * Finds first entity that matches given options.
      */
-    findOne(id?: string|number|Date|ObjectID, options?: FindOneOptions<Entity>): Promise<Entity|undefined>;
+    findOne(id?: string | number | Date | ObjectID, options?: FindOneOptions<Entity>): Promise<Entity | undefined>;
 
     /**
      * Finds first entity that matches given options.
      */
-    findOne(options?: FindOneOptions<Entity>): Promise<Entity|undefined>;
+    findOne(options?: FindOneOptions<Entity>): Promise<Entity | undefined>;
 
     /**
      * Finds first entity that matches given conditions.
      */
-    findOne(conditions?: FindConditions<Entity>, options?: FindOneOptions<Entity>): Promise<Entity|undefined>;
+    findOne(conditions?: FindConditions<Entity>, options?: FindOneOptions<Entity>): Promise<Entity | undefined>;
 
     /**
      * Finds first entity that matches given conditions.
      */
-    findOne(optionsOrConditions?: string|number|Date|ObjectID|FindOneOptions<Entity>|FindConditions<Entity>, maybeOptions?: FindOneOptions<Entity>): Promise<Entity|undefined> {
+    findOne(optionsOrConditions?: string | number | Date | ObjectID | FindOneOptions<Entity> | FindConditions<Entity>, maybeOptions?: FindOneOptions<Entity>): Promise<Entity | undefined> {
         return this.manager.findOne(this.metadata.target as any, optionsOrConditions as any, maybeOptions);
     }
 
     /**
      * Finds first entity that matches given options.
      */
-    findOneOrFail(id?: string|number|Date|ObjectID, options?: FindOneOptions<Entity>): Promise<Entity>;
+    findOneOrFail(id?: string | number | Date | ObjectID, options?: FindOneOptions<Entity>): Promise<Entity>;
 
     /**
      * Finds first entity that matches given options.
@@ -314,7 +314,7 @@ export class Repository<Entity extends ObjectLiteral> {
     /**
      * Finds first entity that matches given conditions.
      */
-    findOneOrFail(optionsOrConditions?: string|number|Date|ObjectID|FindOneOptions<Entity>|FindConditions<Entity>, maybeOptions?: FindOneOptions<Entity>): Promise<Entity> {
+    findOneOrFail(optionsOrConditions?: string | number | Date | ObjectID | FindOneOptions<Entity> | FindConditions<Entity>, maybeOptions?: FindOneOptions<Entity>): Promise<Entity> {
         return this.manager.findOneOrFail(this.metadata.target as any, optionsOrConditions as any, maybeOptions);
     }
 
