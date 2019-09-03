@@ -75,6 +75,11 @@ export class CreateWhere {
                             true
                         );
                     } else {
+                        if (operator === 'between') {
+                            if (typeof item === 'string') { 
+                                
+                            }
+                        }
                         if (operator === 'isNull') {
                             if (item) {
                                 res[column] = new FindOperator(
@@ -90,7 +95,6 @@ export class CreateWhere {
                                 )
                             }
                         }
-
                     }
                 }
             });

@@ -74,6 +74,10 @@ class CreateWhere {
                         res[column] = new FindOperator_1.FindOperator(operator, this.createWhere(item), true, true);
                     }
                     else {
+                        if (operator === 'between') {
+                            if (typeof item === 'string') {
+                            }
+                        }
                         if (operator === 'isNull') {
                             if (item) {
                                 res[column] = new FindOperator_1.FindOperator(operator, null);
