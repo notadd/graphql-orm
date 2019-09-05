@@ -11,7 +11,7 @@ class EntityFactory {
                 return member.name;
             }
         }).filter((it) => !!it);
-        const createSet = this.options.createSet();
+        const createSet = this.options.createSet;
         const options = this.options;
         return new Proxy(instance, {
             get(target, p, receiver) {
