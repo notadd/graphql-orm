@@ -23,7 +23,7 @@ export class EntityFactory {
         return new Proxy(instance, {
             get(target: any, p: string, receiver: any) {
                 if (methods.includes(p)) {
-                    return (variables: any, context: any, info: any) => {
+                    return (variables, context, info) => {
                         const set = createSet({
                             entities: options.entities,
                             decorators: options.decorators,
@@ -33,8 +33,10 @@ export class EntityFactory {
                             variables
                         });
                         const args = set.getArguments();
-                        return target[p].bind(target)(...args)
-                    }
+                        return target[p].bind(target)(...args);
+                    };
+                } else {
+                    return target[p]
                 }
             }
         })

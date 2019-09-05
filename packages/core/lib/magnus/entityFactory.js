@@ -29,6 +29,9 @@ class EntityFactory {
                         return target[p].bind(target)(...args);
                     };
                 }
+                else {
+                    return target[p];
+                }
             }
         });
     }
