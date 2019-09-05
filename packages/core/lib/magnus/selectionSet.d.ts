@@ -1,6 +1,8 @@
 import { GraphQLResolveInfo, FieldNode } from "graphql";
 import { CreateWhere } from "./createWhere";
+import { EntityFactory } from "./entityFactory";
 export declare class SelectionSet extends CreateWhere {
+    entityFactory: EntityFactory;
     /**
      * 全局参数
      */

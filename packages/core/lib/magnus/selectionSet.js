@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const utils_1 = require("./utils");
 const createWhere_1 = require("./createWhere");
+const entityFactory_1 = require("./entityFactory");
 class SelectionSet extends createWhere_1.CreateWhere {
     constructor(info, variables, level = 0, parent) {
         super();
@@ -95,6 +96,12 @@ class SelectionSet extends createWhere_1.CreateWhere {
             set.source = source || {};
             set.variables = variables || {};
             set.enums = enums;
+            set.entityFactory = new entityFactory_1.EntityFactory({
+                enums,
+                entities,
+                decorators,
+                createSet: (options) => SelectionSet.fromGraphql(options)
+            });
             set.onInit();
             return set;
         });
@@ -163,6 +170,7 @@ class SelectionSet extends createWhere_1.CreateWhere {
         set.source = this.source;
         set.decorators = this.decorators;
         set.enums = this.enums;
+        set.entityFactory = this.entityFactory;
         /**
          * 构造必备信息
          */
