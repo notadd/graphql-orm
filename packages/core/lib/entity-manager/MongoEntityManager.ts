@@ -119,7 +119,7 @@ export class MongoEntityManager extends EntityManager {
                 cursor.skip(optionsOrConditions.skip);
             if (optionsOrConditions.take)
                 cursor.limit(optionsOrConditions.take);
-            if (optionsOrConditions.order)
+            if ((optionsOrConditions as any).order)
                 cursor.sort(this.convertFindOptionsOrderToOrderCriteria((optionsOrConditions as any).order));
         }
         const [results, count] = await Promise.all<any>([

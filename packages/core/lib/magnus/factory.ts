@@ -125,7 +125,7 @@ export function createResolvers(
                         sets.map(async set => {
                             const _arguments = set.getArguments();
                             const result = await controller[methodName](..._arguments);
-                            results[set.name] = await callFn(result, set);
+                            results[set.name] = set.entityFactory.create(result, tableName);
                         })
                     );
                     return results[fieldName];
