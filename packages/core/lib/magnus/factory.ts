@@ -103,12 +103,7 @@ export function createResolvers(
             const [fieldName, className, tableName, methodName, argsDef] = it;
             const controller = getController(className);
             if (controller) {
-                const resolver: MagnusResolver = async (
-                    source: any,
-                    variables: any,
-                    context: any,
-                    info: GraphQLResolveInfo
-                ) => {
+                const resolver = async (source: any, variables: any, context: any, info: any) => {
                     const sets = SelectionSet.fromGraphql({
                         info: info,
                         enums: {},
@@ -121,13 +116,11 @@ export function createResolvers(
                     });
                     controller.tablename = tableName;
                     const results = {};
-                    await Promise.all(
-                        sets.map(async set => {
-                            const _arguments = set.getArguments();
-                            const result = await controller[methodName](..._arguments);
-                            results[set.name] = set.entityFactory.create(result, tableName);
-                        })
-                    );
+                    await Promise.all(sets.map(async (set) => {
+                        const _arguments = set.getArguments();
+                        const result = await controller[methodName](..._arguments);
+                        results[set.name] = set.entityFactory.create(result, tableName);
+                    }));
                     return results[fieldName];
                 };
                 item[fieldName] = resolver;

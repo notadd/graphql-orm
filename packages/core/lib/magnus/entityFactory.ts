@@ -13,15 +13,15 @@ export class EntityFactory {
     constructor(private options: FactoryOptions) { }
     create<T extends object>(instance: T, name: string) {
         const members = this.options.entities[name];
-        const methods: string[] = members.map((member: Member) => {
+        const methods = members.map((member) => {
             if (member.decorators.includes('ResolveProperty')) {
                 return member.name;
             }
-        }).filter((it: string) => !!it);
+        }).filter((it) => !!it);
         const createSet = this.options.createSet();
         const options = this.options;
         return new Proxy(instance, {
-            get(target: any, p: string, receiver: any) {
+            get(target, p, receiver) {
                 if (methods.includes(p)) {
                     return (variables, context, info) => {
                         const set = createSet({
@@ -39,6 +39,6 @@ export class EntityFactory {
                     return target[p]
                 }
             }
-        })
+        });
     }
 }

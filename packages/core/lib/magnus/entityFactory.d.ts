@@ -7,6 +7,6 @@ interface FactoryOptions {
 export declare class EntityFactory {
     private options;
     constructor(options: FactoryOptions);
-    create<T extends object>(instance: T, name: string): any;
+    create<T extends object>(instance: T, name: string): T;
 }
 export {};
