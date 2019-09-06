@@ -4,7 +4,7 @@ class EntityFactory {
     constructor(options) {
         this.options = options;
     }
-    create(instance, name) {
+    create(instance, path, name) {
         const members = this.options.entities[name];
         if (members) {
             const methods = members
@@ -15,20 +15,22 @@ class EntityFactory {
             })
                 .filter(it => !!it);
             const createSet = this.options.createSet;
-            return new Proxy(instance, {
-                get(target, p, receiver) {
-                    if (methods.includes(p)) {
-                        return (variables, context, info) => {
-                            const set = createSet(info.fieldNodes[0]);
-                            const args = set.getArguments();
-                            return target[p].bind(target)(...args);
-                        };
+            if (instance[path]) {
+                instance[path] = new Proxy(instance[path], {
+                    get(target, p, receiver) {
+                        if (methods.includes(p)) {
+                            return (variables, context, info) => {
+                                const set = createSet(info.fieldNodes[0]);
+                                const args = set.getArguments();
+                                return target[p].bind(target)(...args);
+                            };
+                        }
+                        else {
+                            return target[p];
+                        }
                     }
-                    else {
-                        return target[p];
-                    }
-                }
-            });
+                });
+            }
         }
         return instance;
     }
