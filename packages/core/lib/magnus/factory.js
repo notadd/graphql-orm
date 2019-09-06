@@ -13,7 +13,7 @@ async function createArrayCall(item, parent, path, action) {
         if (Array.isArray(it)) {
             return createArrayCall(it, item, path, action);
         }
-        else if (typeof it === 'function') {
+        else if (typeof it === "function") {
             return createFunc(it, item, path, action);
         }
         else {
@@ -22,14 +22,19 @@ async function createArrayCall(item, parent, path, action) {
     }));
 }
 async function createCall(item, parent, path, action) {
-    const actionPaths = action.getPath().join('.').replace(`${path}.`, ``).split('.').reverse();
+    const actionPaths = action
+        .getPath()
+        .join(".")
+        .replace(`${path}.`, ``)
+        .split(".")
+        .reverse();
     const actionPath = actionPaths.pop();
     if (actionPath) {
         const it = item[actionPath];
         if (Array.isArray(it)) {
             item[actionPath] = await createArrayCall(it, item, `${path}.${actionPath}`, action);
         }
-        else if (typeof it === 'function') {
+        else if (typeof it === "function") {
             item[actionPath] = await createFunc(it, item, `${path}.${actionPath}`, action);
         }
         else {
@@ -47,13 +52,13 @@ async function createFunc(item, parent, path, action) {
  */
 async function callFn(item, set) {
     const actions = set.getActions();
-    const path = set.getPath().join('.');
+    const path = set.getPath().join(".");
     if (actions) {
         actions.map(async (action) => {
             if (Array.isArray(item)) {
                 await createArrayCall(item, item, path, action);
             }
-            else if (typeof item === 'function') {
+            else if (typeof item === "function") {
                 await createFunc(item, item, path, action);
             }
             else {
@@ -61,7 +66,6 @@ async function callFn(item, set) {
             }
         });
     }
-    ;
     return item;
 }
 function createResolvers(handlers, entity, decorators, getController) {

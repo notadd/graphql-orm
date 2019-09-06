@@ -20,14 +20,7 @@ class EntityFactory {
                 get(target, p, receiver) {
                     if (methods.includes(p)) {
                         return (variables, context, info) => {
-                            const set = createSet({
-                                entities: options.entities,
-                                decorators: options.decorators,
-                                enums: options.enums,
-                                info,
-                                context,
-                                variables
-                            });
+                            const set = createSet(info.fieldNodes[0]);
                             const args = set.getArguments();
                             return target[p].bind(target)(...args);
                         };

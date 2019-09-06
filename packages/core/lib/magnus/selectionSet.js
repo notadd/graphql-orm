@@ -100,7 +100,7 @@ class SelectionSet extends createWhere_1.CreateWhere {
                 enums,
                 entities,
                 decorators,
-                createSet: (options) => SelectionSet.fromGraphql(options)
+                createSet: (node) => set.create(node, variables)
             });
             set.onInit();
             return set;
