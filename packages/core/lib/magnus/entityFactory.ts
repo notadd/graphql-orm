@@ -26,11 +26,11 @@ export class EntityFactory {
       let target = get(instance, path);
       if (target) {
         if (Array.isArray(target)) {
-          target = target.map(tar => {
-            set(
-              instance,
-              path,
-              new Proxy(tar, {
+          set(
+            instance,
+            path,
+            target.map(tar => {
+              return new Proxy(tar, {
                 get(target, p, receiver) {
                   if (methods.includes(p)) {
                     return (variables, context, info) => {
@@ -42,9 +42,9 @@ export class EntityFactory {
                     return target[p];
                   }
                 }
-              })
-            );
-          });
+              });
+            })
+          );
         } else {
           set(
             instance,

@@ -19,8 +19,8 @@ class EntityFactory {
             let target = lodash_1.get(instance, path);
             if (target) {
                 if (Array.isArray(target)) {
-                    target = target.map(tar => {
-                        lodash_1.set(instance, path, new Proxy(tar, {
+                    lodash_1.set(instance, path, target.map(tar => {
+                        return new Proxy(tar, {
                             get(target, p, receiver) {
                                 if (methods.includes(p)) {
                                     return (variables, context, info) => {
@@ -33,8 +33,8 @@ class EntityFactory {
                                     return target[p];
                                 }
                             }
-                        }));
-                    });
+                        });
+                    }));
                 }
                 else {
                     lodash_1.set(instance, path, new Proxy(target, {
