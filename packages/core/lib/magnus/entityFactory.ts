@@ -23,25 +23,47 @@ export class EntityFactory {
         })
         .filter(it => !!it);
       const createSet = this.options.createSet;
-      const target = get(instance, path);
+      let target = get(instance, path);
       if (target) {
-        set(
-          instance,
-          path,
-          new Proxy(target, {
-            get(target, p, receiver) {
-              if (methods.includes(p)) {
-                return (variables, context, info) => {
-                  const set = createSet(info.fieldNodes[0]);
-                  const args = set.getArguments();
-                  return target[p].bind(target)(...args);
-                };
-              } else {
-                return target[p];
+        if (Array.isArray(target)) {
+          target = target.map(tar => {
+            set(
+              instance,
+              path,
+              new Proxy(tar, {
+                get(target, p, receiver) {
+                  if (methods.includes(p)) {
+                    return (variables, context, info) => {
+                      const set = createSet(info.fieldNodes[0]);
+                      const args = set.getArguments();
+                      return target[p].bind(target)(...args);
+                    };
+                  } else {
+                    return target[p];
+                  }
+                }
+              })
+            );
+          });
+        } else {
+          set(
+            instance,
+            path,
+            new Proxy(target, {
+              get(target, p, receiver) {
+                if (methods.includes(p)) {
+                  return (variables, context, info) => {
+                    const set = createSet(info.fieldNodes[0]);
+                    const args = set.getArguments();
+                    return target[p].bind(target)(...args);
+                  };
+                } else {
+                  return target[p];
+                }
               }
-            }
-          })
-        );
+            })
+          );
+        }
       }
     }
     return instance;

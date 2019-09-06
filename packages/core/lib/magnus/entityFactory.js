@@ -16,22 +16,42 @@ class EntityFactory {
             })
                 .filter(it => !!it);
             const createSet = this.options.createSet;
-            const target = lodash_1.get(instance, path);
+            let target = lodash_1.get(instance, path);
             if (target) {
-                lodash_1.set(instance, path, new Proxy(target, {
-                    get(target, p, receiver) {
-                        if (methods.includes(p)) {
-                            return (variables, context, info) => {
-                                const set = createSet(info.fieldNodes[0]);
-                                const args = set.getArguments();
-                                return target[p].bind(target)(...args);
-                            };
+                if (Array.isArray(target)) {
+                    target = target.map(tar => {
+                        lodash_1.set(instance, path, new Proxy(tar, {
+                            get(target, p, receiver) {
+                                if (methods.includes(p)) {
+                                    return (variables, context, info) => {
+                                        const set = createSet(info.fieldNodes[0]);
+                                        const args = set.getArguments();
+                                        return target[p].bind(target)(...args);
+                                    };
+                                }
+                                else {
+                                    return target[p];
+                                }
+                            }
+                        }));
+                    });
+                }
+                else {
+                    lodash_1.set(instance, path, new Proxy(target, {
+                        get(target, p, receiver) {
+                            if (methods.includes(p)) {
+                                return (variables, context, info) => {
+                                    const set = createSet(info.fieldNodes[0]);
+                                    const args = set.getArguments();
+                                    return target[p].bind(target)(...args);
+                                };
+                            }
+                            else {
+                                return target[p];
+                            }
                         }
-                        else {
-                            return target[p];
-                        }
-                    }
-                }));
+                    }));
+                }
             }
         }
         return instance;
