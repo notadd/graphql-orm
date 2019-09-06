@@ -533,14 +533,17 @@ class QueryBuilder {
                 andConditions = wheres.map((where, whereIndex) => {
                     const propertyPaths = EntityMetadata_1.EntityMetadata.createPropertyPath(this.expressionMap.mainAlias.metadata, where);
                     return propertyPaths.map((propertyPath, propertyIndex) => {
-                        const columns = this.expressionMap.mainAlias.metadata.findColumnsWithPropertyPath(propertyPath);
+                        const paths = propertyPath.split('_');
+                        let options = `equal`;
+                        let columnName = paths.join('_');
+                        if (paths.length > 1) {
+                            options = paths.pop();
+                            columnName = paths.join('_');
+                        }
+                        const columns = this.expressionMap.mainAlias.metadata.findColumnsWithPropertyPath(columnName);
                         return columns.map((column, columnIndex) => {
-                            const aliasPath = this.expressionMap.aliasNamePrefixingEnabled ? `${this.alias}.${propertyPath}` : column.propertyPath;
-                            console.log({
-                                where,
-                                column,
-                                columnIndex
-                            });
+                            const aliasPath = this.expressionMap.aliasNamePrefixingEnabled ? `${this.alias}.${columnName}` : column.propertyPath;
+                            column.propertyName = propertyPath;
                             let parameterValue = column.getEntityValue(where, true);
                             const parameterName = "where_" + whereIndex + "_" + propertyIndex + "_" + columnIndex;
                             const parameterBaseCount = Object.keys(this.expressionMap.nativeParameters).filter(x => x.startsWith(parameterName)).length;
@@ -560,10 +563,48 @@ class QueryBuilder {
                                 return parameterValue.toSql(this.connection, aliasPath, parameters);
                             }
                             else {
-                                this.expressionMap.nativeParameters[parameterName] = parameterValue;
-                                parameterIndex++;
-                                const parameter = this.connection.driver.createParameter(parameterName, parameterIndex - 1);
-                                return `${aliasPath} = ${parameter}`;
+                                if (options === 'equal') {
+                                    this.expressionMap.nativeParameters[parameterName] = parameterValue;
+                                    parameterIndex++;
+                                    const parameter = this.connection.driver.createParameter(parameterName, parameterIndex - 1);
+                                    return `${aliasPath} = ${parameter}`;
+                                }
+                                else if (["In", "Between", "Lt", "Lte", "Gt", "Gte", "Like"].includes(options)) {
+                                    if (options === 'In') {
+                                        parameterValue = new FindOperator_1.FindOperator('in', parameterValue, true, true);
+                                    }
+                                    else if (options === 'Between') {
+                                        parameterValue = new FindOperator_1.FindOperator('between', parameterValue, true, true);
+                                    }
+                                    else if (options === 'Lt') {
+                                        parameterValue = new FindOperator_1.FindOperator('lessThan', parameterValue, true, false);
+                                    }
+                                    else if (options === 'Lte') {
+                                        parameterValue = new FindOperator_1.FindOperator('lessThanOrEqual', parameterValue, true, false);
+                                    }
+                                    else if (options === 'Gt') {
+                                        parameterValue = new FindOperator_1.FindOperator('moreThan', parameterValue, true, false);
+                                    }
+                                    else if (options === 'Gte') {
+                                        parameterValue = new FindOperator_1.FindOperator('moreThanOrEqual', parameterValue, true, false);
+                                    }
+                                    else if (options === 'Like') {
+                                        parameterValue = new FindOperator_1.FindOperator('like', parameterValue, true, false);
+                                    }
+                                    let parameters = [];
+                                    if (parameterValue.useParameter) {
+                                        const realParameterValues = parameterValue.multipleParameters ? parameterValue.value : [parameterValue.value];
+                                        realParameterValues.forEach((realParameterValue, realParameterValueIndex) => {
+                                            this.expressionMap.nativeParameters[parameterName + (parameterBaseCount + realParameterValueIndex)] = realParameterValue;
+                                            parameterIndex++;
+                                            parameters.push(this.connection.driver.createParameter(parameterName + (parameterBaseCount + realParameterValueIndex), parameterIndex - 1));
+                                        });
+                                    }
+                                    return parameterValue.toSql(this.connection, aliasPath, parameters);
+                                }
+                                else {
+                                    debugger;
+                                }
                             }
                         }).filter(expression => !!expression).join(" AND ");
                     }).filter(expression => !!expression).join(" AND ");

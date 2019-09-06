@@ -546,17 +546,14 @@ export class ColumnMetadata {
      */
     getEntityValue(entity: ObjectLiteral, transform: boolean = false): any|undefined {
         if (entity === undefined || entity === null) return undefined;
-
         // extract column value from embeddeds of entity if column is in embedded
         let value: any = undefined;
         if (this.embeddedMetadata) {
-
             // example: post[data][information][counters].id where "data", "information" and "counters" are embeddeds
             // we need to get value of "id" column from the post real entity object
 
             // first step - we extract all parent properties of the entity relative to this column, e.g. [data, information, counters]
             const propertyNames = [...this.embeddedMetadata.parentPropertyNames];
-
             // next we need to access post[data][information][counters][this.propertyName] to get column value from the counters
             // this recursive function takes array of generated property names and gets the post[data][information][counters] embed
             const extractEmbeddedColumnValue = (propertyNames: string[], value: ObjectLiteral): any => {

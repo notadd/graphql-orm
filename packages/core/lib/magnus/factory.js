@@ -97,12 +97,6 @@ function createResolvers(handlers, entity, decorators, getController) {
                     await Promise.all(sets.map(async (set) => {
                         const _arguments = set.getArguments();
                         const result = await controller[methodName](..._arguments);
-                        const path = set
-                            .getSelection()
-                            .getPath()
-                            .join(".")
-                            .replace(`${set.getPath().join(".")}.`, "");
-                        // set.entityFactory.create(result, path, tableName);
                         results[set.name] = callFn(result, set);
                     }));
                     return results[fieldName];
