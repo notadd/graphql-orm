@@ -36,7 +36,8 @@ export class EntityFactory {
                     return (variables, context, info) => {
                       const set = createSet(info.fieldNodes[0]);
                       const args = set.getArguments();
-                      return target[p].bind(target)(...args);
+                      const call = target[p].bind(target);
+                      return call(...args);
                     };
                   } else {
                     return target[p];
@@ -53,9 +54,10 @@ export class EntityFactory {
               get(target, p, receiver) {
                 if (methods.includes(p)) {
                   return (variables, context, info) => {
-                    const set = createSet(info.fieldNodes[0]);
+                    const set = createSet({ info, context });
                     const args = set.getArguments();
-                    return target[p].bind(target)(...args);
+                    const call = target[p].bind(target);
+                    return call(...args);
                   };
                 } else {
                   return target[p];
