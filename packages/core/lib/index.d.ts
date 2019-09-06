@@ -106,7 +106,7 @@ export * from "./schema-builder/table/Table";
 export * from "./driver/mongodb/typings";
 export * from "./driver/types/DatabaseType";
 export * from "./driver/sqlserver/MssqlParameter";
-export * from './magnus';
+export * from "./magnus";
 export { ConnectionOptionsReader } from "./connection/ConnectionOptionsReader";
 export { Connection } from "./connection/Connection";
 export { ConnectionManager } from "./connection/ConnectionManager";

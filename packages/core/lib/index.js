@@ -179,8 +179,12 @@ exports.getConnectionManager = getConnectionManager;
  */
 async function createConnection(optionsOrName) {
     const connectionName = typeof optionsOrName === "string" ? optionsOrName : "default";
-    const options = optionsOrName instanceof Object ? optionsOrName : await getConnectionOptions(connectionName);
-    return getConnectionManager().create(options).connect();
+    const options = optionsOrName instanceof Object
+        ? optionsOrName
+        : await getConnectionOptions(connectionName);
+    return getConnectionManager()
+        .create(options)
+        .connect();
 }
 exports.createConnection = createConnection;
 /**
@@ -218,7 +222,8 @@ exports.getManager = getManager;
  * If connection name wasn't specified, then "default" connection will be retrieved.
  */
 function getMongoManager(connectionName = "default") {
-    return getConnectionManager().get(connectionName).manager;
+    return getConnectionManager().get(connectionName)
+        .manager;
 }
 exports.getMongoManager = getMongoManager;
 /**
@@ -227,35 +232,44 @@ exports.getMongoManager = getMongoManager;
  * Only works when Sqljs driver is used.
  */
 function getSqljsManager(connectionName = "default") {
-    return getConnectionManager().get(connectionName).manager;
+    return getConnectionManager().get(connectionName)
+        .manager;
 }
 exports.getSqljsManager = getSqljsManager;
 /**
  * Gets repository for the given entity class.
  */
 function getRepository(entityClass, connectionName = "default") {
-    return getConnectionManager().get(connectionName).getRepository(entityClass);
+    return getConnectionManager()
+        .get(connectionName)
+        .getRepository(entityClass);
 }
 exports.getRepository = getRepository;
 /**
  * Gets tree repository for the given entity class.
  */
 function getTreeRepository(entityClass, connectionName = "default") {
-    return getConnectionManager().get(connectionName).getTreeRepository(entityClass);
+    return getConnectionManager()
+        .get(connectionName)
+        .getTreeRepository(entityClass);
 }
 exports.getTreeRepository = getTreeRepository;
 /**
  * Gets tree repository for the given entity class.
  */
 function getCustomRepository(customRepository, connectionName = "default") {
-    return getConnectionManager().get(connectionName).getCustomRepository(customRepository);
+    return getConnectionManager()
+        .get(connectionName)
+        .getCustomRepository(customRepository);
 }
 exports.getCustomRepository = getCustomRepository;
 /**
  * Gets mongodb repository for the given entity class or name.
  */
 function getMongoRepository(entityClass, connectionName = "default") {
-    return getConnectionManager().get(connectionName).getMongoRepository(entityClass);
+    return getConnectionManager()
+        .get(connectionName)
+        .getMongoRepository(entityClass);
 }
 exports.getMongoRepository = getMongoRepository;
 /**

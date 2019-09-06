@@ -1,8 +1,51 @@
 import { FindOperatorType } from "../find-options/FindOperatorType";
 import { FindOperator } from "../find-options/FindOperator";
-
+import { SelectQueryBuilder } from "../query-builder/SelectQueryBuilder";
+import { FindManyOptions } from "../find-options/FindManyOptions";
+/**
+ * {
+ *  id: 1,
+ *  AND: [{
+ *      "id_IN": [1]
+ *  },{
+ *      "id_IN": [2]
+ *  }],
+ *  OR: [{
+ *      "id_IN": [3],
+ * }]
+ * }
+ * where id === 1 AND (id in [1] and id in[2]) OR (id in [3])
+ */
+interface MagnusWhere {
+  options: FindManyOptions<any> | Partial<any>;
+  AND?: MagnusWhere[];
+  OR?: MagnusWhere[];
+}
 export class CreateWhere {
-  static createWhere(where: any) {
+  static appentWhereToQb(
+    qb: SelectQueryBuilder<any>,
+    where: MagnusWhere,
+    type: "and" | "or"
+  ) {
+    const { AND, OR, options } = where;
+    const condition = qb.computeWhereParameter(options);
+    if (AND) {
+      AND.map(and => this.appentWhereToQb(qb, and, "and"));
+    }
+    if (OR) {
+      OR.map(and => this.appentWhereToQb(qb, and, "or"));
+    }
+    if (type === "and") {
+      if (condition)
+        qb.expressionMap.wheres.push({ type: "and", condition: condition });
+    }
+    if (type === "or") {
+      qb.expressionMap.wheres.push({ type: "or", condition: condition });
+    }
+  }
+
+  static createWhere(where: any): any {
+    return (qb: SelectQueryBuilder<any>) => {};
     if (!where) return where;
     if (Array.isArray(where)) {
       return where;

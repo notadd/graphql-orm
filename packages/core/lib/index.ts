@@ -115,7 +115,7 @@ export * from "./schema-builder/table/Table";
 export * from "./driver/mongodb/typings";
 export * from "./driver/types/DatabaseType";
 export * from "./driver/sqlserver/MssqlParameter";
-export * from './magnus';
+export * from "./magnus";
 export { ConnectionOptionsReader } from "./connection/ConnectionOptionsReader";
 export { Connection } from "./connection/Connection";
 export { ConnectionManager } from "./connection/ConnectionManager";
@@ -137,7 +137,9 @@ export { EntityManager } from "./entity-manager/EntityManager";
 export { MongoEntityManager } from "./entity-manager/MongoEntityManager";
 export { MigrationInterface } from "./migration/MigrationInterface";
 export { DefaultNamingStrategy } from "./naming-strategy/DefaultNamingStrategy";
-export { NamingStrategyInterface } from "./naming-strategy/NamingStrategyInterface";
+export {
+  NamingStrategyInterface
+} from "./naming-strategy/NamingStrategyInterface";
 export { Repository } from "./repository/Repository";
 export { TreeRepository } from "./repository/TreeRepository";
 export { MongoRepository } from "./repository/MongoRepository";
@@ -146,12 +148,20 @@ export { FindManyOptions } from "./find-options/FindManyOptions";
 export { InsertEvent } from "./subscriber/event/InsertEvent";
 export { UpdateEvent } from "./subscriber/event/UpdateEvent";
 export { RemoveEvent } from "./subscriber/event/RemoveEvent";
-export { EntitySubscriberInterface } from "./subscriber/EntitySubscriberInterface";
+export {
+  EntitySubscriberInterface
+} from "./subscriber/EntitySubscriberInterface";
 export { BaseEntity } from "./repository/BaseEntity";
 export { EntitySchema } from "./entity-schema/EntitySchema";
-export { EntitySchemaColumnOptions } from "./entity-schema/EntitySchemaColumnOptions";
-export { EntitySchemaIndexOptions } from "./entity-schema/EntitySchemaIndexOptions";
-export { EntitySchemaRelationOptions } from "./entity-schema/EntitySchemaRelationOptions";
+export {
+  EntitySchemaColumnOptions
+} from "./entity-schema/EntitySchemaColumnOptions";
+export {
+  EntitySchemaIndexOptions
+} from "./entity-schema/EntitySchemaIndexOptions";
+export {
+  EntitySchemaRelationOptions
+} from "./entity-schema/EntitySchemaRelationOptions";
 export { ColumnType } from "./driver/types/ColumnTypes";
 export { PromiseUtils } from "./util/PromiseUtils";
 
@@ -167,33 +177,35 @@ export { PromiseUtils } from "./util/PromiseUtils";
  * Gets metadata args storage.
  */
 export function getMetadataArgsStorage(): MetadataArgsStorage {
-    // we should store metadata storage in a global variable otherwise it brings too much problems
-    // one of the problem is that if any entity (or any other) will be imported before consumer will call
-    // useContainer method with his own container implementation, that entity will be registered in the
-    // old old container (default one post probably) and consumer will his entity.
-    // calling useContainer before he imports any entity (or any other) is not always convenient.
-    // another reason is that when we run migrations typeorm is being called from a global package
-    // and it may load entities which register decorators in typeorm of local package
-    // this leads to impossibility of usage of entities in migrations and cli related operations
-    const globalScope = PlatformTools.getGlobalVariable();
-    if (!globalScope.typeormMetadataArgsStorage)
-        globalScope.typeormMetadataArgsStorage = new MetadataArgsStorage();
+  // we should store metadata storage in a global variable otherwise it brings too much problems
+  // one of the problem is that if any entity (or any other) will be imported before consumer will call
+  // useContainer method with his own container implementation, that entity will be registered in the
+  // old old container (default one post probably) and consumer will his entity.
+  // calling useContainer before he imports any entity (or any other) is not always convenient.
+  // another reason is that when we run migrations typeorm is being called from a global package
+  // and it may load entities which register decorators in typeorm of local package
+  // this leads to impossibility of usage of entities in migrations and cli related operations
+  const globalScope = PlatformTools.getGlobalVariable();
+  if (!globalScope.typeormMetadataArgsStorage)
+    globalScope.typeormMetadataArgsStorage = new MetadataArgsStorage();
 
-    return globalScope.typeormMetadataArgsStorage;
+  return globalScope.typeormMetadataArgsStorage;
 }
 
 /**
  * Reads connection options stored in ormconfig configuration file.
  */
-export async function getConnectionOptions(connectionName: string = "default"): Promise<ConnectionOptions> {
-    return new ConnectionOptionsReader().get(connectionName);
+export async function getConnectionOptions(
+  connectionName: string = "default"
+): Promise<ConnectionOptions> {
+  return new ConnectionOptionsReader().get(connectionName);
 }
 
 /**
  * Gets a ConnectionManager which creates connections.
  */
 export function getConnectionManager(): ConnectionManager {
-    return getFromContainer(ConnectionManager);
+  return getFromContainer(ConnectionManager);
 }
 
 /**
@@ -210,7 +222,9 @@ export async function createConnection(name: string): Promise<Connection>;
 /**
  * Creates a new connection and registers it in the manager.
  */
-export async function createConnection(options: ConnectionOptions): Promise<Connection>;
+export async function createConnection(
+  options: ConnectionOptions
+): Promise<Connection>;
 
 /**
  * Creates a new connection and registers it in the manager.
@@ -219,10 +233,18 @@ export async function createConnection(options: ConnectionOptions): Promise<Conn
  * based on content of ormconfig (json/js/yml/xml/env) file or environment variables.
  * Only one connection from ormconfig will be created (name "default" or connection without name).
  */
-export async function createConnection(optionsOrName?: any): Promise<Connection> {
-    const connectionName = typeof optionsOrName === "string" ? optionsOrName : "default";
-    const options = optionsOrName instanceof Object ? optionsOrName : await getConnectionOptions(connectionName);
-    return getConnectionManager().create(options).connect();
+export async function createConnection(
+  optionsOrName?: any
+): Promise<Connection> {
+  const connectionName =
+    typeof optionsOrName === "string" ? optionsOrName : "default";
+  const options =
+    optionsOrName instanceof Object
+      ? optionsOrName
+      : await getConnectionOptions(connectionName);
+  return getConnectionManager()
+    .create(options)
+    .connect();
 }
 
 /**
@@ -232,11 +254,16 @@ export async function createConnection(optionsOrName?: any): Promise<Connection>
  * based on content of ormconfig (json/js/yml/xml/env) file or environment variables.
  * All connections from the ormconfig will be created.
  */
-export async function createConnections(options?: ConnectionOptions[]): Promise<Connection[]> {
-    if (!options)
-        options = await new ConnectionOptionsReader().all();
-    const connections = options.map(options => getConnectionManager().create(options));
-    return PromiseUtils.runInSequence(connections, connection => connection.connect());
+export async function createConnections(
+  options?: ConnectionOptions[]
+): Promise<Connection[]> {
+  if (!options) options = await new ConnectionOptionsReader().all();
+  const connections = options.map(options =>
+    getConnectionManager().create(options)
+  );
+  return PromiseUtils.runInSequence(connections, connection =>
+    connection.connect()
+  );
 }
 
 /**
@@ -244,7 +271,7 @@ export async function createConnections(options?: ConnectionOptions[]): Promise<
  * If connection name wasn't specified, then "default" connection will be retrieved.
  */
 export function getConnection(connectionName: string = "default"): Connection {
-    return getConnectionManager().get(connectionName);
+  return getConnectionManager().get(connectionName);
 }
 
 /**
@@ -252,15 +279,18 @@ export function getConnection(connectionName: string = "default"): Connection {
  * If connection name wasn't specified, then "default" connection will be retrieved.
  */
 export function getManager(connectionName: string = "default"): EntityManager {
-    return getConnectionManager().get(connectionName).manager;
+  return getConnectionManager().get(connectionName).manager;
 }
 
 /**
  * Gets MongoDB entity manager from the connection.
  * If connection name wasn't specified, then "default" connection will be retrieved.
  */
-export function getMongoManager(connectionName: string = "default"): MongoEntityManager {
-    return getConnectionManager().get(connectionName).manager as MongoEntityManager;
+export function getMongoManager(
+  connectionName: string = "default"
+): MongoEntityManager {
+  return getConnectionManager().get(connectionName)
+    .manager as MongoEntityManager;
 }
 
 /**
@@ -268,45 +298,71 @@ export function getMongoManager(connectionName: string = "default"): MongoEntity
  * "default" connection is used, when no name is specified.
  * Only works when Sqljs driver is used.
  */
-export function getSqljsManager(connectionName: string = "default"): SqljsEntityManager {
-    return getConnectionManager().get(connectionName).manager as SqljsEntityManager;
+export function getSqljsManager(
+  connectionName: string = "default"
+): SqljsEntityManager {
+  return getConnectionManager().get(connectionName)
+    .manager as SqljsEntityManager;
 }
 
 /**
  * Gets repository for the given entity class.
  */
-export function getRepository<Entity>(entityClass: ObjectType<Entity> | EntitySchema<Entity> | string, connectionName: string = "default"): Repository<Entity> {
-    return getConnectionManager().get(connectionName).getRepository<Entity>(entityClass);
+export function getRepository<Entity>(
+  entityClass: ObjectType<Entity> | EntitySchema<Entity> | string,
+  connectionName: string = "default"
+): Repository<Entity> {
+  return getConnectionManager()
+    .get(connectionName)
+    .getRepository<Entity>(entityClass);
 }
 
 /**
  * Gets tree repository for the given entity class.
  */
-export function getTreeRepository<Entity>(entityClass: ObjectType<Entity> | string, connectionName: string = "default"): TreeRepository<Entity> {
-    return getConnectionManager().get(connectionName).getTreeRepository<Entity>(entityClass);
+export function getTreeRepository<Entity>(
+  entityClass: ObjectType<Entity> | string,
+  connectionName: string = "default"
+): TreeRepository<Entity> {
+  return getConnectionManager()
+    .get(connectionName)
+    .getTreeRepository<Entity>(entityClass);
 }
 
 /**
  * Gets tree repository for the given entity class.
  */
-export function getCustomRepository<T>(customRepository: ObjectType<T>, connectionName: string = "default"): T {
-    return getConnectionManager().get(connectionName).getCustomRepository(customRepository);
+export function getCustomRepository<T>(
+  customRepository: ObjectType<T>,
+  connectionName: string = "default"
+): T {
+  return getConnectionManager()
+    .get(connectionName)
+    .getCustomRepository(customRepository);
 }
 
 /**
  * Gets mongodb repository for the given entity class or name.
  */
-export function getMongoRepository<Entity>(entityClass: ObjectType<Entity> | string, connectionName: string = "default"): MongoRepository<Entity> {
-    return getConnectionManager().get(connectionName).getMongoRepository<Entity>(entityClass);
+export function getMongoRepository<Entity>(
+  entityClass: ObjectType<Entity> | string,
+  connectionName: string = "default"
+): MongoRepository<Entity> {
+  return getConnectionManager()
+    .get(connectionName)
+    .getMongoRepository<Entity>(entityClass);
 }
 
 /**
  * Creates a new query builder.
  */
-export function createQueryBuilder<Entity>(entityClass?: ObjectType<Entity> | string, alias?: string, connectionName: string = "default"): SelectQueryBuilder<Entity> {
-    if (entityClass) {
-        return getRepository(entityClass, connectionName).createQueryBuilder(alias);
-    }
-
-    return getConnection(connectionName).createQueryBuilder();
+export function createQueryBuilder<Entity>(
+  entityClass?: ObjectType<Entity> | string,
+  alias?: string,
+  connectionName: string = "default"
+): SelectQueryBuilder<Entity> {
+  if (entityClass) {
+    return getRepository(entityClass, connectionName).createQueryBuilder(alias);
+  }
+  return getConnection(connectionName).createQueryBuilder();
 }

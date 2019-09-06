@@ -575,7 +575,6 @@ export abstract class QueryBuilder<Entity> {
      */
     protected createWhereExpression() {
         const conditions = this.createWhereExpressionString();
-
         if (this.expressionMap.mainAlias!.hasMetadata) {
             const metadata = this.expressionMap.mainAlias!.metadata;
             if (metadata.discriminatorColumn && metadata.parentEntityMetadata) {
@@ -723,7 +722,7 @@ export abstract class QueryBuilder<Entity> {
     /**
      * Computes given where argument - transforms to a where string all forms it can take.
      */
-    protected computeWhereParameter(where: string | ((qb: this) => string) | Brackets | ObjectLiteral | ObjectLiteral[]) {
+     computeWhereParameter(where: string | ((qb: this) => string) | Brackets | ObjectLiteral | ObjectLiteral[]) {
         if (typeof where === "string")
             return where;
         if (where instanceof Brackets) {
@@ -745,6 +744,11 @@ export abstract class QueryBuilder<Entity> {
                         const columns = this.expressionMap.mainAlias!.metadata.findColumnsWithPropertyPath(propertyPath);
                         return columns.map((column, columnIndex) => {
                             const aliasPath = this.expressionMap.aliasNamePrefixingEnabled ? `${this.alias}.${propertyPath}` : column.propertyPath;
+                            console.log({
+                                where,
+                                column,
+                                columnIndex
+                            })
                             let parameterValue = column.getEntityValue(where, true);
                             const parameterName = "where_" + whereIndex + "_" + propertyIndex + "_" + columnIndex;
                             const parameterBaseCount = Object.keys(this.expressionMap.nativeParameters).filter(x => x.startsWith(parameterName)).length;
@@ -767,7 +771,6 @@ export abstract class QueryBuilder<Entity> {
                                 const parameter = this.connection.driver.createParameter(parameterName, parameterIndex - 1);
                                 return `${aliasPath} = ${parameter}`;
                             }
-
                         }).filter(expression => !!expression).join(" AND ");
                     }).filter(expression => !!expression).join(" AND ");
                 });

@@ -52,8 +52,12 @@ class EntityManager {
      * All database operations must be executed using provided entity manager.
      */
     async transaction(isolationOrRunInTransaction, runInTransactionParam) {
-        const isolation = typeof isolationOrRunInTransaction === "string" ? isolationOrRunInTransaction : undefined;
-        const runInTransaction = typeof isolationOrRunInTransaction === "function" ? isolationOrRunInTransaction : runInTransactionParam;
+        const isolation = typeof isolationOrRunInTransaction === "string"
+            ? isolationOrRunInTransaction
+            : undefined;
+        const runInTransaction = typeof isolationOrRunInTransaction === "function"
+            ? isolationOrRunInTransaction
+            : runInTransactionParam;
         if (!runInTransaction) {
             throw new Error(`Transaction method requires callback in second paramter if isolation level is supplied.`);
         }
@@ -78,14 +82,16 @@ class EntityManager {
             return result;
         }
         catch (err) {
-            try { // we throw original error even if rollback thrown an error
+            try {
+                // we throw original error even if rollback thrown an error
                 await queryRunner.rollbackTransaction();
             }
             catch (rollbackError) { }
             throw err;
         }
         finally {
-            if (!this.queryRunner) // if we used a new query runner provider then release it
+            if (!this.queryRunner)
+                // if we used a new query runner provider then release it
                 await queryRunner.release();
         }
     }
@@ -103,14 +109,18 @@ class EntityManager {
             return this.connection.createQueryBuilder(entityClass, alias, queryRunner || this.queryRunner);
         }
         else {
-            return this.connection.createQueryBuilder(entityClass || queryRunner || this.queryRunner);
+            return this.connection.createQueryBuilder(entityClass ||
+                queryRunner ||
+                this.queryRunner);
         }
     }
     /**
      * Checks if entity has an id by its Function type or schema name.
      */
     hasId(targetOrEntity, maybeEntity) {
-        const target = arguments.length === 2 ? targetOrEntity : targetOrEntity.constructor;
+        const target = arguments.length === 2
+            ? targetOrEntity
+            : targetOrEntity.constructor;
         const entity = arguments.length === 2 ? maybeEntity : targetOrEntity;
         const metadata = this.connection.getMetadata(target);
         return metadata.hasId(entity);
@@ -119,7 +129,9 @@ class EntityManager {
      * Gets entity mixed id.
      */
     getId(targetOrEntity, maybeEntity) {
-        const target = arguments.length === 2 ? targetOrEntity : targetOrEntity.constructor;
+        const target = arguments.length === 2
+            ? targetOrEntity
+            : targetOrEntity.constructor;
         const entity = arguments.length === 2 ? maybeEntity : targetOrEntity;
         const metadata = this.connection.getMetadata(target);
         return metadata.getEntityIdMixedMap(entity);
@@ -142,6 +154,7 @@ class EntityManager {
      * Merges two entities into one new entity.
      */
     merge(entityClass, mergeIntoEntity, ...entityLikes) {
+        // todo: throw exception if entity manager is released
         const metadata = this.connection.getMetadata(entityClass);
         entityLikes.forEach(object => this.plainObjectToEntityTransformer.transform(mergeIntoEntity, object, metadata));
         return mergeIntoEntity;
@@ -165,9 +178,18 @@ class EntityManager {
      */
     save(targetOrEntity, maybeEntityOrOptions, maybeOptions) {
         // normalize mixed parameters
-        let target = (arguments.length > 1 && (targetOrEntity instanceof Function || targetOrEntity instanceof index_1.EntitySchema || typeof targetOrEntity === "string")) ? targetOrEntity : undefined;
-        const entity = target ? maybeEntityOrOptions : targetOrEntity;
-        const options = target ? maybeOptions : maybeEntityOrOptions;
+        let target = arguments.length > 1 &&
+            (targetOrEntity instanceof Function ||
+                targetOrEntity instanceof index_1.EntitySchema ||
+                typeof targetOrEntity === "string")
+            ? targetOrEntity
+            : undefined;
+        const entity = target
+            ? maybeEntityOrOptions
+            : targetOrEntity;
+        const options = target
+            ? maybeOptions
+            : maybeEntityOrOptions;
         if (target instanceof index_1.EntitySchema)
             target = target.options.name;
         // if user passed empty array of entities then we don't need to do anything
@@ -183,9 +205,17 @@ class EntityManager {
      */
     remove(targetOrEntity, maybeEntityOrOptions, maybeOptions) {
         // normalize mixed parameters
-        const target = (arguments.length > 1 && (targetOrEntity instanceof Function || typeof targetOrEntity === "string")) ? targetOrEntity : undefined;
-        const entity = target ? maybeEntityOrOptions : targetOrEntity;
-        const options = target ? maybeOptions : maybeEntityOrOptions;
+        const target = arguments.length > 1 &&
+            (targetOrEntity instanceof Function ||
+                typeof targetOrEntity === "string")
+            ? targetOrEntity
+            : undefined;
+        const entity = target
+            ? maybeEntityOrOptions
+            : targetOrEntity;
+        const options = target
+            ? maybeOptions
+            : maybeEntityOrOptions;
         // if user passed empty array of entities then we don't need to do anything
         if (entity instanceof Array && entity.length === 0)
             return Promise.resolve(entity);
@@ -203,7 +233,8 @@ class EntityManager {
      */
     async insert(target, entity) {
         // TODO: Oracle does not support multiple values. Need to create another nice solution.
-        if (this.connection.driver instanceof OracleDriver_1.OracleDriver && entity instanceof Array) {
+        if (this.connection.driver instanceof OracleDriver_1.OracleDriver &&
+            entity instanceof Array) {
             const results = await Promise.all(entity.map(entity => this.insert(target, entity)));
             return results.reduce((mergedResult, result) => Object.assign(mergedResult, result), {});
         }
@@ -292,12 +323,16 @@ class EntityManager {
      * Finds entities that match given find options or conditions.
      */
     async find(entityClass, optionsOrConditions) {
+        return this.findQb(entityClass, optionsOrConditions).getMany();
+    }
+    findQb(entityClass, optionsOrConditions) {
         const metadata = this.connection.getMetadata(entityClass);
         const qb = this.createQueryBuilder(entityClass, FindOptionsUtils_1.FindOptionsUtils.extractFindManyOptionsAlias(optionsOrConditions) || metadata.name);
-        if (!FindOptionsUtils_1.FindOptionsUtils.isFindManyOptions(optionsOrConditions) || optionsOrConditions.loadEagerRelations !== false)
+        if (!FindOptionsUtils_1.FindOptionsUtils.isFindManyOptions(optionsOrConditions) ||
+            optionsOrConditions.loadEagerRelations !== false)
             FindOptionsUtils_1.FindOptionsUtils.joinEagerRelations(qb, qb.alias, metadata);
         const db = FindOptionsUtils_1.FindOptionsUtils.applyFindManyOptionsOrConditionsToQueryBuilder(qb, optionsOrConditions);
-        return db.getMany();
+        return db;
     }
     /**
      * Finds entities that match given find options and conditions.
@@ -307,11 +342,22 @@ class EntityManager {
     async findAndCount(entityClass, optionsOrConditions) {
         const metadata = this.connection.getMetadata(entityClass);
         const qb = this.createQueryBuilder(entityClass, FindOptionsUtils_1.FindOptionsUtils.extractFindManyOptionsAlias(optionsOrConditions) || metadata.name);
-        if (!FindOptionsUtils_1.FindOptionsUtils.isFindManyOptions(optionsOrConditions) || optionsOrConditions.loadEagerRelations !== false) {
+        if (!FindOptionsUtils_1.FindOptionsUtils.isFindManyOptions(optionsOrConditions) ||
+            optionsOrConditions.loadEagerRelations !== false) {
             FindOptionsUtils_1.FindOptionsUtils.joinEagerRelations(qb, qb.alias, metadata);
         }
         const item = FindOptionsUtils_1.FindOptionsUtils.applyFindManyOptionsOrConditionsToQueryBuilder(qb, optionsOrConditions);
         return item.getManyAndCount();
+    }
+    findAndCountQb(entityClass, optionsOrConditions) {
+        const metadata = this.connection.getMetadata(entityClass);
+        const qb = this.createQueryBuilder(entityClass, FindOptionsUtils_1.FindOptionsUtils.extractFindManyOptionsAlias(optionsOrConditions) || metadata.name);
+        if (!FindOptionsUtils_1.FindOptionsUtils.isFindManyOptions(optionsOrConditions) ||
+            optionsOrConditions.loadEagerRelations !== false) {
+            FindOptionsUtils_1.FindOptionsUtils.joinEagerRelations(qb, qb.alias, metadata);
+        }
+        const item = FindOptionsUtils_1.FindOptionsUtils.applyFindManyOptionsOrConditionsToQueryBuilder(qb, optionsOrConditions);
+        return item;
     }
     /**
      * Finds entities with ids.
@@ -321,33 +367,46 @@ class EntityManager {
         // if no ids passed, no need to execute a query - just return an empty array of values
         if (!ids.length)
             return Promise.resolve([]);
+        return this.findByIdsQb(entityClass, ids, optionsOrConditions)
+            .andWhereInIds(ids)
+            .getMany();
+    }
+    findByIdsQb(entityClass, ids, optionsOrConditions) {
         const metadata = this.connection.getMetadata(entityClass);
         const qb = this.createQueryBuilder(entityClass, FindOptionsUtils_1.FindOptionsUtils.extractFindManyOptionsAlias(optionsOrConditions) || metadata.name);
         FindOptionsUtils_1.FindOptionsUtils.applyFindManyOptionsOrConditionsToQueryBuilder(qb, optionsOrConditions);
-        if (!FindOptionsUtils_1.FindOptionsUtils.isFindManyOptions(optionsOrConditions) || optionsOrConditions.loadEagerRelations !== false)
+        if (!FindOptionsUtils_1.FindOptionsUtils.isFindManyOptions(optionsOrConditions) ||
+            optionsOrConditions.loadEagerRelations !== false)
             FindOptionsUtils_1.FindOptionsUtils.joinEagerRelations(qb, qb.alias, metadata);
-        return qb.andWhereInIds(ids).getMany();
+        return qb;
     }
     /**
      * Finds first entity that matches given conditions.
      */
     async findOne(entityClass, idOrOptionsOrConditions, maybeOptions) {
+        return this.findOneQb(entityClass, idOrOptionsOrConditions, maybeOptions).getOne();
+    }
+    findOneQb(entityClass, idOrOptionsOrConditions, maybeOptions) {
         let findOptions = undefined;
         if (FindOptionsUtils_1.FindOptionsUtils.isFindOneOptions(idOrOptionsOrConditions)) {
             findOptions = idOrOptionsOrConditions;
         }
-        else if (maybeOptions && FindOptionsUtils_1.FindOptionsUtils.isFindOneOptions(maybeOptions)) {
+        else if (maybeOptions &&
+            FindOptionsUtils_1.FindOptionsUtils.isFindOneOptions(maybeOptions)) {
             findOptions = maybeOptions;
         }
         let options = undefined;
-        if (idOrOptionsOrConditions instanceof Object && !FindOptionsUtils_1.FindOptionsUtils.isFindOneOptions(idOrOptionsOrConditions))
+        if (idOrOptionsOrConditions instanceof Object &&
+            !FindOptionsUtils_1.FindOptionsUtils.isFindOneOptions(idOrOptionsOrConditions))
             options = idOrOptionsOrConditions;
         const metadata = this.connection.getMetadata(entityClass);
         let alias = metadata.name;
         if (findOptions && findOptions.join) {
             alias = findOptions.join.alias;
         }
-        else if (maybeOptions && FindOptionsUtils_1.FindOptionsUtils.isFindOneOptions(maybeOptions) && maybeOptions.join) {
+        else if (maybeOptions &&
+            FindOptionsUtils_1.FindOptionsUtils.isFindOneOptions(maybeOptions) &&
+            maybeOptions.join) {
             alias = maybeOptions.join.alias;
         }
         const qb = this.createQueryBuilder(entityClass, alias);
@@ -355,22 +414,24 @@ class EntityManager {
             FindOptionsUtils_1.FindOptionsUtils.joinEagerRelations(qb, qb.alias, qb.expressionMap.mainAlias.metadata);
         findOptions = {
             ...(findOptions || {}),
-            take: 1,
+            take: 1
         };
         FindOptionsUtils_1.FindOptionsUtils.applyOptionsToQueryBuilder(qb, findOptions);
         if (options) {
             qb.where(options);
         }
-        else if (typeof idOrOptionsOrConditions === "string" || typeof idOrOptionsOrConditions === "number" || idOrOptionsOrConditions instanceof Date) {
+        else if (typeof idOrOptionsOrConditions === "string" ||
+            typeof idOrOptionsOrConditions === "number" ||
+            idOrOptionsOrConditions instanceof Date) {
             qb.andWhereInIds(metadata.ensureEntityIdMap(idOrOptionsOrConditions));
         }
-        return qb.getOne();
+        return qb;
     }
     /**
      * Finds first entity that matches given conditions or rejects the returned promise on error.
      */
     async findOneOrFail(entityClass, idOrOptionsOrConditions, maybeOptions) {
-        return this.findOne(entityClass, idOrOptionsOrConditions, maybeOptions).then((value) => {
+        return this.findOne(entityClass, idOrOptionsOrConditions, maybeOptions).then(value => {
             if (value === undefined) {
                 return Promise.reject(new EntityNotFoundError_1.EntityNotFoundError(entityClass, idOrOptionsOrConditions));
             }
@@ -407,9 +468,10 @@ class EntityManager {
         // convert possible embeded path "social.likes" into object { social: { like: () => value } }
         const values = propertyPath
             .split(".")
-            .reduceRight((value, key) => ({ [key]: value }), () => this.connection.driver.escape(column.databaseName) + " + " + value);
-        return this
-            .createQueryBuilder(entityClass, "entity")
+            .reduceRight((value, key) => ({ [key]: value }), () => this.connection.driver.escape(column.databaseName) +
+            " + " +
+            value);
+        return this.createQueryBuilder(entityClass, "entity")
             .update(entityClass)
             .set(values)
             .where(conditions)
@@ -428,9 +490,10 @@ class EntityManager {
         // convert possible embeded path "social.likes" into object { social: { like: () => value } }
         const values = propertyPath
             .split(".")
-            .reduceRight((value, key) => ({ [key]: value }), () => this.connection.driver.escape(column.databaseName) + " - " + value);
-        return this
-            .createQueryBuilder(entityClass, "entity")
+            .reduceRight((value, key) => ({ [key]: value }), () => this.connection.driver.escape(column.databaseName) +
+            " - " +
+            value);
+        return this.createQueryBuilder(entityClass, "entity")
             .update(entityClass)
             .set(values)
             .where(conditions)
@@ -483,11 +546,16 @@ class EntityManager {
      */
     getCustomRepository(customRepository) {
         const entityRepositoryMetadataArgs = index_1.getMetadataArgsStorage().entityRepositories.find(repository => {
-            return repository.target === (customRepository instanceof Function ? customRepository : customRepository.constructor);
+            return (repository.target ===
+                (customRepository instanceof Function
+                    ? customRepository
+                    : customRepository.constructor));
         });
         if (!entityRepositoryMetadataArgs)
             throw new CustomRepositoryNotFoundError_1.CustomRepositoryNotFoundError(customRepository);
-        const entityMetadata = entityRepositoryMetadataArgs.entity ? this.connection.getMetadata(entityRepositoryMetadataArgs.entity) : undefined;
+        const entityMetadata = entityRepositoryMetadataArgs.entity
+            ? this.connection.getMetadata(entityRepositoryMetadataArgs.entity)
+            : undefined;
         const entityRepositoryInstance = new entityRepositoryMetadataArgs.target(this, entityMetadata);
         // NOTE: dynamic access to protected properties. We need this to prevent unwanted properties in those classes to be exposed,
         // however we need these properties for internal work of the class

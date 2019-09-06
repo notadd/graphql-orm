@@ -291,6 +291,7 @@ export declare class EntityManager {
      * Finds entities that match given conditions.
      */
     find<Entity>(entityClass: string, conditions?: FindConditions<Entity>): Promise<Entity[]>;
+    findQb<Entity>(entityClass: ObjectType<Entity> | EntitySchema<Entity> | string, optionsOrConditions?: FindManyOptions<Entity> | any): SelectQueryBuilder<Entity>;
     /**
      * Finds entities that match given find options.
      * Also counts all entities that match given conditions,
@@ -327,6 +328,7 @@ export declare class EntityManager {
      * but ignores pagination settings (from and take options).
      */
     findAndCount<Entity>(entityClass: string, conditions?: FindConditions<Entity>): Promise<[Entity[], number]>;
+    findAndCountQb<Entity>(entityClass: ObjectType<Entity> | EntitySchema<Entity> | string, optionsOrConditions?: FindManyOptions<Entity> | any): SelectQueryBuilder<Entity>;
     /**
      * Finds entities with ids.
      * Optionally find options can be applied.
@@ -357,6 +359,7 @@ export declare class EntityManager {
      * Optionally conditions can be applied.
      */
     findByIds<Entity>(entityClass: string, ids: any[], conditions?: FindConditions<Entity>): Promise<Entity[]>;
+    findByIdsQb<Entity>(entityClass: ObjectType<Entity> | EntitySchema<Entity> | string, ids: any[], optionsOrConditions?: FindManyOptions<Entity> | any): SelectQueryBuilder<Entity>;
     /**
      * Finds first entity that matches given find options.
      */
@@ -393,6 +396,7 @@ export declare class EntityManager {
      * Finds first entity that matches given conditions.
      */
     findOne<Entity>(entityClass: string, conditions?: FindConditions<Entity>, options?: FindOneOptions<Entity>): Promise<Entity | undefined>;
+    findOneQb<Entity>(entityClass: ObjectType<Entity> | EntitySchema<Entity> | string, idOrOptionsOrConditions?: string | string[] | number | number[] | Date | Date[] | ObjectID | ObjectID[] | FindOneOptions<Entity> | any, maybeOptions?: FindOneOptions<Entity>): SelectQueryBuilder<Entity>;
     /**
      * Finds first entity that matches given find options or rejects the returned promise on error.
      */

@@ -2,7 +2,25 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const FindOperator_1 = require("../find-options/FindOperator");
 class CreateWhere {
+    static appentWhereToQb(qb, where, type) {
+        const { AND, OR, options } = where;
+        const condition = qb.computeWhereParameter(options);
+        if (AND) {
+            AND.map(and => this.appentWhereToQb(qb, and, "and"));
+        }
+        if (OR) {
+            OR.map(and => this.appentWhereToQb(qb, and, "or"));
+        }
+        if (type === "and") {
+            if (condition)
+                qb.expressionMap.wheres.push({ type: "and", condition: condition });
+        }
+        if (type === "or") {
+            qb.expressionMap.wheres.push({ type: "or", condition: condition });
+        }
+    }
     static createWhere(where) {
+        return (qb) => { };
         if (!where)
             return where;
         if (Array.isArray(where)) {

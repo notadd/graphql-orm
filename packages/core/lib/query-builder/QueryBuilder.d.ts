@@ -222,7 +222,7 @@ export declare abstract class QueryBuilder<Entity> {
     /**
      * Computes given where argument - transforms to a where string all forms it can take.
      */
-    protected computeWhereParameter(where: string | ((qb: this) => string) | Brackets | ObjectLiteral | ObjectLiteral[]): string;
+    computeWhereParameter(where: string | ((qb: this) => string) | Brackets | ObjectLiteral | ObjectLiteral[]): string;
     /**
      * Creates a query builder used to execute sql queries inside this query builder.
      */
