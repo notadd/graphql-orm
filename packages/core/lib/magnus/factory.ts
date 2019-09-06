@@ -88,14 +88,14 @@ async function createCall(
   }
   return item;
 }
-async function createFunc(
+function createFunc(
   item: any,
   parent: any,
   path: string,
   action: SelectionSet
 ) {
   const args = action.getArguments();
-  return await item.bind(parent)(...args);
+  return async () => await item.bind(parent)(...args);
 }
 /**
  * 创建并修改
@@ -161,11 +161,8 @@ export function createResolvers(
                 .getPath()
                 .join(".")
                 .replace(`${set.getPath().join(".")}.`, "");
-              results[set.name] = set.entityFactory.create(
-                result,
-                path,
-                tableName
-              );
+              // set.entityFactory.create(result, path, tableName);
+              results[set.name] = callFn(result, set);
             })
           );
           return results[fieldName];

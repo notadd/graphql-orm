@@ -7,7 +7,7 @@ interface FactoryOptions {
   enums?: any;
   entities: any;
   decorators: any;
-  createSet: any;
+  set: any;
 }
 import { get, set } from "lodash";
 export class EntityFactory {
@@ -22,7 +22,6 @@ export class EntityFactory {
           }
         })
         .filter(it => !!it);
-      const createSet = this.options.createSet;
       let target = get(instance, path);
       if (target) {
         if (Array.isArray(target)) {
@@ -34,7 +33,7 @@ export class EntityFactory {
                 get(target, p, receiver) {
                   if (methods.includes(p)) {
                     return (variables, context, info) => {
-                      const set = createSet(info.fieldNodes[0]);
+                      const set = this.options.set;
                       const args = set.getArguments();
                       const call = target[p].bind(target);
                       return call(...args);
@@ -54,7 +53,7 @@ export class EntityFactory {
               get(target, p, receiver) {
                 if (methods.includes(p)) {
                   return (variables, context, info) => {
-                    const set = createSet({ info, context });
+                    const set = this.options.set;
                     const args = set.getArguments();
                     const call = target[p].bind(target);
                     return call(...args);

@@ -15,7 +15,6 @@ class EntityFactory {
                 }
             })
                 .filter(it => !!it);
-            const createSet = this.options.createSet;
             let target = lodash_1.get(instance, path);
             if (target) {
                 if (Array.isArray(target)) {
@@ -24,7 +23,7 @@ class EntityFactory {
                             get(target, p, receiver) {
                                 if (methods.includes(p)) {
                                     return (variables, context, info) => {
-                                        const set = createSet(info.fieldNodes[0]);
+                                        const set = this.options.set;
                                         const args = set.getArguments();
                                         const call = target[p].bind(target);
                                         return call(...args);
@@ -42,7 +41,7 @@ class EntityFactory {
                         get(target, p, receiver) {
                             if (methods.includes(p)) {
                                 return (variables, context, info) => {
-                                    const set = createSet({ info, context });
+                                    const set = this.options.set;
                                     const args = set.getArguments();
                                     const call = target[p].bind(target);
                                     return call(...args);

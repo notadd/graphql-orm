@@ -43,9 +43,9 @@ async function createCall(item, parent, path, action) {
     }
     return item;
 }
-async function createFunc(item, parent, path, action) {
+function createFunc(item, parent, path, action) {
     const args = action.getArguments();
-    return await item.bind(parent)(...args);
+    return async () => await item.bind(parent)(...args);
 }
 /**
  * 创建并修改
@@ -102,7 +102,8 @@ function createResolvers(handlers, entity, decorators, getController) {
                             .getPath()
                             .join(".")
                             .replace(`${set.getPath().join(".")}.`, "");
-                        results[set.name] = set.entityFactory.create(result, path, tableName);
+                        // set.entityFactory.create(result, path, tableName);
+                        results[set.name] = callFn(result, set);
                     }));
                     return results[fieldName];
                 };

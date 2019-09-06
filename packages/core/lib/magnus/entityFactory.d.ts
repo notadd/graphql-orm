@@ -2,7 +2,7 @@ interface FactoryOptions {
     enums?: any;
     entities: any;
     decorators: any;
-    createSet: any;
+    set: any;
 }
 export declare class EntityFactory {
     private options;

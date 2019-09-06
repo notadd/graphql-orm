@@ -15,7 +15,6 @@ import { CreateWhere } from "./createWhere";
 import { EntityFactory } from "./entityFactory";
 
 export class SelectionSet extends CreateWhere {
-  entityFactory: EntityFactory;
   /**
    * 全局参数
    */
@@ -154,12 +153,6 @@ export class SelectionSet extends CreateWhere {
       set.source = source || {};
       set.variables = variables || {};
       set.enums = enums;
-      set.entityFactory = new EntityFactory({
-        enums,
-        entities,
-        decorators,
-        createSet: (node: any) => set.create(node, variables)
-      });
       set.onInit();
       return set;
     });
@@ -231,14 +224,6 @@ export class SelectionSet extends CreateWhere {
     set.source = this.source;
     set.decorators = this.decorators;
     set.enums = this.enums;
-
-    set.entityFactory = new EntityFactory({
-      enums: this.enums,
-      entities: this.entities,
-      decorators: this.decorators,
-      createSet: (node: any) => set.create(node, variables)
-    });
-    // set.entityFactory = this.entityFactory;
     /**
      * 构造必备信息
      */
