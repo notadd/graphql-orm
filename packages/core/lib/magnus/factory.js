@@ -14,8 +14,7 @@ async function createArrayCall(item, parent, path, action) {
             return createArrayCall(it, item, path, action);
         }
         else if (typeof it === "function") {
-            const args = action.getArguments();
-            return () => it.bind(item)(...args);
+            return createFunc(it, item, path, action);
         }
         else {
             return createCall(it, item, path, action);
@@ -36,8 +35,7 @@ async function createCall(item, parent, path, action) {
             item[actionPath] = await createArrayCall(it, item, `${path}.${actionPath}`, action);
         }
         else if (typeof it === "function") {
-            const args = action.getArguments();
-            item[actionPath] = () => it.bind(item)(...args);
+            item[actionPath] = await createFunc(it, item, `${path}.${actionPath}`, action);
         }
         else {
             item[actionPath] = await createCall(it, item, `${path}.${actionPath}`, action);
