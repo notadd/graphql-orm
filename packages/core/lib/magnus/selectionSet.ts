@@ -158,16 +158,7 @@ export class SelectionSet extends CreateWhere {
         enums,
         entities,
         decorators,
-        createSet: (node: any) =>
-          SelectionSet.fromGraphql({
-            enums,
-            entities,
-            handlers,
-            decorators,
-            operation: set.getCurrentEntity(),
-            variables,
-            ...node
-          })
+        createSet: (node: any) => set.create(node, variables)
       });
       set.onInit();
       return set;
@@ -236,7 +227,7 @@ export class SelectionSet extends CreateWhere {
     set.handlers = this.handlers;
     set.operation = this.operation;
     set.context = this.context;
-    set.variables = this.variables;
+    set.variables = variables;
     set.source = this.source;
     set.decorators = this.decorators;
     set.enums = this.enums;
