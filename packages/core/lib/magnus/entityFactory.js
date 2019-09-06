@@ -16,8 +16,9 @@ class EntityFactory {
             })
                 .filter(it => !!it);
             const createSet = this.options.createSet;
-            if (instance[path]) {
-                lodash_1.set(instance, path, new Proxy(lodash_1.get(instance, path), {
+            const target = lodash_1.get(instance, path);
+            if (target) {
+                lodash_1.set(instance, path, new Proxy(target, {
                     get(target, p, receiver) {
                         if (methods.includes(p)) {
                             return (variables, context, info) => {

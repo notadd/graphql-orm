@@ -23,11 +23,12 @@ export class EntityFactory {
         })
         .filter(it => !!it);
       const createSet = this.options.createSet;
-      if (instance[path]) {
+      const target = get(instance, path);
+      if (target) {
         set(
           instance,
           path,
-          new Proxy(get(instance, path), {
+          new Proxy(target, {
             get(target, p, receiver) {
               if (methods.includes(p)) {
                 return (variables, context, info) => {
