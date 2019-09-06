@@ -98,9 +98,10 @@ function createResolvers(handlers, entity, decorators, getController) {
                         const _arguments = set.getArguments();
                         const result = await controller[methodName](..._arguments);
                         const path = set
+                            .getSelection()
                             .getPath()
                             .join(".")
-                            .replace(`${fieldName}.`, "");
+                            .replace(`${set.getPath().join(".")}.`, "");
                         results[set.name] = set.entityFactory.create(result, path, tableName);
                     }));
                     return results[fieldName];

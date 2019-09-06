@@ -34,7 +34,7 @@ export declare class SelectionSet extends CreateWhere {
      * 查找relations
      */
     getRelations(parent?: string, relations?: any[]): any[];
-    private getSelection;
+    getSelection(res?: SelectionSet): SelectionSet;
     getSelections(selections?: any[]): any[];
     private getAction;
     getActions(actions?: SelectionSet[]): SelectionSet[];

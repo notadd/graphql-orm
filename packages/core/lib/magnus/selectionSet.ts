@@ -68,7 +68,7 @@ export class SelectionSet extends CreateWhere {
     }
     return relations;
   }
-  private getSelection(res?: SelectionSet) {
+  getSelection(res?: SelectionSet) {
     if (this.type === "select") {
       res = res || this.parent;
       return res;

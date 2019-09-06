@@ -9,6 +9,7 @@ interface FactoryOptions {
   decorators: any;
   createSet: any;
 }
+import { get, set } from "lodash";
 export class EntityFactory {
   constructor(private options: FactoryOptions) {}
   create<T extends object>(instance: T, path: string, name: string) {
@@ -23,19 +24,23 @@ export class EntityFactory {
         .filter(it => !!it);
       const createSet = this.options.createSet;
       if (instance[path]) {
-        instance[path] = new Proxy(instance[path], {
-          get(target, p, receiver) {
-            if (methods.includes(p)) {
-              return (variables, context, info) => {
-                const set = createSet(info.fieldNodes[0]);
-                const args = set.getArguments();
-                return target[p].bind(target)(...args);
-              };
-            } else {
-              return target[p];
+        set(
+          instance,
+          path,
+          new Proxy(get(instance, path), {
+            get(target, p, receiver) {
+              if (methods.includes(p)) {
+                return (variables, context, info) => {
+                  const set = createSet(info.fieldNodes[0]);
+                  const args = set.getArguments();
+                  return target[p].bind(target)(...args);
+                };
+              } else {
+                return target[p];
+              }
             }
-          }
-        });
+          })
+        );
       }
     }
     return instance;

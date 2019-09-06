@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const lodash_1 = require("lodash");
 class EntityFactory {
     constructor(options) {
         this.options = options;
@@ -16,7 +17,7 @@ class EntityFactory {
                 .filter(it => !!it);
             const createSet = this.options.createSet;
             if (instance[path]) {
-                instance[path] = new Proxy(instance[path], {
+                lodash_1.set(instance, path, new Proxy(lodash_1.get(instance, path), {
                     get(target, p, receiver) {
                         if (methods.includes(p)) {
                             return (variables, context, info) => {
@@ -29,7 +30,7 @@ class EntityFactory {
                             return target[p];
                         }
                     }
-                });
+                }));
             }
         }
         return instance;
