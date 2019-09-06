@@ -745,7 +745,7 @@ export abstract class QueryBuilder<Entity> {
                         let options = `equal`;
                         let columnName = paths.join('_');
                         if (paths.length > 1) {
-                            options = paths.pop();
+                            options = paths.pop()!;
                             columnName = paths.join('_');
                         }
                         const columns = this.expressionMap.mainAlias!.metadata.findColumnsWithPropertyPath(columnName);

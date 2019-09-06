@@ -1,5 +1,3 @@
-import { FindOperatorType } from "../find-options/FindOperatorType";
-import { FindOperator } from "../find-options/FindOperator";
 import { SelectQueryBuilder } from "../query-builder/SelectQueryBuilder";
 import { FindManyOptions } from "../find-options/FindManyOptions";
 /**
