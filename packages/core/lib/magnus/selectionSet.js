@@ -170,7 +170,13 @@ class SelectionSet extends createWhere_1.CreateWhere {
         set.source = this.source;
         set.decorators = this.decorators;
         set.enums = this.enums;
-        set.entityFactory = this.entityFactory;
+        set.entityFactory = new entityFactory_1.EntityFactory({
+            enums: this.enums,
+            entities: this.entities,
+            decorators: this.decorators,
+            createSet: (node) => set.create(node, variables)
+        });
+        // set.entityFactory = this.entityFactory;
         /**
          * 构造必备信息
          */
@@ -184,6 +190,7 @@ class SelectionSet extends createWhere_1.CreateWhere {
         }
         set.onInit();
         this.children.push(set);
+        return set;
     }
     createValue(val) {
         if (utils_1.isVariableNode(val)) {

@@ -231,7 +231,14 @@ export class SelectionSet extends CreateWhere {
     set.source = this.source;
     set.decorators = this.decorators;
     set.enums = this.enums;
-    set.entityFactory = this.entityFactory;
+
+    set.entityFactory = new EntityFactory({
+      enums: this.enums,
+      entities: this.entities,
+      decorators: this.decorators,
+      createSet: (node: any) => set.create(node, variables)
+    });
+    // set.entityFactory = this.entityFactory;
     /**
      * 构造必备信息
      */
@@ -246,6 +253,7 @@ export class SelectionSet extends CreateWhere {
     }
     set.onInit();
     this.children.push(set);
+    return set;
   }
 
   private createValue(val: ValueNode) {
