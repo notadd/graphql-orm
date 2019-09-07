@@ -777,7 +777,9 @@ export abstract class QueryBuilder<Entity> {
                                 }
                                 else if (["In", "Between", "Lt", "Lte", "Gt", "Gte", "Like"].includes(options)) {
                                     if (options === 'In') {
-                                        parameterValue = new FindOperator('in', parameterValue, true, true)
+                                        if (parameterValue.length > 0) {
+                                            parameterValue = new FindOperator('in', parameterValue, true, true)
+                                        }
                                     } else if (options === 'Between') {
                                         parameterValue = new FindOperator('between', parameterValue, true, true)
                                     } else if (options === 'Lt') {

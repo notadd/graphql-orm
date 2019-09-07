@@ -571,7 +571,9 @@ class QueryBuilder {
                                 }
                                 else if (["In", "Between", "Lt", "Lte", "Gt", "Gte", "Like"].includes(options)) {
                                     if (options === 'In') {
-                                        parameterValue = new FindOperator_1.FindOperator('in', parameterValue, true, true);
+                                        if (parameterValue.length > 0) {
+                                            parameterValue = new FindOperator_1.FindOperator('in', parameterValue, true, true);
+                                        }
                                     }
                                     else if (options === 'Between') {
                                         parameterValue = new FindOperator_1.FindOperator('between', parameterValue, true, true);
