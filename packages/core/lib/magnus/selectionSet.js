@@ -95,6 +95,7 @@ class SelectionSet extends createWhere_1.CreateWhere {
             set.source = source || {};
             set.variables = info.variableValues || {};
             set.enums = enums;
+            set.fragments = info.fragments;
             set.onInit();
             return set;
         });
@@ -140,14 +141,21 @@ class SelectionSet extends createWhere_1.CreateWhere {
         if (this.info && this.info.selectionSet) {
             this.info.selectionSet.selections &&
                 this.info.selectionSet.selections.map(selection => {
-                    if (utils_1.isFieldNode(selection)) {
-                        this.create(selection, this.variables);
-                    }
-                    else if (utils_1.isFragmentSpreadNode(selection)) {
-                    }
-                    else {
-                    }
+                    this.createSelection(selection);
                 });
+        }
+    }
+    createSelection(selection) {
+        if (utils_1.isFieldNode(selection)) {
+            this.create(selection, this.variables);
+        }
+        else if (utils_1.isFragmentSpreadNode(selection)) {
+            const name = selection.name.value;
+            const fragment = this.fragments[name];
+            fragment.selectionSet.selections.map(selection => this.createSelection(selection));
+        }
+        else {
+            selection.selectionSet.selections.map(selection => this.createSelection(selection));
         }
     }
     create(field, variables) {
@@ -163,6 +171,7 @@ class SelectionSet extends createWhere_1.CreateWhere {
         set.source = this.source;
         set.decorators = this.decorators;
         set.enums = this.enums;
+        set.fragments = this.fragments;
         /**
          * 构造必备信息
          */

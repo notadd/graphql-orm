@@ -1,4 +1,4 @@
-import { GraphQLResolveInfo, FieldNode } from "graphql";
+import { GraphQLResolveInfo, FieldNode, FragmentDefinitionNode } from "graphql";
 import { CreateWhere } from "./createWhere";
 export declare class SelectionSet extends CreateWhere {
     /**
@@ -55,8 +55,12 @@ export declare class SelectionSet extends CreateWhere {
         source?: any;
         variables?: any;
     }): SelectionSet[];
+    fragments: {
+        [key: string]: FragmentDefinitionNode;
+    };
     getArguments(): any[];
     onInit(): void;
+    private createSelection;
     private create;
     private createValue;
     private createArgument;

@@ -1,4 +1,4 @@
-import { GraphQLResolveInfo, FieldNode, ValueNode, ArgumentNode } from "graphql";
+import { GraphQLResolveInfo, FieldNode, ValueNode, ArgumentNode, FragmentDefinitionNode } from "graphql";
 import {
     isFieldNode,
     isFragmentSpreadNode,
@@ -161,10 +161,13 @@ export class SelectionSet extends CreateWhere {
             set.source = source || {};
             set.variables = info.variableValues || {};
             set.enums = enums;
+            set.fragments = info.fragments
             set.onInit();
             return set;
         });
     }
+
+    fragments: { [key: string]: FragmentDefinitionNode };
 
     getArguments() {
         const args = this.info.arguments;
@@ -211,12 +214,19 @@ export class SelectionSet extends CreateWhere {
         if (this.info && this.info.selectionSet) {
             this.info.selectionSet.selections &&
                 this.info.selectionSet.selections.map(selection => {
-                    if (isFieldNode(selection)) {
-                        this.create(selection, this.variables);
-                    } else if (isFragmentSpreadNode(selection)) {
-                    } else {
-                    }
+                    this.createSelection(selection)
                 });
+        }
+    }
+    private createSelection(selection: any) {
+        if (isFieldNode(selection)) {
+            this.create(selection, this.variables);
+        } else if (isFragmentSpreadNode(selection)) {
+            const name = selection.name.value;
+            const fragment = this.fragments[name];
+            fragment.selectionSet.selections.map(selection => this.createSelection(selection))
+        } else {
+            selection.selectionSet.selections.map(selection => this.createSelection(selection))
         }
     }
     private create(field: FieldNode, variables: any) {
@@ -232,6 +242,7 @@ export class SelectionSet extends CreateWhere {
         set.source = this.source;
         set.decorators = this.decorators;
         set.enums = this.enums;
+        set.fragments = this.fragments;
         /**
          * 构造必备信息
          */
