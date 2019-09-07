@@ -93,7 +93,7 @@ class SelectionSet extends createWhere_1.CreateWhere {
             set.operation = info.operation.operation;
             set.context = context || {};
             set.source = source || {};
-            set.variables = variables || {};
+            set.variables = info.variableValues || {};
             set.enums = enums;
             set.onInit();
             return set;
