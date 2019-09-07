@@ -212,37 +212,7 @@ class SelectionSet extends createWhere_1.CreateWhere {
         }
     }
     createArgument(arg) {
-        if (utils_1.isVariableNode(arg.value)) {
-            return this.variables[arg.name.value];
-        }
-        else if (utils_1.isIntValueNode(arg.value)) {
-            return parseInt(arg.value.value, 10);
-        }
-        else if (utils_1.isFloatValueNode(arg.value)) {
-            return parseFloat(arg.value.value);
-        }
-        else if (utils_1.isStringValueNode(arg.value)) {
-            return arg.value.value;
-        }
-        else if (utils_1.isBooleanValueNode(arg.value)) {
-            return !!arg.value.value;
-        }
-        else if (utils_1.isNullValueNode(arg.value)) {
-            return null;
-        }
-        else if (utils_1.isEnumValueNode(arg.value)) {
-            return undefined;
-        }
-        else if (utils_1.isListValueNode(arg.value)) {
-            return arg.value.values.map(value => this.createValue(value));
-        }
-        else {
-            let res = {};
-            arg.value.fields.map(field => {
-                res[field.name.value] = this.createValue(field.value);
-            });
-            return res;
-        }
+        return this.createValue(arg.value);
     }
     setMember(param) {
         if (param.decorators.includes("ResolveProperty")) {

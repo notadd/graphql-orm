@@ -1,4 +1,4 @@
-import { GraphQLResolveInfo, FieldNode, ValueNode } from "graphql";
+import { GraphQLResolveInfo, FieldNode, ValueNode, ArgumentNode } from "graphql";
 import {
     isFieldNode,
     isFragmentSpreadNode,
@@ -13,6 +13,7 @@ import {
 } from "./utils";
 import { CreateWhere } from "./createWhere";
 import { EntityFactory } from "./entityFactory";
+import { ArgumentAst } from "@notadd/magnus-graphql";
 
 export class SelectionSet extends CreateWhere {
     /**
@@ -274,30 +275,8 @@ export class SelectionSet extends CreateWhere {
         }
     }
 
-    private createArgument(arg: any) {
-        if (isVariableNode(arg.value)) {
-            return this.variables[arg.name.value];
-        } else if (isIntValueNode(arg.value)) {
-            return parseInt(arg.value.value, 10);
-        } else if (isFloatValueNode(arg.value)) {
-            return parseFloat(arg.value.value);
-        } else if (isStringValueNode(arg.value)) {
-            return arg.value.value;
-        } else if (isBooleanValueNode(arg.value)) {
-            return !!arg.value.value;
-        } else if (isNullValueNode(arg.value)) {
-            return null;
-        } else if (isEnumValueNode(arg.value)) {
-            return undefined;
-        } else if (isListValueNode(arg.value)) {
-            return arg.value.values.map(value => this.createValue(value));
-        } else {
-            let res = {};
-            arg.value.fields.map(field => {
-                res[field.name.value] = this.createValue(field.value);
-            });
-            return res;
-        }
+    private createArgument(arg: ArgumentNode) {
+        return this.createValue(arg.value)
     }
     parameters: any[] = [];
     setMember(param: any) {
