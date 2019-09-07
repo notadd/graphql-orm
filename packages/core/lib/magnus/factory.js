@@ -43,6 +43,9 @@ function createCall(item, parent, path, action) {
             else if (it) {
                 item[actionPath] = createCall(it, item, `${path}.${actionPath}`, action);
             }
+            else {
+                item[actionPath] = it;
+            }
         }
         return item;
     }
@@ -64,13 +67,13 @@ function callFn(item, set) {
     if (actions) {
         actions.map(action => {
             if (Array.isArray(item) && item.length > 0) {
-                createArrayCall(item, item, path, action);
+                item = createArrayCall(item, item, path, action);
             }
             else if (typeof item === "function") {
-                createFunc(item, item, path, action);
+                item = createFunc(item, item, path, action);
             }
             else if (item) {
-                createCall(item, item, path, action);
+                item = createCall(item, item, path, action);
             }
         });
     }
