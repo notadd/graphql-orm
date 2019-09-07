@@ -1,4 +1,8 @@
 import { BaseEntity } from "../repository/BaseEntity";
 export declare class MagnusBase extends BaseEntity {
-    static createWhere(where: any): any;
+    createWhere({ where, relations, select }: {
+        where: any;
+        relations: any;
+        select: any;
+    }): any;
 }

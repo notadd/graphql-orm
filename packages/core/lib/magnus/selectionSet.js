@@ -85,6 +85,7 @@ class SelectionSet extends createWhere_1.CreateWhere {
         return actions;
     }
     static fromGraphql({ info, enums, entities, handlers, decorators, context, source, variables }) {
+        this.entities = entities;
         return info.fieldNodes.map(it => {
             const set = new SelectionSet(it, info.variableValues);
             set.entities = entities || {};

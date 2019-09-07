@@ -20,7 +20,7 @@ export class SelectionSet extends CreateWhere {
      * 全局参数
      */
     private enums: any;
-    private entities: any;
+    entities: any;
     private handlers: any;
     private decorators: any;
     private operation: any;
@@ -33,7 +33,7 @@ export class SelectionSet extends CreateWhere {
     private children: SelectionSet[] = [];
 
     info: FieldNode;
-    private level: number;
+    level: number;
     private alias: string;
 
     /**
@@ -151,6 +151,7 @@ export class SelectionSet extends CreateWhere {
         source?: any;
         variables?: any;
     }) {
+        this.entities = entities;
         return info.fieldNodes.map(it => {
             const set = new SelectionSet(it, info.variableValues);
             set.entities = entities || {};

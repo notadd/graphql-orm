@@ -1,29 +1,30 @@
-import {QueryRunner, SelectQueryBuilder} from "..";
-import {ObjectLiteral} from "../common/ObjectLiteral";
-import {Connection} from "../connection/Connection";
-import {PostgresConnectionOptions} from "../driver/postgres/PostgresConnectionOptions";
-import {PostgresDriver} from "../driver/postgres/PostgresDriver";
-import {SqlServerConnectionOptions} from "../driver/sqlserver/SqlServerConnectionOptions";
-import {SqlServerDriver} from "../driver/sqlserver/SqlServerDriver";
-import {CannotCreateEntityIdMapError} from "../error/CannotCreateEntityIdMapError";
-import {OrderByCondition} from "../find-options/OrderByCondition";
-import {TableMetadataArgs} from "../metadata-args/TableMetadataArgs";
-import {TreeMetadataArgs} from "../metadata-args/TreeMetadataArgs";
-import {OrmUtils} from "../util/OrmUtils";
-import {shorten} from "../util/StringUtils";
-import {CheckMetadata} from "./CheckMetadata";
-import {ColumnMetadata} from "./ColumnMetadata";
-import {EmbeddedMetadata} from "./EmbeddedMetadata";
-import {EntityListenerMetadata} from "./EntityListenerMetadata";
-import {ExclusionMetadata} from "./ExclusionMetadata";
-import {ForeignKeyMetadata} from "./ForeignKeyMetadata";
-import {IndexMetadata} from "./IndexMetadata";
-import {RelationCountMetadata} from "./RelationCountMetadata";
-import {RelationIdMetadata} from "./RelationIdMetadata";
-import {RelationMetadata} from "./RelationMetadata";
-import {TableType} from "./types/TableTypes";
-import {TreeType} from "./types/TreeTypes";
-import {UniqueMetadata} from "./UniqueMetadata";
+import { QueryRunner, SelectQueryBuilder } from "..";
+import { ObjectLiteral } from "../common/ObjectLiteral";
+import { Connection } from "../connection/Connection";
+import { PostgresConnectionOptions } from "../driver/postgres/PostgresConnectionOptions";
+import { PostgresDriver } from "../driver/postgres/PostgresDriver";
+import { SqlServerConnectionOptions } from "../driver/sqlserver/SqlServerConnectionOptions";
+import { SqlServerDriver } from "../driver/sqlserver/SqlServerDriver";
+import { CannotCreateEntityIdMapError } from "../error/CannotCreateEntityIdMapError";
+import { OrderByCondition } from "../find-options/OrderByCondition";
+import { TableMetadataArgs } from "../metadata-args/TableMetadataArgs";
+import { TreeMetadataArgs } from "../metadata-args/TreeMetadataArgs";
+import { OrmUtils } from "../util/OrmUtils";
+import { shorten } from "../util/StringUtils";
+import { CheckMetadata } from "./CheckMetadata";
+import { ColumnMetadata } from "./ColumnMetadata";
+import { EmbeddedMetadata } from "./EmbeddedMetadata";
+import { EntityListenerMetadata } from "./EntityListenerMetadata";
+import { ExclusionMetadata } from "./ExclusionMetadata";
+import { ForeignKeyMetadata } from "./ForeignKeyMetadata";
+import { IndexMetadata } from "./IndexMetadata";
+import { RelationCountMetadata } from "./RelationCountMetadata";
+import { RelationIdMetadata } from "./RelationIdMetadata";
+import { RelationMetadata } from "./RelationMetadata";
+import { TableType } from "./types/TableTypes";
+import { TreeType } from "./types/TreeTypes";
+import { UniqueMetadata } from "./UniqueMetadata";
+import { SelectionSet } from "../magnus";
 
 /**
  * Contains all entity metadata.
@@ -81,7 +82,7 @@ export class EntityMetadata {
      * Note, that when using table inheritance patterns target can be different rather then table's target.
      * For virtual tables which lack of real entity (like junction tables) target is equal to their table name.
      */
-    target: Function|string;
+    target: Function | string;
 
     /**
      * Gets the name of the target.
@@ -99,7 +100,7 @@ export class EntityMetadata {
      * View's expression.
      * Used in views
      */
-    expression?: string|((connection: Connection) => SelectQueryBuilder<any>);
+    expression?: string | ((connection: Connection) => SelectQueryBuilder<any>);
 
     /**
      * Original user-given table name (taken from schema or @Entity(tableName) decorator).
@@ -509,11 +510,10 @@ export class EntityMetadata {
         // if target is set to a function (e.g. class) that can be created then create it
         let ret: any;
         if (this.target instanceof Function) {
-            ret = new (<any> this.target)();
+            ret = new (<any>this.target)();
             this.lazyRelations.forEach(relation => this.connection.relationLoader.enableLazyLoad(relation, ret, queryRunner));
             return ret;
         }
-
         // otherwise simply return a new empty object
         const newObject = {};
         this.lazyRelations.forEach(relation => this.connection.relationLoader.enableLazyLoad(relation, newObject, queryRunner));
@@ -566,7 +566,7 @@ export class EntityMetadata {
      * For multiple primary keys it returns multiple keys in object.
      * For primary keys inside embeds it returns complex object literal with keys in them.
      */
-    getEntityIdMap(entity: ObjectLiteral|undefined): ObjectLiteral|undefined {
+    getEntityIdMap(entity: ObjectLiteral | undefined): ObjectLiteral | undefined {
         if (!entity)
             return undefined;
 
@@ -579,7 +579,7 @@ export class EntityMetadata {
      * But if entity has a single primary key then it will return just value of the id column of the entity, just value.
      * This is called mixed id map.
      */
-    getEntityIdMixedMap(entity: ObjectLiteral|undefined): ObjectLiteral|undefined {
+    getEntityIdMixedMap(entity: ObjectLiteral | undefined): ObjectLiteral | undefined {
         if (!entity)
             return entity;
 
@@ -612,21 +612,21 @@ export class EntityMetadata {
     /**
      * Finds column with a given property name.
      */
-    findColumnWithPropertyName(propertyName: string): ColumnMetadata|undefined {
+    findColumnWithPropertyName(propertyName: string): ColumnMetadata | undefined {
         return this.columns.find(column => column.propertyName === propertyName);
     }
 
     /**
      * Finds column with a given database name.
      */
-    findColumnWithDatabaseName(databaseName: string): ColumnMetadata|undefined {
+    findColumnWithDatabaseName(databaseName: string): ColumnMetadata | undefined {
         return this.columns.find(column => column.databaseName === databaseName);
     }
 
     /**
      * Finds column with a given property path.
      */
-    findColumnWithPropertyPath(propertyPath: string): ColumnMetadata|undefined {
+    findColumnWithPropertyPath(propertyPath: string): ColumnMetadata | undefined {
         const column = this.columns.find(column => column.propertyPath === propertyPath);
         if (column)
             return column;
@@ -661,7 +661,7 @@ export class EntityMetadata {
     /**
      * Finds relation with the given property path.
      */
-    findRelationWithPropertyPath(propertyPath: string): RelationMetadata|undefined {
+    findRelationWithPropertyPath(propertyPath: string): RelationMetadata | undefined {
         return this.relations.find(relation => relation.propertyPath === propertyPath);
     }
 
@@ -675,7 +675,7 @@ export class EntityMetadata {
     /**
      * Finds embedded with a given property path.
      */
-    findEmbeddedWithPropertyPath(propertyPath: string): EmbeddedMetadata|undefined {
+    findEmbeddedWithPropertyPath(propertyPath: string): EmbeddedMetadata | undefined {
         return this.allEmbeddeds.find(embedded => embedded.propertyPath === propertyPath);
     }
 
@@ -735,7 +735,7 @@ export class EntityMetadata {
      * Compares ids of the two entities.
      * Returns true if they match, false otherwise.
      */
-    static compareIds(firstId: ObjectLiteral|undefined, secondId: ObjectLiteral|undefined): boolean {
+    static compareIds(firstId: ObjectLiteral | undefined, secondId: ObjectLiteral | undefined): boolean {
         if (firstId === undefined || firstId === null || secondId === undefined || secondId === null)
             return false;
 
@@ -746,7 +746,7 @@ export class EntityMetadata {
      * Creates value map from the given values and columns.
      * Examples of usages are primary columns map and join columns map.
      */
-    static getValueMap(entity: ObjectLiteral, columns: ColumnMetadata[], options?: { skipNulls?: boolean }): ObjectLiteral|undefined {
+    static getValueMap(entity: ObjectLiteral, columns: ColumnMetadata[], options?: { skipNulls?: boolean }): ObjectLiteral | undefined {
         return columns.reduce((map, column) => {
             const value = column.getEntityValueMap(entity, options);
 
@@ -755,7 +755,7 @@ export class EntityMetadata {
                 return undefined;
 
             return column.isObjectId ? Object.assign(map, value) : OrmUtils.mergeDeep(map, value);
-        }, {} as ObjectLiteral|undefined);
+        }, {} as ObjectLiteral | undefined);
     }
 
     // ---------------------------------------------------------------------
@@ -774,7 +774,7 @@ export class EntityMetadata {
             this.schema = this.parentEntityMetadata.schema;
         }
         else {
-            this.schema = (this.connection.options as PostgresConnectionOptions|SqlServerConnectionOptions).schema;
+            this.schema = (this.connection.options as PostgresConnectionOptions | SqlServerConnectionOptions).schema;
         }
         this.givenTableName = this.tableMetadataArgs.type === "entity-child" && this.parentEntityMetadata ? this.parentEntityMetadata.givenTableName : this.tableMetadataArgs.name;
         this.synchronize = this.tableMetadataArgs.synchronize === false ? false : true;
@@ -827,8 +827,8 @@ export class EntityMetadata {
      * This method will create following object:
      * { id: "id", counterEmbed: { count: "counterEmbed.count" }, category: "category" }
      */
-    createPropertiesMap(): { [name: string]: string|any } {
-        const map: { [name: string]: string|any } = {};
+    createPropertiesMap(): { [name: string]: string | any } {
+        const map: { [name: string]: string | any } = {};
         this.columns.forEach(column => OrmUtils.mergeDeep(map, column.createValueMap(column.propertyPath)));
         this.relations.forEach(relation => OrmUtils.mergeDeep(map, relation.createValueMap(relation.propertyPath)));
         return map;
@@ -855,7 +855,7 @@ export class EntityMetadata {
     /**
      * Builds table path using schema name and database name.
      */
-    protected buildSchemaPath(): string|undefined {
+    protected buildSchemaPath(): string | undefined {
         if (!this.schema)
             return undefined;
 

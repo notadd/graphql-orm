@@ -122,6 +122,7 @@ function callFn(item: any, set: SelectionSet) {
     }
     return item;
 }
+
 export function createResolvers(
     handlers: HandlerDefMap,
     entity: Metadatas,
@@ -162,6 +163,7 @@ export function createResolvers(
                         const _arguments = set.getArguments();
                         const result = await controller[methodName](..._arguments);
                         results[set.name] = callFn(result, set);
+                        debugger;
                     }));
                     return results[fieldName];
                 };

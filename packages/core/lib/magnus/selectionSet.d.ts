@@ -5,7 +5,7 @@ export declare class SelectionSet extends CreateWhere {
      * 全局参数
      */
     private enums;
-    private entities;
+    entities: any;
     private handlers;
     private decorators;
     private operation;
@@ -16,7 +16,7 @@ export declare class SelectionSet extends CreateWhere {
     parent?: SelectionSet;
     private children;
     info: FieldNode;
-    private level;
+    level: number;
     private alias;
     /**
      * 结果
