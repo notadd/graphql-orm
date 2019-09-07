@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const lodash_1 = require("lodash");
 const selectionSet_1 = require("./selectionSet");
+const asst_1 = require("./asst");
 const decorator_1 = require("./decorator");
 exports.decoratorsMap = {
     Selection: decorator_1.Selection,
@@ -9,8 +10,8 @@ exports.decoratorsMap = {
     GetSelectionSet: decorator_1.GetSelectionSet
 };
 function createArrayCall(item, parent, path, action) {
-    if (item && item.length > 0)
-        return item.map((it, index) => {
+    if (item && item.length > 0) {
+        item = item.map((it, index) => {
             if (Array.isArray(it) && it.length > 0) {
                 return createArrayCall(it, item, path, action);
             }
@@ -20,7 +21,11 @@ function createArrayCall(item, parent, path, action) {
             else if (it) {
                 return createCall(it, item, path, action);
             }
+            else {
+                return it;
+            }
         });
+    }
     return item;
 }
 function createCall(item, parent, path, action) {
@@ -108,10 +113,10 @@ function createResolvers(handlers, entity, decorators, getController) {
                     await Promise.all(sets.map(async (set) => {
                         const _arguments = set.getArguments();
                         const result = await controller[methodName](..._arguments);
-                        results[set.name] = callFn(result, set);
-                        set.getActions();
-                        // Departments 
+                        const visitor = new asst_1.CompilerVisitor();
+                        const list = visitor.create(result, set);
                         debugger;
+                        results[set.name] = callFn(result, set);
                     }));
                     return results[fieldName];
                 };

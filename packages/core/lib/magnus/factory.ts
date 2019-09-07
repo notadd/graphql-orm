@@ -2,6 +2,7 @@ import { GraphQLResolveInfo } from "graphql";
 import { MagnusBase } from "@notadd/magnus-core";
 import { upperFirst } from "lodash";
 import { SelectionSet } from "./selectionSet";
+import { CompilerVisitor } from './asst';
 interface MagnusFieldResolver {
     (source: any, variables: any, info: GraphQLResolveInfo): any;
 }
@@ -36,16 +37,19 @@ function createArrayCall(
     path: string,
     action: SelectionSet
 ) {
-    if (item && item.length > 0)
-        return item.map((it, index) => {
+    if (item && item.length > 0) {
+        item = item.map((it, index) => {
             if (Array.isArray(it) && it.length > 0) {
                 return createArrayCall(it, item, path, action);
             } else if (typeof it === "function") {
                 return createFunc(it, item, path, action);
             } else if (it) {
                 return createCall(it, item, path, action);
+            } else {
+                return it;
             }
-        })
+        });
+    }
     return item;
 }
 function createCall(
@@ -164,10 +168,10 @@ export function createResolvers(
                     await Promise.all(sets.map(async set => {
                         const _arguments = set.getArguments();
                         const result = await controller[methodName](..._arguments);
-                        results[set.name] = callFn(result, set);
-                        set.getActions();
-                        // Departments 
+                        const visitor = new CompilerVisitor();
+                        const list = visitor.create(result, set);
                         debugger;
+                        results[set.name] = callFn(result, set);
                     }));
                     return results[fieldName];
                 };
