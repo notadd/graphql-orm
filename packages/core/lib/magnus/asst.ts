@@ -113,6 +113,9 @@ export class ParseVisitor implements AstVisitor {
         return ast.item;
     }
     visitCallAst(ast: CallAst, context: any): any {
-        return (...args: any[]) => ast.item(...ast.action.getArguments())
+        if (ast.action.parent) {
+            return (...args: any[]) => ast.item(...ast.action.parent.getArguments())
+        }
+        return ast.item;
     }
 }

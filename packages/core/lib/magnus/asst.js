@@ -108,7 +108,10 @@ class ParseVisitor {
         return ast.item;
     }
     visitCallAst(ast, context) {
-        return (...args) => ast.item(...ast.action.getArguments());
+        if (ast.action.parent) {
+            return (...args) => ast.item(...ast.action.parent.getArguments());
+        }
+        return ast.item;
     }
 }
 exports.ParseVisitor = ParseVisitor;
