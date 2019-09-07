@@ -15,7 +15,7 @@ import { FindManyOptions } from "../find-options/FindManyOptions";
  * where id === 1 AND (id in [1] and id in[2]) OR (id in [3])
  */
 interface MagnusWhere {
-    [key: string]: FindManyOptions<any> | Partial<any>;
+    [key: string]: FindManyOptions<any> | Partial<any> | any;
     AND?: MagnusWhere[];
     OR?: MagnusWhere[];
 }

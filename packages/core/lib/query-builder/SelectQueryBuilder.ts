@@ -1027,7 +1027,6 @@ export class SelectQueryBuilder<Entity> extends QueryBuilder<Entity> implements 
         const queryRunner = this.obtainQueryRunner();
         let transactionStartedByUs: boolean = false;
         try {
-
             // start transaction if it was enabled
             if (this.expressionMap.useTransaction === true && queryRunner.isTransactionActive === false) {
                 await queryRunner.startTransaction();
@@ -1087,7 +1086,6 @@ export class SelectQueryBuilder<Entity> extends QueryBuilder<Entity> implements 
     async getMany(): Promise<Entity[]> {
         if (this.expressionMap.lockMode === "optimistic")
             throw new OptimisticLockCanNotBeUsedError();
-
         const results = await this.getRawAndEntities();
         return results.entities;
     }

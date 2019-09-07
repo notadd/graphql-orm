@@ -38,11 +38,11 @@ function createArrayCall(
 ) {
     if (item && item.length > 0)
         return item.map((it, index) => {
-            if (Array.isArray(it)) {
+            if (Array.isArray(it) && it.length > 0) {
                 return createArrayCall(it, item, path, action);
             } else if (typeof it === "function") {
                 return createFunc(it, item, path, action);
-            } else {
+            } else if (it) {
                 return createCall(it, item, path, action);
             }
         })
@@ -64,7 +64,7 @@ function createCall(
         const actionPath = actionPaths.pop();
         if (actionPath) {
             const it = item[actionPath];
-            if (Array.isArray(it)) {
+            if (Array.isArray(it) && it.length > 0) {
                 item[actionPath] = createArrayCall(
                     it,
                     item,
@@ -78,7 +78,7 @@ function createCall(
                     `${path}.${actionPath}`,
                     action
                 );
-            } else {
+            } else if (it) {
                 item[actionPath] = createCall(
                     it,
                     item,
@@ -111,11 +111,11 @@ function callFn(item: any, set: SelectionSet) {
     const path = set.getPath().join(".");
     if (actions) {
         actions.map(action => {
-            if (Array.isArray(item)) {
+            if (Array.isArray(item) && item.length > 0) {
                 createArrayCall(item, item, path, action);
             } else if (typeof item === "function") {
                 createFunc(item, item, path, action);
-            } else {
+            } else if (item) {
                 createCall(item, item, path, action);
             }
         });
