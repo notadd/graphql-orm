@@ -106,6 +106,8 @@ function createResolvers(handlers, entity, decorators, getController) {
                         const _arguments = set.getArguments();
                         const result = await controller[methodName](..._arguments);
                         results[set.name] = callFn(result, set);
+                        set.getActions();
+                        // Departments 
                         debugger;
                     }));
                     return results[fieldName];
