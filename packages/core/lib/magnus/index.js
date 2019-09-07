@@ -9,5 +9,5 @@ exports.createResolvers = factory_1.createResolvers;
 __export(require("./selectionSet"));
 __export(require("./decorator"));
 var base_1 = require("./base");
-exports.MagnusBase = base_1.MagnusBase;
+exports.createWhere = base_1.createWhere;
 //# sourceMappingURL=index.js.map

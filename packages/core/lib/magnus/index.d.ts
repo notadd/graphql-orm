@@ -2,7 +2,7 @@ import { SelectionSet } from './selectionSet';
 export { createResolvers } from './factory';
 export * from './selectionSet';
 export * from './decorator';
-export { MagnusBase } from './base';
+export { createWhere } from './base';
 export interface ITypeorm {
     alias: string;
     name: string;
