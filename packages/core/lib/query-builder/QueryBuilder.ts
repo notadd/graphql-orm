@@ -794,15 +794,17 @@ export abstract class QueryBuilder<Entity> {
                                         parameterValue = new FindOperator('like', parameterValue, true, false)
                                     }
                                     let parameters = [];
-                                    if (parameterValue.useParameter) {
-                                        const realParameterValues = parameterValue.multipleParameters ? parameterValue.value : [parameterValue.value];
-                                        realParameterValues.forEach((realParameterValue, realParameterValueIndex) => {
-                                            this.expressionMap.nativeParameters[parameterName + (parameterBaseCount + realParameterValueIndex)] = realParameterValue;
-                                            parameterIndex++;
-                                            parameters.push(this.connection.driver.createParameter(parameterName + (parameterBaseCount + realParameterValueIndex), parameterIndex - 1));
-                                        });
+                                    if (parameterValue instanceof FindOperator) {
+                                        if (parameterValue.useParameter) {
+                                            const realParameterValues = parameterValue.multipleParameters ? parameterValue.value : [parameterValue.value];
+                                            realParameterValues.forEach((realParameterValue, realParameterValueIndex) => {
+                                                this.expressionMap.nativeParameters[parameterName + (parameterBaseCount + realParameterValueIndex)] = realParameterValue;
+                                                parameterIndex++;
+                                                parameters.push(this.connection.driver.createParameter(parameterName + (parameterBaseCount + realParameterValueIndex), parameterIndex - 1));
+                                            });
+                                        }
+                                        return parameterValue.toSql(this.connection, aliasPath, parameters);
                                     }
-                                    return parameterValue.toSql(this.connection, aliasPath, parameters);
                                 } else {
                                     debugger;
                                 }
