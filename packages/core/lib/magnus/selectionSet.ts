@@ -227,7 +227,7 @@ export class SelectionSet extends CreateWhere {
         set.handlers = this.handlers;
         set.operation = this.operation;
         set.context = this.context;
-        set.variables = variables;
+        set.variables = this.variables;
         set.source = this.source;
         set.decorators = this.decorators;
         set.enums = this.enums;
