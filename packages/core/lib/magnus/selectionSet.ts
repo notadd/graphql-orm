@@ -30,7 +30,7 @@ export class SelectionSet extends CreateWhere {
 
     name: string;
     parent?: SelectionSet;
-    private children: SelectionSet[] = [];
+    children: SelectionSet[] = [];
 
     info: FieldNode;
     level: number;

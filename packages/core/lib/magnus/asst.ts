@@ -4,6 +4,8 @@ export abstract class Ast {
     action: SelectionSet;
     item: any;
     parent: Ast;
+    path: string;
+    name: string;
     abstract visit(visitor: AstVisitor, context: any): any;
 }
 
@@ -57,6 +59,7 @@ export class CompilerVisitor implements AstVisitor {
     visitArrayAst(ast: ArrayAst, context: CompilerContext): any {
         ast.action = context.action;
         ast.item = context.item;
+        ast.name = ast.action.name;
         ast.list = context.item.map(it => {
             return this.visit(it, ast.action);
         });
@@ -65,25 +68,51 @@ export class CompilerVisitor implements AstVisitor {
     visitObjectAst(ast: ObjectAst, context: CompilerContext): any {
         ast.action = context.action;
         ast.item = context.item;
-        if (ast.item)
-            ast.fields = Object.keys(context.item).map(key => {
-                let it = context.item[key];
-                return {
-                    name: key,
-                    node: this.visit(it, ast.action)
-                };
-            });
-        ast.fields = [];
+        ast.name = ast.action.name;
+        if (context.action.children) {
+            ast.fields = context.action.children.map(action => {
+                let it = context.item[action.name];
+                if (it) {
+                    return this.visit(it, action)
+                }
+            }).filter(it => !!it);
+        } else {
+            ast.fields = [];
+        }
         return ast;
     }
     visitOtherAst(ast: OtherAst, context: CompilerContext): any {
         ast.action = context.action;
         ast.item = context.item;
+        ast.name = ast.action.name;
         return ast;
     }
     visitCallAst(ast: CallAst, context: CompilerContext): any {
         ast.action = context.action;
         ast.item = context.item;
+        ast.name = ast.action.name;
         return ast;
+    }
+}
+
+export class ParseVisitor implements AstVisitor {
+    visit(node: Ast, context: any) {
+        return node.visit(this, context)
+    }
+    visitArrayAst(ast: ArrayAst, context: any): any {
+        return ast.list.map(it => it.visit(this, context));
+    }
+    visitObjectAst(ast: ObjectAst, context: any): any {
+        let res: any = {};
+        ast.fields.map(field => {
+            res[field.name] = field.visit(this, context)
+        });
+        return res;
+    }
+    visitOtherAst(ast: OtherAst, context: any): any {
+        return ast.item;
+    }
+    visitCallAst(ast: CallAst, context: any): any {
+        return (...args: any[]) => ast.item(...ast.action.getArguments())
     }
 }

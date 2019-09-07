@@ -3,6 +3,8 @@ export declare abstract class Ast {
     action: SelectionSet;
     item: any;
     parent: Ast;
+    path: string;
+    name: string;
     abstract visit(visitor: AstVisitor, context: any): any;
 }
 export declare class ArrayAst extends Ast {
@@ -35,5 +37,12 @@ export declare class CompilerVisitor implements AstVisitor {
     visitObjectAst(ast: ObjectAst, context: CompilerContext): any;
     visitOtherAst(ast: OtherAst, context: CompilerContext): any;
     visitCallAst(ast: CallAst, context: CompilerContext): any;
+}
+export declare class ParseVisitor implements AstVisitor {
+    visit(node: Ast, context: any): any;
+    visitArrayAst(ast: ArrayAst, context: any): any;
+    visitObjectAst(ast: ObjectAst, context: any): any;
+    visitOtherAst(ast: OtherAst, context: any): any;
+    visitCallAst(ast: CallAst, context: any): any;
 }
 export {};

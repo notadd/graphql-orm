@@ -14,7 +14,7 @@ export declare class SelectionSet extends CreateWhere {
     private variables;
     name: string;
     parent?: SelectionSet;
-    private children;
+    children: SelectionSet[];
     info: FieldNode;
     level: number;
     private alias;

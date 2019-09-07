@@ -53,6 +53,7 @@ class CompilerVisitor {
     visitArrayAst(ast, context) {
         ast.action = context.action;
         ast.item = context.item;
+        ast.name = ast.action.name;
         ast.list = context.item.map(it => {
             return this.visit(it, ast.action);
         });
@@ -61,27 +62,54 @@ class CompilerVisitor {
     visitObjectAst(ast, context) {
         ast.action = context.action;
         ast.item = context.item;
-        if (ast.item)
-            ast.fields = Object.keys(context.item).map(key => {
-                let it = context.item[key];
-                return {
-                    name: key,
-                    node: this.visit(it, ast.action)
-                };
-            });
-        ast.fields = [];
+        ast.name = ast.action.name;
+        if (context.action.children) {
+            ast.fields = context.action.children.map(action => {
+                let it = context.item[action.name];
+                if (it) {
+                    return this.visit(it, action);
+                }
+            }).filter(it => !!it);
+        }
+        else {
+            ast.fields = [];
+        }
         return ast;
     }
     visitOtherAst(ast, context) {
         ast.action = context.action;
         ast.item = context.item;
+        ast.name = ast.action.name;
         return ast;
     }
     visitCallAst(ast, context) {
         ast.action = context.action;
         ast.item = context.item;
+        ast.name = ast.action.name;
         return ast;
     }
 }
 exports.CompilerVisitor = CompilerVisitor;
+class ParseVisitor {
+    visit(node, context) {
+        return node.visit(this, context);
+    }
+    visitArrayAst(ast, context) {
+        return ast.list.map(it => it.visit(this, context));
+    }
+    visitObjectAst(ast, context) {
+        let res = {};
+        ast.fields.map(field => {
+            res[field.name] = field.visit(this, context);
+        });
+        return res;
+    }
+    visitOtherAst(ast, context) {
+        return ast.item;
+    }
+    visitCallAst(ast, context) {
+        return (...args) => ast.item(...ast.action.getArguments());
+    }
+}
+exports.ParseVisitor = ParseVisitor;
 //# sourceMappingURL=asst.js.map
