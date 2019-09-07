@@ -30,26 +30,25 @@ export const decoratorsMap = {
     GetSelectionSet
 };
 import { Metadatas, HandlerDefMap } from "./types";
-async function createArrayCall(
+function createArrayCall(
     item: any[],
     parent: any,
     path: string,
     action: SelectionSet
 ) {
     if (item && item.length > 0)
-        return await Promise.all(
-            item.map((it, index) => {
-                if (Array.isArray(it)) {
-                    return createArrayCall(it, item, path, action);
-                } else if (typeof it === "function") {
-                    return createFunc(it, item, path, action);
-                } else {
-                    return createCall(it, item, path, action);
-                }
-            })
-        );
+        return item.map((it, index) => {
+            if (Array.isArray(it)) {
+                return createArrayCall(it, item, path, action);
+            } else if (typeof it === "function") {
+                return createFunc(it, item, path, action);
+            } else {
+                return createCall(it, item, path, action);
+            }
+        })
+    return item;
 }
-async function createCall(
+function createCall(
     item: any,
     parent: any,
     path: string,
@@ -66,21 +65,21 @@ async function createCall(
         if (actionPath) {
             const it = item[actionPath];
             if (Array.isArray(it)) {
-                item[actionPath] = await createArrayCall(
+                item[actionPath] = createArrayCall(
                     it,
                     item,
                     `${path}.${actionPath}`,
                     action
                 );
             } else if (typeof it === "function") {
-                item[actionPath] = await createFunc(
+                item[actionPath] = createFunc(
                     it,
                     item,
                     `${path}.${actionPath}`,
                     action
                 );
             } else {
-                item[actionPath] = await createCall(
+                item[actionPath] = createCall(
                     it,
                     item,
                     `${path}.${actionPath}`,
@@ -90,6 +89,7 @@ async function createCall(
         }
         return item;
     }
+    return item;
 }
 function createFunc(
     item: any,
@@ -101,21 +101,22 @@ function createFunc(
         const args = action.getArguments();
         return async () => await item.bind(parent)(...args);
     }
+    return item;
 }
 /**
  * 创建并修改
  */
-async function callFn(item: any, set: SelectionSet) {
+function callFn(item: any, set: SelectionSet) {
     const actions = set.getActions();
     const path = set.getPath().join(".");
     if (actions) {
-        actions.map(async action => {
+        actions.map(action => {
             if (Array.isArray(item)) {
-                await createArrayCall(item, item, path, action);
+                createArrayCall(item, item, path, action);
             } else if (typeof item === "function") {
-                await createFunc(item, item, path, action);
+                createFunc(item, item, path, action);
             } else {
-                await createCall(item, item, path, action);
+                createCall(item, item, path, action);
             }
         });
     }
@@ -157,13 +158,11 @@ export function createResolvers(
                     });
                     controller.tablename = tableName;
                     const results = {};
-                    await Promise.all(
-                        sets.map(async set => {
-                            const _arguments = set.getArguments();
-                            const result = await controller[methodName](..._arguments);
-                            results[set.name] = callFn(result, set);
-                        })
-                    );
+                    await Promise.all(sets.map(async set => {
+                        const _arguments = set.getArguments();
+                        const result = await controller[methodName](..._arguments);
+                        results[set.name] = callFn(result, set);
+                    }));
                     return results[fieldName];
                 };
                 item[fieldName] = resolver;

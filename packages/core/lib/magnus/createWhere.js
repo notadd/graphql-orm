@@ -27,7 +27,8 @@ class CreateWhere {
     }
     static createWhere(where) {
         return (qb) => {
-            this.appentWhereToQb(qb, where);
+            if (where)
+                this.appentWhereToQb(qb, where);
         };
     }
 }

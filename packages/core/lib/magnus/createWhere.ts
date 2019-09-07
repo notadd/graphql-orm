@@ -50,7 +50,8 @@ export class CreateWhere {
 
     static createWhere(where: any): any {
         return (qb: any) => {
-            this.appentWhereToQb(qb, where)
+            if (where)
+                this.appentWhereToQb(qb, where)
         }
     }
 }

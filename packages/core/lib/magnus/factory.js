@@ -8,9 +8,9 @@ exports.decoratorsMap = {
     Relation: decorator_1.Relation,
     GetSelectionSet: decorator_1.GetSelectionSet
 };
-async function createArrayCall(item, parent, path, action) {
+function createArrayCall(item, parent, path, action) {
     if (item && item.length > 0)
-        return await Promise.all(item.map((it, index) => {
+        return item.map((it, index) => {
             if (Array.isArray(it)) {
                 return createArrayCall(it, item, path, action);
             }
@@ -20,9 +20,10 @@ async function createArrayCall(item, parent, path, action) {
             else {
                 return createCall(it, item, path, action);
             }
-        }));
+        });
+    return item;
 }
-async function createCall(item, parent, path, action) {
+function createCall(item, parent, path, action) {
     if (item) {
         const actionPaths = action
             .getPath()
@@ -34,40 +35,42 @@ async function createCall(item, parent, path, action) {
         if (actionPath) {
             const it = item[actionPath];
             if (Array.isArray(it)) {
-                item[actionPath] = await createArrayCall(it, item, `${path}.${actionPath}`, action);
+                item[actionPath] = createArrayCall(it, item, `${path}.${actionPath}`, action);
             }
             else if (typeof it === "function") {
-                item[actionPath] = await createFunc(it, item, `${path}.${actionPath}`, action);
+                item[actionPath] = createFunc(it, item, `${path}.${actionPath}`, action);
             }
             else {
-                item[actionPath] = await createCall(it, item, `${path}.${actionPath}`, action);
+                item[actionPath] = createCall(it, item, `${path}.${actionPath}`, action);
             }
         }
         return item;
     }
+    return item;
 }
 function createFunc(item, parent, path, action) {
     if (item) {
         const args = action.getArguments();
         return async () => await item.bind(parent)(...args);
     }
+    return item;
 }
 /**
  * 创建并修改
  */
-async function callFn(item, set) {
+function callFn(item, set) {
     const actions = set.getActions();
     const path = set.getPath().join(".");
     if (actions) {
-        actions.map(async (action) => {
+        actions.map(action => {
             if (Array.isArray(item)) {
-                await createArrayCall(item, item, path, action);
+                createArrayCall(item, item, path, action);
             }
             else if (typeof item === "function") {
-                await createFunc(item, item, path, action);
+                createFunc(item, item, path, action);
             }
             else {
-                await createCall(item, item, path, action);
+                createCall(item, item, path, action);
             }
         });
     }
