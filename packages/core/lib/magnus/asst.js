@@ -35,78 +35,41 @@ class CallAst extends Ast {
     }
 }
 exports.CallAst = CallAst;
-class DocumentAst extends Ast {
-    constructor() {
-        super(...arguments);
-        this.actions = [];
-    }
-    visit(visitor, context) {
-        return visitor.visitDocumentAst(this, context);
-    }
-}
-exports.DocumentAst = DocumentAst;
 class CompilerVisitor {
-    create(item, set) {
-        const actions = set.getActions();
-        return actions.map(action => {
-            if (Array.isArray(it)) {
-                return this.visitArrayAst(new ArrayAst(), { item, action });
-            }
-            else if (typeof it === 'object') {
-                return this.visitObjectAst(new ObjectAst(), { item, action });
-            }
-            else if (typeof it === 'function') {
-                return this.visitCallAst(new CallAst(), { item, action });
-            }
-            else {
-                return this.visitObjectAst(new ObjectAst(), { item, action });
-            }
-        });
-    }
-    visitDocumentAst(ast, context) {
-        ast.item = context.item;
-        ast.action = context.action;
-        const actions = ast.action.getActions();
-        ast.actions = actions.map(action => {
-            if (Array.isArray(ast.item)) {
-                return this.visitArrayAst(new ArrayAst(), { item: ast.item, action });
-            }
-            else if (typeof ast.item === 'object') {
-                return this.visitObjectAst(new ObjectAst(), { item: ast.item, action });
-            }
-            else if (typeof ast.item === 'function') {
-                return this.visitCallAst(new CallAst(), { item: ast.item, action });
-            }
-            else {
-                return this.visitOtherAst(new OtherAst(), { item: ast.item, action });
-            }
-        });
-        return ast;
+    visit(item, action) {
+        if (Array.isArray(item)) {
+            return this.visitArrayAst(new ArrayAst(), { item, action });
+        }
+        else if (typeof item === 'object') {
+            return this.visitObjectAst(new ObjectAst(), { item, action });
+        }
+        else if (typeof item === 'function') {
+            return this.visitCallAst(new CallAst(), { item, action });
+        }
+        else {
+            return this.visitOtherAst(new OtherAst(), { item, action });
+        }
     }
     visitArrayAst(ast, context) {
         ast.action = context.action;
         ast.item = context.item;
         ast.list = context.item.map(it => {
-            return this.visitDocumentAst(new DocumentAst(), {
-                item: it,
-                action: ast.action
-            });
+            return this.visit(it, ast.action);
         });
         return ast;
     }
     visitObjectAst(ast, context) {
         ast.action = context.action;
         ast.item = context.item;
-        ast.fields = Object.keys(ast.item).map(key => {
-            let it = ast.item[key];
-            return {
-                name: key,
-                node: this.visitDocumentAst(new DocumentAst(), {
-                    item: it,
-                    action: ast.action
-                })
-            };
-        });
+        if (ast.item)
+            ast.fields = Object.keys(context.item).map(key => {
+                let it = context.item[key];
+                return {
+                    name: key,
+                    node: this.visit(it, ast.action)
+                };
+            });
+        ast.fields = [];
         return ast;
     }
     visitOtherAst(ast, context) {

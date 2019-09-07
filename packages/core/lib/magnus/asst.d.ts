@@ -19,24 +19,18 @@ export declare class OtherAst extends Ast {
 export declare class CallAst extends Ast {
     visit(visitor: AstVisitor, context: any): any;
 }
-export declare class DocumentAst extends Ast {
-    actions: any[];
-    visit(visitor: AstVisitor, context: any): any;
-}
 export interface AstVisitor {
     visitArrayAst(ast: ArrayAst, context: any): any;
     visitObjectAst(ast: ObjectAst, context: any): any;
     visitOtherAst(ast: OtherAst, context: any): any;
     visitCallAst(ast: CallAst, context: any): any;
-    visitDocumentAst(ast: DocumentAst, context: any): any;
 }
 interface CompilerContext {
     item: any;
     action: SelectionSet;
 }
 export declare class CompilerVisitor implements AstVisitor {
-    create(item: any, set: SelectionSet): any[];
-    visitDocumentAst(ast: DocumentAst, context: CompilerContext): DocumentAst;
+    visit(item: any, action: SelectionSet): any;
     visitArrayAst(ast: ArrayAst, context: CompilerContext): any;
     visitObjectAst(ast: ObjectAst, context: CompilerContext): any;
     visitOtherAst(ast: OtherAst, context: CompilerContext): any;

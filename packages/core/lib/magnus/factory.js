@@ -114,7 +114,7 @@ function createResolvers(handlers, entity, decorators, getController) {
                         const _arguments = set.getArguments();
                         const result = await controller[methodName](..._arguments);
                         const visitor = new asst_1.CompilerVisitor();
-                        const list = visitor.create(result, set);
+                        const list = visitor.visit(result, set);
                         debugger;
                         results[set.name] = callFn(result, set);
                     }));

@@ -169,7 +169,7 @@ export function createResolvers(
                         const _arguments = set.getArguments();
                         const result = await controller[methodName](..._arguments);
                         const visitor = new CompilerVisitor();
-                        const list = visitor.create(result, set);
+                        const list = visitor.visit(result, set);
                         debugger;
                         results[set.name] = callFn(result, set);
                     }));
