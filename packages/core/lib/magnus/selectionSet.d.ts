@@ -37,6 +37,14 @@ export declare class SelectionSet extends CreateWhere {
     private getAction;
     getActions(actions?: SelectionSet[]): SelectionSet[];
     constructor(info: FieldNode, variables: any, level?: number, parent?: SelectionSet);
+    static info: any;
+    static enums: any;
+    static entities: any;
+    static handlers: any;
+    static decorators: any;
+    static context: any;
+    static source: any;
+    static variables: any;
     static fromGraphql({ info, enums, entities, handlers, decorators, context, source, variables }: {
         info: GraphQLResolveInfo;
         enums?: any;

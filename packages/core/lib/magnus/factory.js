@@ -9,43 +9,48 @@ exports.decoratorsMap = {
     GetSelectionSet: decorator_1.GetSelectionSet
 };
 async function createArrayCall(item, parent, path, action) {
-    return await Promise.all(item.map((it, index) => {
-        if (Array.isArray(it)) {
-            return createArrayCall(it, item, path, action);
-        }
-        else if (typeof it === "function") {
-            return createFunc(it, item, path, action);
-        }
-        else {
-            return createCall(it, item, path, action);
-        }
-    }));
+    if (item && item.length > 0)
+        return await Promise.all(item.map((it, index) => {
+            if (Array.isArray(it)) {
+                return createArrayCall(it, item, path, action);
+            }
+            else if (typeof it === "function") {
+                return createFunc(it, item, path, action);
+            }
+            else {
+                return createCall(it, item, path, action);
+            }
+        }));
 }
 async function createCall(item, parent, path, action) {
-    const actionPaths = action
-        .getPath()
-        .join(".")
-        .replace(`${path}.`, ``)
-        .split(".")
-        .reverse();
-    const actionPath = actionPaths.pop();
-    if (actionPath) {
-        const it = item[actionPath];
-        if (Array.isArray(it)) {
-            item[actionPath] = await createArrayCall(it, item, `${path}.${actionPath}`, action);
+    if (item) {
+        const actionPaths = action
+            .getPath()
+            .join(".")
+            .replace(`${path}.`, ``)
+            .split(".")
+            .reverse();
+        const actionPath = actionPaths.pop();
+        if (actionPath) {
+            const it = item[actionPath];
+            if (Array.isArray(it)) {
+                item[actionPath] = await createArrayCall(it, item, `${path}.${actionPath}`, action);
+            }
+            else if (typeof it === "function") {
+                item[actionPath] = await createFunc(it, item, `${path}.${actionPath}`, action);
+            }
+            else {
+                item[actionPath] = await createCall(it, item, `${path}.${actionPath}`, action);
+            }
         }
-        else if (typeof it === "function") {
-            item[actionPath] = await createFunc(it, item, `${path}.${actionPath}`, action);
-        }
-        else {
-            item[actionPath] = await createCall(it, item, `${path}.${actionPath}`, action);
-        }
+        return item;
     }
-    return item;
 }
 function createFunc(item, parent, path, action) {
-    const args = action.getArguments();
-    return async () => await item.bind(parent)(...args);
+    if (item) {
+        const args = action.getArguments();
+        return async () => await item.bind(parent)(...args);
+    }
 }
 /**
  * 创建并修改
