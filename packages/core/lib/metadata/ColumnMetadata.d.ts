@@ -1,11 +1,11 @@
-import { ColumnType } from "../driver/types/ColumnTypes";
-import { EntityMetadata } from "./EntityMetadata";
-import { EmbeddedMetadata } from "./EmbeddedMetadata";
-import { RelationMetadata } from "./RelationMetadata";
-import { ObjectLiteral } from "../common/ObjectLiteral";
-import { ColumnMetadataArgs } from "../metadata-args/ColumnMetadataArgs";
-import { Connection } from "../connection/Connection";
-import { ValueTransformer } from "../decorator/options/ValueTransformer";
+import { ColumnType } from '../driver/types/ColumnTypes';
+import { EntityMetadata } from './EntityMetadata';
+import { EmbeddedMetadata } from './EmbeddedMetadata';
+import { RelationMetadata } from './RelationMetadata';
+import { ObjectLiteral } from '../common/ObjectLiteral';
+import { ColumnMetadataArgs } from '../metadata-args/ColumnMetadataArgs';
+import { Connection } from '../connection/Connection';
+import { ValueTransformer } from '../decorator/options/ValueTransformer';
 /**
  * This metadata contains all information about entity's column.
  */
@@ -82,7 +82,7 @@ export declare class ColumnMetadata {
     /**
      * Specifies generation strategy if this column will use auto increment.
      */
-    generationStrategy?: "uuid" | "increment" | "rowid";
+    generationStrategy?: 'uuid' | 'increment' | 'rowid';
     /**
      * Column comment.
      * This feature is not supported by all databases.
@@ -129,12 +129,12 @@ export declare class ColumnMetadata {
     /**
      * Generated column type. Supports only in MySQL.
      */
-    generatedType?: "VIRTUAL" | "STORED";
+    generatedType?: 'VIRTUAL' | 'STORED';
     /**
      * Return type of HSTORE column.
      * Returns value as string or as object.
      */
-    hstoreType?: "object" | "string";
+    hstoreType?: 'object' | 'string';
     /**
      * Indicates if this column is an array.
      */
@@ -212,7 +212,7 @@ export declare class ColumnMetadata {
      * Column type in the case if this column is in the closure table.
      * Column can be ancestor or descendant in the closure tables.
      */
-    closureType?: "ancestor" | "descendant";
+    closureType?: 'ancestor' | 'descendant';
     /**
      * Indicates if this column is nested set's left column.
      * Used only in tree entities with nested-set type.
@@ -242,7 +242,7 @@ export declare class ColumnMetadata {
         embeddedMetadata?: EmbeddedMetadata;
         referencedColumn?: ColumnMetadata;
         args: ColumnMetadataArgs;
-        closureType?: "ancestor" | "descendant";
+        closureType?: 'ancestor' | 'descendant';
         nestedSetLeft?: boolean;
         nestedSetRight?: boolean;
         materializedPath?: boolean;

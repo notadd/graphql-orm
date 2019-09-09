@@ -16,7 +16,7 @@ class ColumnMetadata {
         /**
          * Type's length in the database.
          */
-        this.length = "";
+        this.length = '';
         /**
          * Indicates if this column is a primary key.
          */
@@ -45,7 +45,7 @@ class ColumnMetadata {
          * Column comment.
          * This feature is not supported by all databases.
          */
-        this.comment = "";
+        this.comment = '';
         /**
          * Puts ZEROFILL attribute on to numeric column. Works only for MySQL.
          * If you specify ZEROFILL for a numeric column, MySQL automatically adds the UNSIGNED attribute to the column
@@ -114,9 +114,7 @@ class ColumnMetadata {
         if (options.args.options.type)
             this.type = options.args.options.type;
         if (options.args.options.length)
-            this.length = options.args.options.length
-                ? options.args.options.length.toString()
-                : "";
+            this.length = options.args.options.length ? options.args.options.length.toString() : '';
         if (options.args.options.width)
             this.width = options.args.options.width;
         if (options.args.options.charset)
@@ -144,8 +142,7 @@ class ColumnMetadata {
             this.default = options.args.options.default;
         if (options.args.options.onUpdate)
             this.onUpdate = options.args.options.onUpdate;
-        if (options.args.options.scale !== null &&
-            options.args.options.scale !== undefined)
+        if (options.args.options.scale !== null && options.args.options.scale !== undefined)
             this.scale = options.args.options.scale;
         if (options.args.options.zerofill) {
             this.zerofill = options.args.options.zerofill;
@@ -156,8 +153,7 @@ class ColumnMetadata {
         if (options.args.options.precision !== undefined)
             this.precision = options.args.options.precision;
         if (options.args.options.enum) {
-            if (options.args.options.enum instanceof Object &&
-                !Array.isArray(options.args.options.enum)) {
+            if (options.args.options.enum instanceof Object && !Array.isArray(options.args.options.enum)) {
                 this.enum = Object.keys(options.args.options.enum)
                     .filter(key => isNaN(+key)) // remove numeric keys - typescript numeric enum types generate them
                     .map(key => options.args.options.enum[key]);
@@ -170,19 +166,19 @@ class ColumnMetadata {
             this.asExpression = options.args.options.asExpression;
             this.generatedType = options.args.options.generatedType
                 ? options.args.options.generatedType
-                : "VIRTUAL";
+                : 'VIRTUAL';
         }
         if (options.args.options.hstoreType)
             this.hstoreType = options.args.options.hstoreType;
         if (options.args.options.array)
             this.isArray = options.args.options.array;
         if (options.args.mode) {
-            this.isVirtual = options.args.mode === "virtual";
-            this.isTreeLevel = options.args.mode === "treeLevel";
-            this.isCreateDate = options.args.mode === "createDate";
-            this.isUpdateDate = options.args.mode === "updateDate";
-            this.isVersion = options.args.mode === "version";
-            this.isObjectId = options.args.mode === "objectId";
+            this.isVirtual = options.args.mode === 'virtual';
+            this.isTreeLevel = options.args.mode === 'treeLevel';
+            this.isCreateDate = options.args.mode === 'createDate';
+            this.isUpdateDate = options.args.mode === 'updateDate';
+            this.isVersion = options.args.mode === 'version';
+            this.isObjectId = options.args.mode === 'objectId';
         }
         if (options.args.options.transformer)
             this.transformer = options.args.options.transformer;
@@ -197,20 +193,16 @@ class ColumnMetadata {
                 this.type = options.connection.driver.mappedDataTypes.createDate;
             if (!this.default)
                 this.default = () => options.connection.driver.mappedDataTypes.createDateDefault;
-            if (this.precision === undefined &&
-                options.connection.driver.mappedDataTypes.createDatePrecision)
-                this.precision =
-                    options.connection.driver.mappedDataTypes.createDatePrecision;
+            if (this.precision === undefined && options.connection.driver.mappedDataTypes.createDatePrecision)
+                this.precision = options.connection.driver.mappedDataTypes.createDatePrecision;
         }
         if (this.isUpdateDate) {
             if (!this.type)
                 this.type = options.connection.driver.mappedDataTypes.updateDate;
             if (!this.default)
                 this.default = () => options.connection.driver.mappedDataTypes.updateDateDefault;
-            if (this.precision === undefined &&
-                options.connection.driver.mappedDataTypes.updateDatePrecision)
-                this.precision =
-                    options.connection.driver.mappedDataTypes.updateDatePrecision;
+            if (this.precision === undefined && options.connection.driver.mappedDataTypes.updateDatePrecision)
+                this.precision = options.connection.driver.mappedDataTypes.updateDatePrecision;
         }
         if (this.isVersion)
             this.type = options.connection.driver.mappedDataTypes.version;
@@ -250,9 +242,8 @@ class ColumnMetadata {
                     return map;
                 }
                 // this is bugfix for #720 when increment number is bigint we need to make sure its a string
-                if ((this.generationStrategy === "increment" ||
-                    this.generationStrategy === "rowid") &&
-                    this.type === "bigint")
+                if ((this.generationStrategy === 'increment' || this.generationStrategy === 'rowid') &&
+                    this.type === 'bigint')
                     value = String(value);
                 map[useDatabaseName ? this.databaseName : this.propertyName] = value;
                 return map;
@@ -262,9 +253,8 @@ class ColumnMetadata {
         else {
             // no embeds - no problems. Simply return column property name and its value of the entity
             // this is bugfix for #720 when increment number is bigint we need to make sure its a string
-            if ((this.generationStrategy === "increment" ||
-                this.generationStrategy === "rowid") &&
-                this.type === "bigint")
+            if ((this.generationStrategy === 'increment' || this.generationStrategy === 'rowid') &&
+                this.type === 'bigint')
                 value = String(value);
             return {
                 [useDatabaseName ? this.databaseName : this.propertyName]: value
@@ -413,7 +403,9 @@ class ColumnMetadata {
                 value = entity[this.propertyName];
             }
         }
-        value = value || item;
+        if (value === null || typeof value === 'undefined') {
+            value = value || item;
+        }
         if (transform && this.transformer) {
             value = ApplyValueTransformers_1.ApplyValueTransformers.transformTo(this.transformer, value);
         }
@@ -450,17 +442,16 @@ class ColumnMetadata {
     // ---------------------------------------------------------------------
     build(connection) {
         this.propertyPath = this.buildPropertyPath();
-        this.propertyAliasName = this.propertyPath.replace(".", "_");
+        this.propertyAliasName = this.propertyPath.replace('.', '_');
         this.databaseName = this.buildDatabaseName(connection);
         this.databasePath = this.buildDatabasePath();
         this.databaseNameWithoutPrefixes = connection.namingStrategy.columnName(this.propertyName, this.givenDatabaseName, []);
         return this;
     }
     buildPropertyPath() {
-        let path = "";
-        if (this.embeddedMetadata &&
-            this.embeddedMetadata.parentPropertyNames.length)
-            path = this.embeddedMetadata.parentPropertyNames.join(".") + ".";
+        let path = '';
+        if (this.embeddedMetadata && this.embeddedMetadata.parentPropertyNames.length)
+            path = this.embeddedMetadata.parentPropertyNames.join('.') + '.';
         path += this.propertyName;
         // we add reference column to property path only if this column is virtual
         // because if its not virtual it means user defined a real column for this relation
@@ -469,14 +460,13 @@ class ColumnMetadata {
             this.isVirtual &&
             this.referencedColumn &&
             this.referencedColumn.propertyName !== this.propertyName)
-            path += "." + this.referencedColumn.propertyName;
+            path += '.' + this.referencedColumn.propertyName;
         return path;
     }
     buildDatabasePath() {
-        let path = "";
-        if (this.embeddedMetadata &&
-            this.embeddedMetadata.parentPropertyNames.length)
-            path = this.embeddedMetadata.parentPropertyNames.join(".") + ".";
+        let path = '';
+        if (this.embeddedMetadata && this.embeddedMetadata.parentPropertyNames.length)
+            path = this.embeddedMetadata.parentPropertyNames.join('.') + '.';
         path += this.databaseName;
         // we add reference column to property path only if this column is virtual
         // because if its not virtual it means user defined a real column for this relation
@@ -485,13 +475,11 @@ class ColumnMetadata {
             this.isVirtual &&
             this.referencedColumn &&
             this.referencedColumn.databaseName !== this.databaseName)
-            path += "." + this.referencedColumn.databaseName;
+            path += '.' + this.referencedColumn.databaseName;
         return path;
     }
     buildDatabaseName(connection) {
-        let propertyNames = this.embeddedMetadata
-            ? this.embeddedMetadata.parentPrefixes
-            : [];
+        let propertyNames = this.embeddedMetadata ? this.embeddedMetadata.parentPrefixes : [];
         if (connection.driver instanceof MongoDriver_1.MongoDriver)
             // we don't need to include embedded name for the mongodb column names
             propertyNames = [];
