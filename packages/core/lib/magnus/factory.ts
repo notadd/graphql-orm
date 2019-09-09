@@ -3,6 +3,7 @@ import { MagnusBase } from "@notadd/magnus-core";
 import { upperFirst } from "lodash";
 import { SelectionSet } from "./selectionSet";
 import { CompilerVisitor, ParseVisitor } from './asst';
+import { scalars } from '@notadd/magnus-graphql'
 interface MagnusFieldResolver {
     (source: any, variables: any, info: GraphQLResolveInfo): any;
 }
@@ -84,5 +85,7 @@ export function createResolvers(
         });
         obj[`${upperFirst(operation)}`] = item;
     });
-    return obj;
+    return {
+        ...scalars as any, ...obj
+    };
 }

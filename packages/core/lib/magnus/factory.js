@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const lodash_1 = require("lodash");
 const selectionSet_1 = require("./selectionSet");
 const asst_1 = require("./asst");
+const magnus_graphql_1 = require("@notadd/magnus-graphql");
 const decorator_1 = require("./decorator");
 exports.decoratorsMap = {
     Selection: decorator_1.Selection,
@@ -51,7 +52,9 @@ function createResolvers(handlers, entity, decorators, getController) {
         });
         obj[`${lodash_1.upperFirst(operation)}`] = item;
     });
-    return obj;
+    return {
+        ...magnus_graphql_1.scalars, ...obj
+    };
 }
 exports.createResolvers = createResolvers;
 //# sourceMappingURL=factory.js.map
