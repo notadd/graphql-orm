@@ -403,6 +403,7 @@ class ColumnMetadata {
                 }
                 else {
                     value = entity[this.propertyName];
+                    item;
                 }
             }
             else if (this.referencedColumn) {

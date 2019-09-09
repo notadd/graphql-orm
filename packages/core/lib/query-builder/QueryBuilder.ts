@@ -744,6 +744,7 @@ export abstract class QueryBuilder<Entity> {
                         const paths = propertyPath.split('_');
                         let options = `equal`;
                         let columnName = paths.join('_');
+                       
                         if (paths.length > 1) {
                             options = paths.pop()!;
                             columnName = paths.join('_');

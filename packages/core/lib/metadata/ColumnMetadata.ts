@@ -674,7 +674,7 @@ export class ColumnMetadata {
           );
         } else {
           value = entity[this.propertyName];
-        }
+       item; }
       } else if (this.referencedColumn) {
         value = this.referencedColumn.getEntityValue(
           PromiseUtils.extractValue(entity[this.propertyName])
@@ -683,7 +683,6 @@ export class ColumnMetadata {
         value = entity[this.propertyName];
       }
     }
-
     value = value || item;
     if (transform && this.transformer) {
       value = ApplyValueTransformers.transformTo(this.transformer, value);
