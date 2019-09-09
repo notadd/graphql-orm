@@ -762,11 +762,27 @@ export abstract class QueryBuilder<Entity> {
                                 let parameters: any[] = [];
                                 if (parameterValue.useParameter) {
                                     const realParameterValues: any[] = parameterValue.multipleParameters ? parameterValue.value : [parameterValue.value];
-                                    realParameterValues.forEach((realParameterValue, realParameterValueIndex) => {
-                                        this.expressionMap.nativeParameters[parameterName + (parameterBaseCount + realParameterValueIndex)] = realParameterValue;
+                                    realParameterValues && realParameterValues.forEach(
+                                      (
+                                        realParameterValue,
+                                        realParameterValueIndex
+                                      ) => {
+                                        this.expressionMap.nativeParameters[
+                                          parameterName +
+                                            (parameterBaseCount +
+                                              realParameterValueIndex)
+                                        ] = realParameterValue;
                                         parameterIndex++;
-                                        parameters.push(this.connection.driver.createParameter(parameterName + (parameterBaseCount + realParameterValueIndex), parameterIndex - 1));
-                                    });
+                                        parameters.push(
+                                          this.connection.driver.createParameter(
+                                            parameterName +
+                                              (parameterBaseCount +
+                                                realParameterValueIndex),
+                                            parameterIndex - 1
+                                          )
+                                        );
+                                      }
+                                    );
                                 }
                                 return parameterValue.toSql(this.connection, aliasPath, parameters);
                             } else {
@@ -802,7 +818,7 @@ export abstract class QueryBuilder<Entity> {
                                          const realParameterValues = parameterValue.multipleParameters
                                            ? parameterValue.value
                                            : [parameterValue.value];
-                                         realParameterValues.forEach(
+                                         realParameterValues && realParameterValues.forEach(
                                            (
                                              realParameterValue,
                                              realParameterValueIndex
