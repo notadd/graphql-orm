@@ -79,9 +79,11 @@ export class CompilerVisitor implements AstVisitor {
     if (context.action.children) {
       ast.fields = context.action.children
         .map(action => {
-          let it = context.item[action.name];
-          if (typeof it === "undefined") {
-            return this.visit(it, action, context.item);
+          if (context.item) {
+            let it = context.item[action.name];
+            if (typeof it !== "undefined") {
+              return this.visit(it, action, context.item);
+            }
           }
         })
         .filter(it => !!it);
