@@ -220,9 +220,6 @@ class SelectionSet extends createWhere_1.CreateWhere {
             return res;
         }
     }
-    createArgument(arg, variables) {
-        return this.createValue(arg.value, variables);
-    }
     setMember(param) {
         if (param.decorators.includes("ResolveProperty")) {
             this.parameters = param.parameters || [];

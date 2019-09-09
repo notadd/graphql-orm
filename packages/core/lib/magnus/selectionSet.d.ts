@@ -63,7 +63,6 @@ export declare class SelectionSet extends CreateWhere {
     private createSelection;
     private create;
     private createValue;
-    private createArgument;
     parameters: any[];
     setMember(param: any): void;
     private getCurrentEntity;

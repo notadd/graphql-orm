@@ -294,9 +294,6 @@ export class SelectionSet extends CreateWhere {
     }
   }
 
-  private createArgument(arg: ArgumentNode, variables: any) {
-    return this.createValue(arg.value, variables);
-  }
   parameters: any[] = [];
   setMember(param: any) {
     if (param.decorators.includes("ResolveProperty")) {
