@@ -265,7 +265,7 @@ export declare class ColumnMetadata {
      * Extracts column value from the given entity.
      * If column is in embedded (or recursive embedded) it extracts its value from there.
      */
-    getEntityValue(entity: ObjectLiteral, transform?: boolean): any | undefined;
+    getEntityValue(entity: ObjectLiteral, transform?: boolean, item?: any): any | undefined;
     /**
      * Sets given entity's column value.
      * Using of this method helps to set entity relation's value of the lazy and non-lazy relations.

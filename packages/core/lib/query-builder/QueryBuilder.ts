@@ -751,8 +751,8 @@ export abstract class QueryBuilder<Entity> {
                         const columns = this.expressionMap.mainAlias!.metadata.findColumnsWithPropertyPath(columnName);
                         return columns.map((column, columnIndex) => {
                             const aliasPath = this.expressionMap.aliasNamePrefixingEnabled ? `${this.alias}.${columnName}` : column.propertyPath;
-                            column.propertyName = propertyPath;
-                            let parameterValue = column.getEntityValue(where, true);
+                            column.propertyName = columnName;
+                            let parameterValue = column.getEntityValue(where, true, (where as any)[propertyPath!]);
                             column.propertyName = columnName;
                             const parameterName = "where_" + whereIndex + "_" + propertyIndex + "_" + columnIndex;
                             const parameterBaseCount = Object.keys(this.expressionMap.nativeParameters).filter(x => x.startsWith(parameterName)).length;
@@ -762,6 +762,7 @@ export abstract class QueryBuilder<Entity> {
                                 let parameters: any[] = [];
                                 if (parameterValue.useParameter) {
                                     const realParameterValues: any[] = parameterValue.multipleParameters ? parameterValue.value : [parameterValue.value];
+                                    
                                     realParameterValues && realParameterValues.forEach(
                                       (
                                         realParameterValue,
@@ -795,7 +796,12 @@ export abstract class QueryBuilder<Entity> {
                                 else if (["In", "Between", "Lt", "Lte", "Gt", "Gte", "Like"].includes(options)) {
                                     if (options === 'In') {
                                         if (parameterValue.length > 0) {
-                                            parameterValue = new FindOperator('in', parameterValue, true, true)
+                                            parameterValue = new FindOperator(
+												'in',
+												parameterValue,
+												true,
+												true
+											);
                                         }
                                     } else if (options === 'Between') {
                                         parameterValue = new FindOperator('between', parameterValue, true, true)

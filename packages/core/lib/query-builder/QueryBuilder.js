@@ -543,8 +543,8 @@ class QueryBuilder {
                         const columns = this.expressionMap.mainAlias.metadata.findColumnsWithPropertyPath(columnName);
                         return columns.map((column, columnIndex) => {
                             const aliasPath = this.expressionMap.aliasNamePrefixingEnabled ? `${this.alias}.${columnName}` : column.propertyPath;
-                            column.propertyName = propertyPath;
-                            let parameterValue = column.getEntityValue(where, true);
+                            column.propertyName = columnName;
+                            let parameterValue = column.getEntityValue(where, true, where[propertyPath]);
                             column.propertyName = columnName;
                             const parameterName = "where_" + whereIndex + "_" + propertyIndex + "_" + columnIndex;
                             const parameterBaseCount = Object.keys(this.expressionMap.nativeParameters).filter(x => x.startsWith(parameterName)).length;

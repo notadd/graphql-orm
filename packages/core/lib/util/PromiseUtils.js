@@ -9,7 +9,7 @@ class PromiseUtils {
      */
     static create(value) {
         const promise = Promise.resolve(value);
-        promise["__value__"] = value;
+        promise['__value__'] = value;
         return promise;
     }
     /**
@@ -17,8 +17,8 @@ class PromiseUtils {
      * If given value is not a promise then given value is returned back.
      */
     static extractValue(object) {
-        if (object instanceof Promise && object["__value__"])
-            return object["__value__"];
+        if (object instanceof Promise && object['__value__'])
+            return object['__value__'];
         return object;
     }
     /**
@@ -27,13 +27,17 @@ class PromiseUtils {
      */
     static runInSequence(collection, callback) {
         const results = [];
-        return collection.reduce((promise, item) => {
-            return promise.then(() => {
+        return collection
+            .reduce((promise, item) => {
+            return promise
+                .then(() => {
                 return callback(item);
-            }).then(result => {
+            })
+                .then(result => {
                 results.push(result);
             });
-        }, Promise.resolve()).then(() => {
+        }, Promise.resolve())
+            .then(() => {
             return results;
         });
     }
@@ -43,13 +47,13 @@ class PromiseUtils {
      */
     static settle(promises) {
         return Promise.all(promises.map(p => Promise.resolve(p).then(v => ({
-            state: "fulfilled",
-            value: v,
+            state: 'fulfilled',
+            value: v
         }), r => ({
-            state: "rejected",
-            reason: r,
+            state: 'rejected',
+            reason: r
         })))).then((results) => {
-            const rejected = results.find(result => result.state === "rejected");
+            const rejected = results.find(result => result.state === 'rejected');
             if (rejected)
                 return Promise.reject(rejected.reason);
             return results.map(result => result.value);
