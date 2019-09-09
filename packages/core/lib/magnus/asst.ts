@@ -80,7 +80,7 @@ export class CompilerVisitor implements AstVisitor {
       ast.fields = context.action.children
         .map(action => {
           let it = context.item[action.name];
-          if (it) {
+          if (typeof it === "undefined") {
             return this.visit(it, action, context.item);
           }
         })
