@@ -363,6 +363,16 @@ export class SelectionSet extends CreateWhere {
           return;
         } else if (type.type === "Int") {
           return;
+        } else if (type.type === "Boolean") {
+          return;
+        } else if (type.type === "Empty") {
+          return;
+        } else if (type.type === "Json") {
+          return;
+        } else if (type.type === "Error") {
+          return;
+        } else if (type.type === "Date") {
+          return;
         }
         if (type.isEntity) {
           this.isEntity = true;

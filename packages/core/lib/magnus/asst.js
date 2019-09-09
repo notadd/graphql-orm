@@ -40,14 +40,14 @@ class CompilerVisitor {
         if (Array.isArray(item)) {
             return this.visitArrayAst(new ArrayAst(), { item, action, parent });
         }
-        else if (typeof item === 'object') {
+        else if (typeof item === "object") {
             return this.visitObjectAst(new ObjectAst(), {
                 item,
                 action,
                 parent
             });
         }
-        else if (typeof item === 'function') {
+        else if (typeof item === "function") {
             return this.visitCallAst(new CallAst(), { item, action, parent });
         }
         else {
@@ -108,11 +108,14 @@ class ParseVisitor {
         return ast.list.map(it => it.visit(this, it));
     }
     visitObjectAst(ast, context) {
-        let res = {};
-        ast.fields.map(field => {
-            res[field.name] = field.visit(this, field.res);
-        });
-        return res;
+        if (ast.fields.length > 0) {
+            let res = {};
+            ast.fields.map(field => {
+                res[field.name] = field.visit(this, field.res);
+            });
+            return res;
+        }
+        return ast.item;
     }
     visitOtherAst(ast, context) {
         return ast.item;

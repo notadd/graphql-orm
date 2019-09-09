@@ -1,4 +1,4 @@
-import { SelectionSet } from './selectionSet';
+import { SelectionSet } from "./selectionSet";
 export declare abstract class Ast {
     action: SelectionSet;
     item: any;

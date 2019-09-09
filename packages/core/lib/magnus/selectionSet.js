@@ -300,6 +300,21 @@ class SelectionSet extends createWhere_1.CreateWhere {
                 else if (type.type === "Int") {
                     return;
                 }
+                else if (type.type === "Boolean") {
+                    return;
+                }
+                else if (type.type === "Empty") {
+                    return;
+                }
+                else if (type.type === "Json") {
+                    return;
+                }
+                else if (type.type === "Error") {
+                    return;
+                }
+                else if (type.type === "Date") {
+                    return;
+                }
                 if (type.isEntity) {
                     this.isEntity = true;
                     this.currentEntity = type.currentEntity;
