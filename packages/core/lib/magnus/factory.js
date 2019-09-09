@@ -37,7 +37,7 @@ function createResolvers(handlers, entity, decorators, getController) {
                     controller.tablename = tableName;
                     const results = {};
                     await Promise.all(sets.map(async (set) => {
-                        const _arguments = set.getArguments();
+                        const _arguments = set.getArguments(variables);
                         const result = await controller[methodName](..._arguments);
                         const visitor = new asst_1.CompilerVisitor();
                         const parse = new asst_1.ParseVisitor();
@@ -53,7 +53,8 @@ function createResolvers(handlers, entity, decorators, getController) {
         obj[`${lodash_1.upperFirst(operation)}`] = item;
     });
     return {
-        ...magnus_graphql_1.scalars, ...obj
+        ...magnus_graphql_1.scalars,
+        ...obj
     };
 }
 exports.createResolvers = createResolvers;

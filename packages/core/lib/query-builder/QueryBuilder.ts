@@ -753,6 +753,7 @@ export abstract class QueryBuilder<Entity> {
                             const aliasPath = this.expressionMap.aliasNamePrefixingEnabled ? `${this.alias}.${columnName}` : column.propertyPath;
                             column.propertyName = propertyPath;
                             let parameterValue = column.getEntityValue(where, true);
+                            column.propertyName = columnName;
                             const parameterName = "where_" + whereIndex + "_" + propertyIndex + "_" + columnIndex;
                             const parameterBaseCount = Object.keys(this.expressionMap.nativeParameters).filter(x => x.startsWith(parameterName)).length;
                             if (parameterValue === null) {
@@ -793,18 +794,39 @@ export abstract class QueryBuilder<Entity> {
                                     } else if (options === 'Like') {
                                         parameterValue = new FindOperator('like', parameterValue, true, false)
                                     }
-                                    let parameters = [];
-                                    if (parameterValue instanceof FindOperator) {
-                                        if (parameterValue.useParameter) {
-                                            const realParameterValues = parameterValue.multipleParameters ? parameterValue.value : [parameterValue.value];
-                                            realParameterValues.forEach((realParameterValue, realParameterValueIndex) => {
-                                                this.expressionMap.nativeParameters[parameterName + (parameterBaseCount + realParameterValueIndex)] = realParameterValue;
-                                                parameterIndex++;
-                                                parameters.push(this.connection.driver.createParameter(parameterName + (parameterBaseCount + realParameterValueIndex), parameterIndex - 1));
-                                            });
-                                        }
-                                        return parameterValue.toSql(this.connection, aliasPath, parameters);
-                                    }
+                                     let parameters: any[] = [];
+                                     if (
+                                       parameterValue instanceof FindOperator
+                                     ) {
+                                       if (parameterValue.useParameter) {
+                                         const realParameterValues = parameterValue.multipleParameters
+                                           ? parameterValue.value
+                                           : [parameterValue.value];
+                                         realParameterValues.forEach(
+                                           (
+                                             realParameterValue,
+                                             realParameterValueIndex
+                                           ) => {
+                                             const key = `${parameterName}${parameterBaseCount}${realParameterValueIndex}`;
+                                             this.expressionMap.nativeParameters[
+                                               key
+                                             ] = realParameterValue;
+                                             parameterIndex++;
+                                             parameters.push(
+                                               this.connection.driver.createParameter(
+                                                 key,
+                                                 parameterIndex - 1
+                                               )
+                                             );
+                                           }
+                                         );
+                                       }
+                                       return parameterValue.toSql(
+                                         this.connection,
+                                         aliasPath,
+                                         parameters
+                                       );
+                                     }
                                 } else {
                                     debugger;
                                 }

@@ -36,40 +36,48 @@ class CallAst extends Ast {
 }
 exports.CallAst = CallAst;
 class CompilerVisitor {
-    visit(item, action) {
+    visit(item, action, parent = undefined) {
         if (Array.isArray(item)) {
-            return this.visitArrayAst(new ArrayAst(), { item, action });
+            return this.visitArrayAst(new ArrayAst(), { item, action, parent });
         }
         else if (typeof item === 'object') {
-            return this.visitObjectAst(new ObjectAst(), { item, action });
+            return this.visitObjectAst(new ObjectAst(), {
+                item,
+                action,
+                parent
+            });
         }
         else if (typeof item === 'function') {
-            return this.visitCallAst(new CallAst(), { item, action });
+            return this.visitCallAst(new CallAst(), { item, action, parent });
         }
         else {
-            return this.visitOtherAst(new OtherAst(), { item, action });
+            return this.visitOtherAst(new OtherAst(), { item, action, parent });
         }
     }
     visitArrayAst(ast, context) {
+        ast.parent = context.parent;
         ast.action = context.action;
         ast.item = context.item;
         ast.name = ast.action.name;
         ast.list = context.item.map(it => {
-            return this.visit(it, ast.action);
+            return this.visit(it, ast.action, context.item);
         });
         return ast;
     }
     visitObjectAst(ast, context) {
+        ast.parent = context.parent;
         ast.action = context.action;
         ast.item = context.item;
         ast.name = ast.action.name;
         if (context.action.children) {
-            ast.fields = context.action.children.map(action => {
+            ast.fields = context.action.children
+                .map(action => {
                 let it = context.item[action.name];
                 if (it) {
-                    return this.visit(it, action);
+                    return this.visit(it, action, context.item);
                 }
-            }).filter(it => !!it);
+            })
+                .filter(it => !!it);
         }
         else {
             ast.fields = [];
@@ -80,9 +88,11 @@ class CompilerVisitor {
         ast.action = context.action;
         ast.item = context.item;
         ast.name = ast.action.name;
+        ast.parent = context.parent;
         return ast;
     }
     visitCallAst(ast, context) {
+        ast.parent = context.parent;
         ast.action = context.action;
         ast.item = context.item;
         ast.name = ast.action.name;
@@ -95,21 +105,26 @@ class ParseVisitor {
         return node.visit(this, context);
     }
     visitArrayAst(ast, context) {
-        return ast.list.map(it => it.visit(this, context));
+        return ast.list.map(it => it.visit(this, it));
     }
     visitObjectAst(ast, context) {
         let res = {};
         ast.fields.map(field => {
-            res[field.name] = field.visit(this, context);
+            res[field.name] = field.visit(this, field.res);
         });
         return res;
     }
     visitOtherAst(ast, context) {
         return ast.item;
     }
-    visitCallAst(ast, context) {
+    visitCallAst(ast, parent) {
         if (ast.action.parent) {
-            return (...args) => ast.item(...ast.action.parent.getArguments());
+            return async (variables, context, info) => {
+                const action = ast.action;
+                const args = action.getArguments(variables);
+                const lists = await ast.item.bind(ast.parent)(...args);
+                return lists;
+            };
         }
         return ast.item;
     }

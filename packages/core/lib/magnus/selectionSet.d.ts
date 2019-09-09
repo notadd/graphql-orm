@@ -58,7 +58,7 @@ export declare class SelectionSet extends CreateWhere {
     fragments: {
         [key: string]: FragmentDefinitionNode;
     };
-    getArguments(): any[];
+    getArguments(variables?: any): any[];
     onInit(): void;
     private createSelection;
     private create;
@@ -70,6 +70,7 @@ export declare class SelectionSet extends CreateWhere {
     private getFullName;
     isEntity: boolean;
     findCurrentEntity(type: any): any;
+    typeArguments: any;
     private handlerType;
     toString(set?: SelectionSet): any;
     getPath(): string[];

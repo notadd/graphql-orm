@@ -30,6 +30,11 @@ class SelectionSet extends createWhere_1.CreateWhere {
      * 查找relations
      */
     getRelations(parent = "", relations = []) {
+        if (this.type === "action") {
+            if (relations.length > 0) {
+                return relations;
+            }
+        }
         if (this.type === "relation") {
             if (parent.length > 0) {
                 parent = `${parent}.${this.name}`;
@@ -101,18 +106,12 @@ class SelectionSet extends createWhere_1.CreateWhere {
             return set;
         });
     }
-    getArguments() {
-        const args = this.info.arguments;
+    getArguments(variables) {
+        variables = variables || this.variables;
         const _arguments = new Array(this.parameters.length);
         if (this.parameters && this.parameters.length > 0) {
-            const params = {};
-            args &&
-                args.map((arg, index) => {
-                    const name = arg.name.value;
-                    params[name] = this.createArgument(arg);
-                });
             this.parameters.map((t, index) => {
-                _arguments[index] = params[t.name];
+                _arguments[index] = variables[t.name];
                 if (t.decorator && t.decorator.length > 0) {
                     t.decorator.map(dec => {
                         if (this.decorators[dec]) {
@@ -188,9 +187,9 @@ class SelectionSet extends createWhere_1.CreateWhere {
         this.children.push(set);
         return set;
     }
-    createValue(val) {
+    createValue(val, variables) {
         if (utils_1.isVariableNode(val)) {
-            return this.variables[val.name.value];
+            return variables[val.name.value];
         }
         else if (utils_1.isIntValueNode(val)) {
             return val.value;
@@ -211,18 +210,18 @@ class SelectionSet extends createWhere_1.CreateWhere {
             return undefined;
         }
         else if (utils_1.isListValueNode(val)) {
-            return val.values.map(value => this.createValue(value));
+            return val.values.map(value => this.createValue(value, variables));
         }
         else {
             let res = {};
             val.fields.map(field => {
-                res[field.name.value] = this.createValue(field.value);
+                res[field.name.value] = this.createValue(field.value, variables);
             });
             return res;
         }
     }
-    createArgument(arg) {
-        return this.createValue(arg.value);
+    createArgument(arg, variables) {
+        return this.createValue(arg.value, variables);
     }
     setMember(param) {
         if (param.decorators.includes("ResolveProperty")) {
@@ -276,7 +275,7 @@ class SelectionSet extends createWhere_1.CreateWhere {
     }
     getFullName() {
         if (this.fullName) {
-            return this.fullName;
+            return this.currentEntity;
         }
         if (this.parent) {
             return this.parent.getFullName();
@@ -291,11 +290,16 @@ class SelectionSet extends createWhere_1.CreateWhere {
             return item;
     }
     handlerType(type) {
-        const currentEntity = this.findCurrentEntity(type);
-        if (currentEntity)
-            this.fullName = currentEntity.currentEntity;
+        const fullName = this.getCurrentEntity();
+        this.typeArguments = type.typeArguments;
         if (typeof type === "object") {
             if (typeof type.type === "string") {
+                if (type.type === "String") {
+                    return;
+                }
+                else if (type.type === "Int") {
+                    return;
+                }
                 if (type.isEntity) {
                     this.isEntity = true;
                     this.currentEntity = type.currentEntity;
@@ -304,19 +308,30 @@ class SelectionSet extends createWhere_1.CreateWhere {
                 else {
                     if (this.entities[type.type]) {
                         this.members = this.entities[type.type];
+                        if (type.typeArguments && type.typeArguments.length === 1) {
+                            const argumentType = type.typeArguments[0];
+                            if (argumentType.isEntity) {
+                                this.currentEntity = argumentType.currentEntity;
+                            }
+                            else {
+                                if (argumentType.type === "T") {
+                                    // 检查上级是否有argument.type
+                                    this.currentEntity = fullName;
+                                }
+                                else {
+                                    this.currentEntity = argumentType.type;
+                                }
+                            }
+                        }
                     }
                     else {
-                        this.members = this.entities[this.getFullName()];
+                        this.members = this.entities[fullName];
                     }
                 }
             }
             else {
                 this.handlerType(type.type);
             }
-        }
-        else if (type) {
-        }
-        else {
         }
     }
     toString(set) {

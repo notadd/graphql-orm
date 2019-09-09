@@ -1,5 +1,5 @@
-import { GraphQLResolveInfo } from "graphql";
-import { MagnusBase } from "@notadd/magnus-core";
+import { GraphQLResolveInfo } from 'graphql';
+import { MagnusBase } from '@notadd/magnus-core';
 interface MagnusFieldResolver {
     (source: any, variables: any, info: GraphQLResolveInfo): any;
 }
@@ -21,6 +21,6 @@ export declare const decoratorsMap: {
     Relation: any;
     GetSelectionSet: any;
 };
-import { Metadatas, HandlerDefMap } from "./types";
+import { Metadatas, HandlerDefMap } from './types';
 export declare function createResolvers(handlers: HandlerDefMap, entity: Metadatas, decorators: any, getController: GetController): MagnusResolvers;
 export {};

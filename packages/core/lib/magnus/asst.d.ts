@@ -1,10 +1,10 @@
-import { SelectionSet } from "./selectionSet";
+import { SelectionSet } from './selectionSet';
 export declare abstract class Ast {
     action: SelectionSet;
     item: any;
-    parent: Ast;
     path: string;
     name: string;
+    parent: any;
     abstract visit(visitor: AstVisitor, context: any): any;
 }
 export declare class ArrayAst extends Ast {
@@ -30,9 +30,10 @@ export interface AstVisitor {
 interface CompilerContext {
     item: any;
     action: SelectionSet;
+    parent: any;
 }
 export declare class CompilerVisitor implements AstVisitor {
-    visit(item: any, action: SelectionSet): any;
+    visit(item: any, action: SelectionSet, parent?: any): any;
     visitArrayAst(ast: ArrayAst, context: CompilerContext): any;
     visitObjectAst(ast: ObjectAst, context: CompilerContext): any;
     visitOtherAst(ast: OtherAst, context: CompilerContext): any;
@@ -43,6 +44,6 @@ export declare class ParseVisitor implements AstVisitor {
     visitArrayAst(ast: ArrayAst, context: any): any;
     visitObjectAst(ast: ObjectAst, context: any): any;
     visitOtherAst(ast: OtherAst, context: any): any;
-    visitCallAst(ast: CallAst, context: any): any;
+    visitCallAst(ast: CallAst, parent: any): any;
 }
 export {};
