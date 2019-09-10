@@ -31,7 +31,7 @@ class SelectionSet extends createWhere_1.CreateWhere {
      */
     getRelations(parent = "", relations = []) {
         if (this.type === "action") {
-            if (relations.length > 0) {
+            if (relations.length > 0 || parent.length > 0) {
                 return relations;
             }
         }
