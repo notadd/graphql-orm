@@ -30,10 +30,8 @@ class SelectionSet extends createWhere_1.CreateWhere {
      * 查找relations
      */
     getRelations(parent = "", relations = []) {
-        if (this.type === "action") {
-            if (relations.length > 0 || parent.length > 0) {
-                return relations;
-            }
+        if (this.type === "action" && parent.length > 0) {
+            return relations;
         }
         if (this.type === "relation") {
             if (parent.length > 0) {
