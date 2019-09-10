@@ -57,7 +57,7 @@ export class SelectionSet extends CreateWhere {
      * 查找relations
      */
     getRelations(parent: string = "", relations: any[] = []) {
-        if (this.type === "action" && parent.length > 0) {
+        if (this.type === "action" && !this.isActioning) {
             return relations;
         }
         if (this.type === "relation") {
@@ -176,7 +176,7 @@ export class SelectionSet extends CreateWhere {
     }
 
     fragments: { [key: string]: FragmentDefinitionNode };
-
+    isActioning: boolean = false;
     getArguments(variables?: any) {
         variables = variables || this.variables;
         const _arguments = new Array(this.parameters.length);

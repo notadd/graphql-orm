@@ -124,6 +124,7 @@ class ParseVisitor {
     }
     visitCallAst(ast, parent) {
         if (ast.action.parent) {
+            ast.action.isActioning = true;
             return async (variables, context, info) => {
                 const action = ast.action;
                 const args = action.getArguments(variables);

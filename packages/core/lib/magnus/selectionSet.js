@@ -14,6 +14,7 @@ class SelectionSet extends createWhere_1.CreateWhere {
          * 类型
          */
         this.type = "code";
+        this.isActioning = false;
         this.parameters = [];
         this.info = info;
         const name = info.name.value;
@@ -30,7 +31,7 @@ class SelectionSet extends createWhere_1.CreateWhere {
      * 查找relations
      */
     getRelations(parent = "", relations = []) {
-        if (this.type === "action" && parent.length > 0) {
+        if (this.type === "action" && !this.isActioning) {
             return relations;
         }
         if (this.type === "relation") {

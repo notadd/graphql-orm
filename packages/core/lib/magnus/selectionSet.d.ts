@@ -58,6 +58,7 @@ export declare class SelectionSet extends CreateWhere {
     fragments: {
         [key: string]: FragmentDefinitionNode;
     };
+    isActioning: boolean;
     getArguments(variables?: any): any[];
     onInit(): void;
     private createSelection;
