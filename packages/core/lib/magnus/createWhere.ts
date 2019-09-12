@@ -36,11 +36,13 @@ export class CreateWhere {
             const condition = qb.computeWhereParameter(options);
             if (type === "and") {
                 if (condition)
-                    qb.expressionMap.wheres.push({ type: "and", condition: condition });
+                    qb.andWhere(condition)
+                // qb.expressionMap.wheres.push({ type: "and", condition: condition });
             }
             else if (type === "or") {
                 if (condition)
-                    qb.expressionMap.wheres.push({ type: "or", condition: condition });
+                    qb.orWhere(condition)
+                // qb.expressionMap.wheres.push({ type: "or", condition: condition });
             } else {
                 if (condition)
                     qb.expressionMap.wheres.push({ type: "simple", condition: condition });
