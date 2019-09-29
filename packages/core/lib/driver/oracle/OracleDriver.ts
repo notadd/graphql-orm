@@ -1,24 +1,24 @@
-import {Driver} from "../Driver";
-import {ConnectionIsNotSetError} from "../../error/ConnectionIsNotSetError";
-import {DriverPackageNotInstalledError} from "../../error/DriverPackageNotInstalledError";
-import {OracleQueryRunner} from "./OracleQueryRunner";
-import {ObjectLiteral} from "../../common/ObjectLiteral";
-import {ColumnMetadata} from "../../metadata/ColumnMetadata";
-import {DateUtils} from "../../util/DateUtils";
-import {PlatformTools} from "../../platform/PlatformTools";
-import {Connection} from "../../connection/Connection";
-import {RdbmsSchemaBuilder} from "../../schema-builder/RdbmsSchemaBuilder";
-import {OracleConnectionOptions} from "./OracleConnectionOptions";
-import {MappedColumnTypes} from "../types/MappedColumnTypes";
-import {ColumnType} from "../types/ColumnTypes";
-import {DataTypeDefaults} from "../types/DataTypeDefaults";
-import {TableColumn} from "../../schema-builder/table/TableColumn";
-import {OracleConnectionCredentialsOptions} from "./OracleConnectionCredentialsOptions";
-import {DriverUtils} from "../DriverUtils";
-import {EntityMetadata} from "../../metadata/EntityMetadata";
-import {OrmUtils} from "../../util/OrmUtils";
-import {ApplyValueTransformers} from "../../util/ApplyValueTransformers";
-
+import { Driver } from "../Driver";
+import { ConnectionIsNotSetError } from "../../error/ConnectionIsNotSetError";
+import { DriverPackageNotInstalledError } from "../../error/DriverPackageNotInstalledError";
+import { OracleQueryRunner } from "./OracleQueryRunner";
+import { ObjectLiteral } from "../../common/ObjectLiteral";
+import { ColumnMetadata } from "../../metadata/ColumnMetadata";
+import { DateUtils } from "../../util/DateUtils";
+import { PlatformTools } from "../../platform/PlatformTools";
+import { Connection } from "../../connection/Connection";
+import { RdbmsSchemaBuilder } from "../../schema-builder/RdbmsSchemaBuilder";
+import { OracleConnectionOptions } from "./OracleConnectionOptions";
+import { MappedColumnTypes } from "../types/MappedColumnTypes";
+import { ColumnType } from "../types/ColumnTypes";
+import { DataTypeDefaults } from "../types/DataTypeDefaults";
+import { TableColumn } from "../../schema-builder/table/TableColumn";
+import { OracleConnectionCredentialsOptions } from "./OracleConnectionCredentialsOptions";
+import { DriverUtils } from "../DriverUtils";
+import { EntityMetadata } from "../../metadata/EntityMetadata";
+import { OrmUtils } from "../../util/OrmUtils";
+import { ApplyValueTransformers } from "../../util/ApplyValueTransformers";
+import OracleDB, { Pool } from 'oracledb';
 /**
  * Organizes communication with Oracle RDBMS.
  */
@@ -36,12 +36,12 @@ export class OracleDriver implements Driver {
     /**
      * Underlying oracle library.
      */
-    oracle: any;
+    oracle: typeof OracleDB;
 
     /**
      * Pool for master database.
      */
-    master: any;
+    master: Pool;
 
     /**
      * Pool for slave databases.
@@ -217,7 +217,7 @@ export class OracleDriver implements Driver {
         this.loadDependencies();
 
         // extra oracle setup
-        this.oracle.outFormat = this.oracle.OBJECT;
+        this.oracle.outFormat = (this.oracle as any).OBJECT;
 
         // Object.assign(connection.options, DriverUtils.buildDriverOptions(connection.options)); // todo: do it better way
         // validate options to make sure everything is set
@@ -240,15 +240,14 @@ export class OracleDriver implements Driver {
      * either create a pool and create connection when needed.
      */
     async connect(): Promise<void> {
-        this.oracle.fetchAsString = [ this.oracle.CLOB ];
-        this.oracle.fetchAsBuffer = [ this.oracle.BLOB ];
+        this.oracle.fetchAsString = [this.oracle.CLOB];
+        this.oracle.fetchAsBuffer = [this.oracle.BLOB];
         if (this.options.replication) {
             this.slaves = await Promise.all(this.options.replication.slaves.map(slave => {
                 return this.createPool(this.options, slave);
             }));
             this.master = await this.createPool(this.options, this.options.replication.master);
             this.database = this.options.replication.master.database;
-
         } else {
             this.master = await this.createPool(this.options, this.options);
             this.database = this.options.database;
@@ -285,7 +284,7 @@ export class OracleDriver implements Driver {
     /**
      * Creates a query runner used to execute database queries.
      */
-    createQueryRunner(mode: "master"|"slave" = "master") {
+    createQueryRunner(mode: "master" | "slave" = "master") {
         return new OracleQueryRunner(this, mode);
     }
 
@@ -423,7 +422,7 @@ export class OracleDriver implements Driver {
     /**
      * Creates a database type from a given column metadata.
      */
-    normalizeType(column: { type?: ColumnType, length?: number|string, precision?: number|null, scale?: number, isArray?: boolean }): string {
+    normalizeType(column: { type?: ColumnType, length?: number | string, precision?: number | null, scale?: number, isArray?: boolean }): string {
         if (column.type === Number || column.type === Boolean || column.type === "numeric"
             || column.type === "dec" || column.type === "decimal" || column.type === "int"
             || column.type === "integer" || column.type === "smallint") {
@@ -488,7 +487,7 @@ export class OracleDriver implements Driver {
     /**
      * Calculates column length taking into account the default length values.
      */
-    getColumnLength(column: ColumnMetadata|TableColumn): string {
+    getColumnLength(column: ColumnMetadata | TableColumn): string {
         if (column.length)
             return column.length.toString();
 

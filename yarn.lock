@@ -1028,6 +1028,13 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-9.6.51.tgz#37318c930f1d1929f8a70d71f2893ac1ad0c5594"
   integrity sha512-5lhC7QM2J3b/+epdwaNfRuG2peN4c9EX+mkd27+SqLKhJSdswHTZvc4aZLBZChi+Wo32+E1DeMZs0fSpu/uBXQ==
 
+"@types/oracledb@^4.0.4":
+  version "4.0.4"
+  resolved "https://registry.npm.taobao.org/@types/oracledb/download/@types/oracledb-4.0.4.tgz#a8722669936fd7ce9817b686f3d117ca31d7a808"
+  integrity sha1-qHImaZNv186YF7aG89EXyjHXqAg=
+  dependencies:
+    "@types/node" "*"
+
 "@types/rimraf@^2.0.2":
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/@types/rimraf/-/rimraf-2.0.2.tgz#7f0fc3cf0ff0ad2a99bb723ae1764f30acaf8b6e"
@@ -5670,6 +5677,11 @@ optionator@^0.8.1:
     prelude-ls "~1.1.2"
     type-check "~0.3.2"
     wordwrap "~1.0.0"
+
+oracledb@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.npm.taobao.org/oracledb/download/oracledb-4.0.1.tgz#1580be9d932a394bfe9cb5f913dfb41b21849cb8"
+  integrity sha1-FYC+nZMqOUv+nLX5E9+0GyGEnLg=
 
 ordered-read-streams@^1.0.0:
   version "1.0.1"
