@@ -92,14 +92,15 @@ export class MongoEntityManager extends EntityManager {
         const query = this.convertFindManyOptionsOrConditionsToMongodbQuery(optionsOrConditions);
         const cursor = await this.createEntityCursor(entityClassOrName, query);
         if (FindOptionsUtils.isFindManyOptions(optionsOrConditions)) {
-            if ((optionsOrConditions as any).select)
-                cursor.project(this.convertFindOptionsSelectToProjectCriteria(optionsOrConditions.select as any));
-            if (optionsOrConditions.skip)
-                cursor.skip(optionsOrConditions.skip);
-            if (optionsOrConditions.take)
-                cursor.limit(optionsOrConditions.take);
-            if (optionsOrConditions.order)
-                cursor.sort(this.convertFindOptionsOrderToOrderCriteria(optionsOrConditions.order));
+            let options: any = optionsOrConditions;
+            if (options.select)
+                cursor.project(this.convertFindOptionsSelectToProjectCriteria(options.select));
+            if (options.skip)
+                cursor.skip(options.skip);
+            if (options.take)
+                cursor.limit(options.take);
+            if (options.order)
+                cursor.sort(this.convertFindOptionsOrderToOrderCriteria(options.order));
         }
         return cursor.toArray();
     }
@@ -113,14 +114,15 @@ export class MongoEntityManager extends EntityManager {
         const query = this.convertFindManyOptionsOrConditionsToMongodbQuery(optionsOrConditions);
         const cursor = await this.createEntityCursor(entityClassOrName, query);
         if (FindOptionsUtils.isFindManyOptions(optionsOrConditions)) {
-            if ((optionsOrConditions as any).select)
-                cursor.project(this.convertFindOptionsSelectToProjectCriteria(optionsOrConditions.select as any));
-            if ((optionsOrConditions as any).skip)
-              cursor.skip(optionsOrConditions.skip);
-            if ((optionsOrConditions as any).take)
-              cursor.limit(optionsOrConditions.take);
-            if ((optionsOrConditions as any).order)
-                cursor.sort(this.convertFindOptionsOrderToOrderCriteria((optionsOrConditions as any).order));
+            const options: any = optionsOrConditions;
+            if (options.select)
+                cursor.project(this.convertFindOptionsSelectToProjectCriteria(options.select as any));
+            if ((options as any).skip)
+                cursor.skip(options.skip);
+            if ((options as any).take)
+                cursor.limit(options.take);
+            if (options.order)
+                cursor.sort(this.convertFindOptionsOrderToOrderCriteria(options.order));
         }
         const [results, count] = await Promise.all<any>([
             cursor.toArray(),

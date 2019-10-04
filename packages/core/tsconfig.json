@@ -1,0 +1,10 @@
+{
+    "extends": "../../tsconfig.json",
+    "compileOnSave": true,
+    "include": [
+        "core"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}
