@@ -2,7 +2,7 @@
     "extends": "../../tsconfig.json",
     "compileOnSave": true,
     "include": [
-        "core"
+        "lib"
     ],
     "exclude": [
         "node_modules"
