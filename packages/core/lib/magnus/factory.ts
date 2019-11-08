@@ -77,10 +77,12 @@ export function createResolvers(
                         sets.map(async set => {
                             const _arguments = set.getArguments(variables);
                             if (preHandler) {
-                                await preHandler(set)
+                                const res = await preHandler(set);
+                                if (!res) {
+                                    return;
+                                }
                             }
                             const result = await controller[methodName](..._arguments);
-
                             if (isObservable(result)) {
 
                             }
