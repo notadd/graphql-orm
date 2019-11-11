@@ -1,11 +1,11 @@
-import { GraphQLResolveInfo, subscribe } from "graphql";
+import { GraphQLResolveInfo } from "graphql";
+import { PubSub } from 'graphql-subscriptions';
 import { MagnusBase } from "@notadd/magnus-core";
 import { upperFirst } from "lodash";
 import { SelectionSet } from "./selectionSet";
 import { CompilerVisitor, ParseVisitor } from "./asst";
 import { scalars } from "@notadd/magnus-graphql";
 import { isObservable } from 'rxjs';
-
 interface MagnusFieldResolver {
     (source: any, variables: any, info: GraphQLResolveInfo): any;
 }
@@ -83,17 +83,23 @@ export function createResolvers(
                                 }
                             }
                             const result = await controller[methodName](..._arguments);
-                            if (isObservable(result)) {
 
-                            }
                             const visitor = new CompilerVisitor();
                             const parse = new ParseVisitor();
                             const list = visitor.visit(result, set);
                             const res = list.visit(parse, result);
-                            if (afterHandler) {
-                                results[set.name] = await afterHandler(set, res)
+                            if (isObservable(result)) {
+                                const pubsub = new PubSub();
+                                result.subscribe(res => {
+                                    pubsub.publish(set.name, res)
+                                });
+                                results[set.name] = pubsub.asyncIterator(set.name);
                             } else {
-                                results[set.name] = res;
+                                if (afterHandler) {
+                                    results[set.name] = await afterHandler(set, res)
+                                } else {
+                                    results[set.name] = res;
+                                }
                             }
                         })
                     );

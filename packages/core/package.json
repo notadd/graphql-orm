@@ -1,6 +1,6 @@
 {
   "name": "@notadd/magnus-typeorm",
-  "version": "0.8.14",
+  "version": "0.8.16",
   "description": "> TODO: description",
   "author": "imeepos <1037483576@qq.com>",
   "homepage": "",
@@ -29,6 +29,7 @@
     "@notadd/magnus-graphql": "^3.6.2",
     "cli-highlight": "^2.1.1",
     "graphql": "^14.5.8",
+    "graphql-subscriptions": "^1.1.0",
     "lodash": "^4.17.15",
     "oracledb": "^4.0.1",
     "rxjs": "^6.5.3",
