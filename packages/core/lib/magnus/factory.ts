@@ -6,6 +6,9 @@ import { SelectionSet } from "./selectionSet";
 import { CompilerVisitor, ParseVisitor } from "./asst";
 import { scalars } from "@notadd/magnus-graphql";
 import { isObservable } from 'rxjs';
+export function isPromise(val: any): val is Promise<any> {
+    return typeof val.then === 'function';
+}
 interface MagnusFieldResolver {
     (source: any, variables: any, info: GraphQLResolveInfo): any;
 }
@@ -55,57 +58,97 @@ export function createResolvers(
             const [fieldName, className, tableName, methodName, argsDef] = it;
             const controller = getController(className);
             if (controller) {
-                const resolver = async (
-                    source: any,
-                    variables: any,
-                    context: any,
-                    info: any
-                ) => {
-                    const sets = SelectionSet.fromGraphql({
-                        info: info,
-                        enums: {},
-                        entities: entity,
-                        handlers,
-                        decorators,
-                        source,
-                        variables,
-                        context
-                    });
-                    controller.tablename = tableName;
-                    let results = {};
-                    await Promise.all(
-                        sets.map(async set => {
-                            const _arguments = set.getArguments(variables);
-                            if (preHandler) {
-                                const res = await preHandler(set);
-                                if (!res) {
-                                    return;
+                if (operation === 'subscription') {
+                    item[fieldName] = {
+                        subscribe: (source, variables, context, info) => {
+                            const sets = SelectionSet.fromGraphql({
+                                info: info,
+                                enums: {},
+                                entities: entity,
+                                handlers,
+                                decorators,
+                                source,
+                                variables,
+                                context
+                            });
+                            controller.tablename = tableName;
+                            sets.map(async set => {
+                                const _arguments = set.getArguments(variables);
+                                if (preHandler && context.isBrowser) {
+                                    const res = await preHandler(set);
+                                    if (!res) {
+                                        return;
+                                    }
                                 }
-                            }
-                            const result = await controller[methodName](..._arguments);
-
-                            const visitor = new CompilerVisitor();
-                            const parse = new ParseVisitor();
-                            const list = visitor.visit(result, set);
-                            const res = list.visit(parse, result);
-                            if (isObservable(result)) {
-                                const pubsub = new PubSub();
-                                result.subscribe(res => {
-                                    pubsub.publish(set.name, res)
-                                });
-                                results[set.name] = pubsub.asyncIterator(set.name);
-                            } else {
-                                if (afterHandler) {
-                                    results[set.name] = await afterHandler(set, res)
+                                const result = await controller[methodName](..._arguments);
+                                if (isObservable(result)) {
+                                    result.subscribe(res => {
+                                        context.pubsub.publish(fieldName, res)
+                                    });
+                                } else if (isPromise(result)) {
+                                    result.then(res => {
+                                        context.pubsub.publish(fieldName, res)
+                                    })
                                 } else {
-                                    results[set.name] = res;
+                                    context.pubsub.publish(fieldName, result)
                                 }
-                            }
-                        })
-                    );
-                    return results[fieldName];
-                };
-                item[fieldName] = resolver;
+                            });
+                            return context.pubsub.asyncIterator(fieldName)
+                        }
+                    }
+                } else {
+                    const resolver = async (
+                        source: any,
+                        variables: any,
+                        context: any,
+                        info: any
+                    ) => {
+                        const sets = SelectionSet.fromGraphql({
+                            info: info,
+                            enums: {},
+                            entities: entity,
+                            handlers,
+                            decorators,
+                            source,
+                            variables,
+                            context
+                        });
+                        controller.tablename = tableName;
+                        let results = {};
+                        await Promise.all(
+                            sets.map(async set => {
+                                const _arguments = set.getArguments(variables);
+                                if (preHandler && context.isBrowser) {
+                                    const res = await preHandler(set);
+                                    if (!res) {
+                                        return;
+                                    }
+                                }
+                                const result = await controller[methodName](..._arguments);
+                                const visitor = new CompilerVisitor();
+                                const parse = new ParseVisitor();
+                                const list = visitor.visit(result, set);
+                                const res = list.visit(parse, result);
+                                if (isObservable(result)) {
+                                    const pubsub = new PubSub();
+                                    result.subscribe(res => {
+                                        pubsub.publish(set.name, res)
+                                    });
+                                    results[set.name] = pubsub.asyncIterator(set.name);
+                                } else {
+                                    if (afterHandler) {
+                                        results[set.name] = await afterHandler(set, res)
+                                    } else {
+                                        results[set.name] = res;
+                                    }
+                                }
+                            })
+                        );
+                        return results[fieldName];
+                    };
+                    item[fieldName] = resolver;
+                }
+
             }
         });
         obj[`${upperFirst(operation)}`] = item;

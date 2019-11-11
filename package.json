@@ -15,6 +15,7 @@
 	},
 	"dependencies": {
 		"@types/node": "^12.7.11",
+		"graphql-tools": "^4.0.6",
 		"rimraf": "^3.0.0"
 	}
 }
