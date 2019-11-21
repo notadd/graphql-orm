@@ -61,6 +61,7 @@ export function createResolvers(
                 if (operation === 'subscription') {
                     item[fieldName] = {
                         subscribe: (source, variables, context, info) => {
+                            const name = `${className}${fieldName}`
                             const sets = SelectionSet.fromGraphql({
                                 info: info,
                                 enums: {},
@@ -83,17 +84,17 @@ export function createResolvers(
                                 const result = await controller[methodName](..._arguments);
                                 if (isObservable(result)) {
                                     result.subscribe(res => {
-                                        context.pubsub.publish(fieldName, res)
+                                        context.pubsub.publish(name, { [`${fieldName}`]: res })
                                     });
                                 } else if (isPromise(result)) {
                                     result.then(res => {
-                                        context.pubsub.publish(fieldName, res)
+                                        context.pubsub.publish(name, { [`${fieldName}`]: res })
                                     })
                                 } else {
-                                    context.pubsub.publish(fieldName, result)
+                                    context.pubsub.publish(name, { [`${fieldName}`]: result })
                                 }
                             });
-                            return context.pubsub.asyncIterator(fieldName)
+                            return context.pubsub.asyncIterator(name)
                         }
                     }
                 } else {
